@@ -5,27 +5,33 @@ import { usePlayerStore } from '../store/playerStore'
 import { POSITION_LABELS, type Position } from '../types'
 
 export default function NewPlayer() {
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
   const addPlayer = usePlayerStore((s) => s.addPlayer)
 
-  const [name, setName] = useState('')
+  const [name, setName]       = useState('')
   const [position, setPosition] = useState<Position>('CM')
-  const [number, setNumber] = useState('')
+  const [number, setNumber]   = useState('')
+  const [saving, setSaving]   = useState(false)
 
-  const submit = () => {
-    if (!name.trim()) return
-    addPlayer({
-      name: name.trim(),
-      position,
-      number: number ? parseInt(number) : undefined,
-    })
-    navigate('/spillere')
+  const submit = async () => {
+    if (!name.trim() || saving) return
+    setSaving(true)
+    try {
+      await addPlayer({
+        name:     name.trim(),
+        position,
+        number:   number ? parseInt(number) : undefined,
+      })
+      navigate('/spillere')
+    } catch {
+      setSaving(false)
+    }
   }
 
   return (
     <div className="px-4 pt-5">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate(-1)} className="text-green-400 active:opacity-70">
+        <button onClick={() => navigate(-1)} className="text-orange-400 active:opacity-70">
           <ArrowLeft size={22} />
         </button>
         <h1 className="text-xl font-bold text-white">Ny spiller</h1>
@@ -38,9 +44,10 @@ export default function NewPlayer() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Fulde navn"
             autoFocus
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-green-500/50 placeholder-slate-500"
+            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
           />
         </div>
 
@@ -49,7 +56,7 @@ export default function NewPlayer() {
           <select
             value={position}
             onChange={(e) => setPosition(e.target.value as Position)}
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-green-500/50"
+            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
           >
             {Object.entries(POSITION_LABELS).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
@@ -64,16 +71,17 @@ export default function NewPlayer() {
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             placeholder="f.eks. 9"
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-green-500/50 placeholder-slate-500"
+            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
           />
         </div>
 
         <button
           onClick={submit}
-          disabled={!name.trim()}
-          className="w-full bg-green-500 disabled:bg-green-900 disabled:text-green-700 text-black font-bold py-4 rounded-2xl text-base mt-2 active:scale-[0.98] transition-transform"
+          disabled={!name.trim() || saving}
+          className="w-full disabled:opacity-40 text-black font-bold py-4 rounded-2xl text-base mt-2 active:scale-[0.98] transition-transform"
+          style={{ background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)' }}
         >
-          Tilføj spiller
+          {saving ? 'Gemmer…' : 'Tilføj spiller'}
         </button>
       </div>
     </div>

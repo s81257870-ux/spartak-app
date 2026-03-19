@@ -1,271 +1,340 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import type { Match, MatchEvent, PlayerStats } from '../types'
-import { SEED_MATCHES } from '../data/seedMatches'
 import { DEFAULT_FORMATION } from '../data/formations'
+import { SEED_MATCHES } from '../data/seedMatches'
+import {
+  fetchAllMatches,
+  insertMatch,
+  patchMatch,
+  removeMatch,
+  insertEvent,
+  patchEvent,
+  removeEvent,
+  syncLineup,
+} from '../lib/supabaseService'
+
+// ── helper: seed matches to Supabase if table is empty ────────────────────────
+async function seedToSupabase(): Promise<Match[]> {
+  const results: Match[] = []
+  for (const m of SEED_MATCHES) {
+    try {
+      const created = await insertMatch({
+        opponent:      m.opponent,
+        date:          m.date,
+        location:      m.location,
+        scoreUs:       m.scoreUs,
+        scoreThem:     m.scoreThem,
+        isCompleted:   m.isCompleted,
+        formation:     m.formation,
+        manOfTheMatch: m.manOfTheMatch,
+      })
+      results.push(created)
+    } catch {
+      // ignore individual failures
+    }
+  }
+  return results
+}
+
+// ── store ─────────────────────────────────────────────────────────────────────
 
 interface MatchStore {
   matches: Match[]
+  loading: boolean
   initialized: boolean
-  init: () => void
+  init: () => Promise<void>
 
-  // Match CRUD
-  addMatch: (match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'formation' | 'isCompleted'>) => string
-  setFormation: (matchId: string, formation: string) => void
+  // CRUD
+  addMatch: (match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'formation' | 'isCompleted'>) => Promise<string>
   updateMatch: (id: string, updates: Partial<Omit<Match, 'id'>>) => void
   deleteMatch: (id: string) => void
   getMatch: (id: string) => Match | undefined
   completeMatch: (id: string) => void
+  setFormation: (matchId: string, formation: string) => void
 
   // Events
-  addEvent: (matchId: string, event: Omit<MatchEvent, 'id'>) => void
+  addEvent: (matchId: string, event: Omit<MatchEvent, 'id'>) => Promise<void>
   updateEvent: (matchId: string, eventId: string, updates: Partial<Omit<MatchEvent, 'id'>>) => void
   deleteEvent: (matchId: string, eventId: string) => void
 
-  // Lineup (starters + bench)
-  setLineupSlot: (matchId: string, position: string, playerId: string) => void
-  clearLineupSlot: (matchId: string, position: string) => void
-  setBench: (matchId: string, playerIds: string[]) => void
+  // Lineup
   moveToLineup: (matchId: string, position: string, playerId: string) => void
   moveToBench: (matchId: string, playerId: string) => void
   removeFromSquad: (matchId: string, playerId: string) => void
+  setLineupSlot: (matchId: string, position: string, playerId: string) => void
+  clearLineupSlot: (matchId: string, position: string) => void
+  setBench: (matchId: string, playerIds: string[]) => void
 
   // Man of the match
   setManOfTheMatch: (matchId: string, playerId: string | undefined) => void
 
-  // Stats computed across all completed matches
+  // Realtime callbacks (called by useRealtimeMatch hook)
+  setMatchEvents: (matchId: string, events: MatchEvent[]) => void
+  setMatchLineup: (matchId: string, lineup: Record<string, string>, bench: string[]) => void
+  applyMatchPatch: (matchId: string, updates: Partial<Match>) => void
+
+  // Stats
   getPlayerStats: (playerId: string) => PlayerStats
   getAllStats: () => PlayerStats[]
 }
 
-export const useMatchStore = create<MatchStore>()(
-  persist(
-    (set, get) => ({
-      matches: [],
-      initialized: false,
+export const useMatchStore = create<MatchStore>()((set, get) => ({
+  matches: [],
+  loading: false,
+  initialized: false,
 
-      init: () => {
-        if (get().initialized) return
-        set({ matches: SEED_MATCHES, initialized: true })
-      },
+  // ── Init ──────────────────────────────────────────────────────────────────
+  init: async () => {
+    if (get().initialized) return
+    set({ loading: true })
+    try {
+      let matches = await fetchAllMatches()
+      if (matches.length === 0) {
+        matches = await seedToSupabase()
+      }
+      set({ matches, initialized: true, loading: false })
+    } catch (err) {
+      console.error('[MatchStore] Supabase fetch failed, using seed data:', err)
+      set({ matches: SEED_MATCHES, initialized: true, loading: false })
+    }
+  },
 
-      addMatch: (match) => {
-        const id = `m${Date.now()}`
-        const newMatch: Match = {
-          ...match,
-          id,
-          events: [],
-          lineup: {},
-          bench: [],
-          formation: DEFAULT_FORMATION,
-          isCompleted: false,
+  // ── Match CRUD ────────────────────────────────────────────────────────────
+  addMatch: async (match) => {
+    const created = await insertMatch({
+      ...match,
+      formation:    DEFAULT_FORMATION,
+      isCompleted:  false,
+      manOfTheMatch: undefined,
+    })
+    set((s) => ({ matches: [created, ...s.matches] }))
+    return created.id
+  },
+
+  updateMatch: (id, updates) => {
+    set((s) => ({
+      matches: s.matches.map((m) => (m.id === id ? { ...m, ...updates } : m)),
+    }))
+    patchMatch(id, updates).catch((err) =>
+      console.error('[MatchStore] Failed to update match:', err)
+    )
+  },
+
+  deleteMatch: (id) => {
+    set((s) => ({ matches: s.matches.filter((m) => m.id !== id) }))
+    removeMatch(id).catch((err) =>
+      console.error('[MatchStore] Failed to delete match:', err)
+    )
+  },
+
+  getMatch: (id) => get().matches.find((m) => m.id === id),
+
+  completeMatch: (id) => get().updateMatch(id, { isCompleted: true }),
+
+  setFormation: (matchId, formation) => {
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, formation, lineup: {}, bench: [] } : m
+      ),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) {
+      patchMatch(matchId, { formation }).catch(console.error)
+      syncLineup(matchId, {}, []).catch(console.error)
+    }
+  },
+
+  // ── Events ────────────────────────────────────────────────────────────────
+  addEvent: async (matchId, event) => {
+    const created = await insertEvent(matchId, event)
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, events: [...m.events, created] } : m
+      ),
+    }))
+  },
+
+  updateEvent: (matchId, eventId, updates) => {
+    set((s) => ({
+      matches: s.matches.map((m) => {
+        if (m.id !== matchId) return m
+        return { ...m, events: m.events.map((e) => (e.id === eventId ? { ...e, ...updates } : e)) }
+      }),
+    }))
+    patchEvent(eventId, updates).catch((err) =>
+      console.error('[MatchStore] Failed to update event:', err)
+    )
+  },
+
+  deleteEvent: (matchId, eventId) => {
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId
+          ? { ...m, events: m.events.filter((e) => e.id !== eventId) }
+          : m
+      ),
+    }))
+    removeEvent(eventId).catch((err) =>
+      console.error('[MatchStore] Failed to delete event:', err)
+    )
+  },
+
+  // ── Lineup ────────────────────────────────────────────────────────────────
+  moveToLineup: (matchId, position, playerId) => {
+    set((s) => ({
+      matches: s.matches.map((m) => {
+        if (m.id !== matchId) return m
+        const lineup: Record<string, string> = {}
+        let evicted: string | undefined
+        for (const [pos, pid] of Object.entries(m.lineup)) {
+          if (pid === playerId) continue
+          if (pos === position) { evicted = pid; continue }
+          lineup[pos] = pid
         }
-        set((state) => ({ matches: [newMatch, ...state.matches] }))
-        return id
-      },
+        lineup[position] = playerId
+        let bench = m.bench.filter((id) => id !== playerId)
+        if (evicted && !bench.includes(evicted)) bench = [...bench, evicted]
+        return { ...m, lineup, bench }
+      }),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) syncLineup(matchId, m.lineup, m.bench).catch(console.error)
+  },
 
-      updateMatch: (id, updates) => {
-        set((state) => ({
-          matches: state.matches.map((m) =>
-            m.id === id ? { ...m, ...updates } : m
-          ),
-        }))
-      },
-
-      deleteMatch: (id) => {
-        set((state) => ({
-          matches: state.matches.filter((m) => m.id !== id),
-        }))
-      },
-
-      getMatch: (id) => get().matches.find((m) => m.id === id),
-
-      completeMatch: (id) => {
-        get().updateMatch(id, { isCompleted: true })
-      },
-
-      addEvent: (matchId, event) => {
-        const newEvent: MatchEvent = { ...event, id: `e${Date.now()}` }
-        set((state) => ({
-          matches: state.matches.map((m) =>
-            m.id === matchId
-              ? { ...m, events: [...m.events, newEvent] }
-              : m
-          ),
-        }))
-      },
-
-      updateEvent: (matchId, eventId, updates) => {
-        set((state) => ({
-          matches: state.matches.map((m) => {
-            if (m.id !== matchId) return m
-            const events = m.events.map((e) => (e.id === eventId ? { ...e, ...updates } : e))
-            return { ...m, events }
-          }),
-        }))
-      },
-
-      deleteEvent: (matchId, eventId) => {
-        set((state) => ({
-          matches: state.matches.map((m) =>
-            m.id === matchId
-              ? { ...m, events: m.events.filter((e) => e.id !== eventId) }
-              : m
-          ),
-        }))
-      },
-
-      setLineupSlot: (matchId, position, playerId) => {
-        set((state) => ({
-          matches: state.matches.map((m) => {
-            if (m.id !== matchId) return m
-            // Remove player from any other slot first
-            const lineup: Record<string, string> = {}
-            for (const [pos, pid] of Object.entries(m.lineup)) {
-              if (pid !== playerId) lineup[pos] = pid
-            }
-            lineup[position] = playerId
-            return { ...m, lineup }
-          }),
-        }))
-      },
-
-      clearLineupSlot: (matchId, position) => {
-        set((state) => ({
-          matches: state.matches.map((m) => {
-            if (m.id !== matchId) return m
-            const lineup = { ...m.lineup }
-            delete lineup[position]
-            return { ...m, lineup }
-          }),
-        }))
-      },
-
-      setBench: (matchId, playerIds) => {
-        set((state) => ({
-          matches: state.matches.map((m) =>
-            m.id === matchId ? { ...m, bench: playerIds } : m
-          ),
-        }))
-      },
-
-      // Move player to a lineup position (removes from bench if needed)
-      moveToLineup: (matchId, position, playerId) => {
-        set((state) => ({
-          matches: state.matches.map((m) => {
-            if (m.id !== matchId) return m
-            // Build new lineup: remove player from other slots, evict previous occupant to bench
-            const lineup: Record<string, string> = {}
-            let evicted: string | undefined
-            for (const [pos, pid] of Object.entries(m.lineup)) {
-              if (pid === playerId) continue          // remove player from old slot
-              if (pos === position) { evicted = pid; continue } // evict current occupant
-              lineup[pos] = pid
-            }
-            lineup[position] = playerId
-            // Bench: remove player, add evicted (if any and not already there)
-            let bench = m.bench.filter((id) => id !== playerId)
-            if (evicted && !bench.includes(evicted)) bench = [...bench, evicted]
-            return { ...m, lineup, bench }
-          }),
-        }))
-      },
-
-      // Move player to bench (removes from lineup if starter)
-      moveToBench: (matchId, playerId) => {
-        set((state) => ({
-          matches: state.matches.map((m) => {
-            if (m.id !== matchId) return m
-            const lineup: Record<string, string> = {}
-            for (const [pos, pid] of Object.entries(m.lineup)) {
-              if (pid !== playerId) lineup[pos] = pid
-            }
-            const bench = m.bench.includes(playerId) ? m.bench : [...m.bench, playerId]
-            return { ...m, lineup, bench }
-          }),
-        }))
-      },
-
-      // Remove player from both lineup and bench (back to "not selected")
-      removeFromSquad: (matchId, playerId) => {
-        set((state) => ({
-          matches: state.matches.map((m) => {
-            if (m.id !== matchId) return m
-            const lineup: Record<string, string> = {}
-            for (const [pos, pid] of Object.entries(m.lineup)) {
-              if (pid !== playerId) lineup[pos] = pid
-            }
-            const bench = m.bench.filter((id) => id !== playerId)
-            return { ...m, lineup, bench }
-          }),
-        }))
-      },
-
-      setFormation: (matchId, formation) => {
-        // Changing formation clears the current lineup (slots may be incompatible)
-        set((state) => ({
-          matches: state.matches.map((m) =>
-            m.id === matchId ? { ...m, formation, lineup: {}, bench: [] } : m
-          ),
-        }))
-      },
-
-      setManOfTheMatch: (matchId, playerId) => {
-        get().updateMatch(matchId, { manOfTheMatch: playerId })
-      },
-
-      getPlayerStats: (playerId) => {
-        const matches = get().matches
-        let goals = 0
-        let assists = 0
-        let matchesPlayed = 0
-        let cleanSheets = 0
-        let yellowCards = 0
-        let redCards = 0
-
-        for (const match of matches) {
-          // Count as played if in starting lineup or on bench for a completed match
-          if (match.isCompleted) {
-            const isInSquad =
-              Object.values(match.lineup).includes(playerId) ||
-              match.bench.includes(playerId)
-            if (isInSquad) matchesPlayed++
-          }
-          for (const event of match.events) {
-            if (event.type === 'goal') {
-              if (event.scorerId === playerId) goals++
-              if (event.assistId === playerId) assists++
-            } else if (event.type === 'yellow-card' && event.scorerId === playerId) {
-              yellowCards++
-            } else if (event.type === 'red-card' && event.scorerId === playerId) {
-              redCards++
-            }
-          }
-          // Clean sheet: GK position in lineup, no goals conceded
-          if (match.lineup['MV'] === playerId && match.scoreThem === 0 && match.isCompleted) {
-            cleanSheets++
-          }
+  moveToBench: (matchId, playerId) => {
+    set((s) => ({
+      matches: s.matches.map((m) => {
+        if (m.id !== matchId) return m
+        const lineup: Record<string, string> = {}
+        for (const [pos, pid] of Object.entries(m.lineup)) {
+          if (pid !== playerId) lineup[pos] = pid
         }
+        const bench = m.bench.includes(playerId) ? m.bench : [...m.bench, playerId]
+        return { ...m, lineup, bench }
+      }),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) syncLineup(matchId, m.lineup, m.bench).catch(console.error)
+  },
 
-        return { playerId, goals, assists, matchesPlayed, cleanSheets, yellowCards, redCards }
-      },
-
-      getAllStats: () => {
-        const matches = get().matches
-        const playerIds = new Set<string>()
-
-        for (const match of matches) {
-          Object.values(match.lineup).forEach((id) => playerIds.add(id))
-          match.bench.forEach((id) => playerIds.add(id))
-          match.events.forEach((e) => {
-            playerIds.add(e.scorerId)
-            if (e.assistId) playerIds.add(e.assistId)
-          })
+  removeFromSquad: (matchId, playerId) => {
+    set((s) => ({
+      matches: s.matches.map((m) => {
+        if (m.id !== matchId) return m
+        const lineup: Record<string, string> = {}
+        for (const [pos, pid] of Object.entries(m.lineup)) {
+          if (pid !== playerId) lineup[pos] = pid
         }
+        const bench = m.bench.filter((id) => id !== playerId)
+        return { ...m, lineup, bench }
+      }),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) syncLineup(matchId, m.lineup, m.bench).catch(console.error)
+  },
 
-        return Array.from(playerIds).map((id) => get().getPlayerStats(id))
-      },
-    }),
-    { name: 'spartak-matches' }
-  )
-)
+  setLineupSlot: (matchId, position, playerId) => {
+    set((s) => ({
+      matches: s.matches.map((m) => {
+        if (m.id !== matchId) return m
+        const lineup: Record<string, string> = {}
+        for (const [pos, pid] of Object.entries(m.lineup)) {
+          if (pid !== playerId) lineup[pos] = pid
+        }
+        lineup[position] = playerId
+        return { ...m, lineup }
+      }),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) syncLineup(matchId, m.lineup, m.bench).catch(console.error)
+  },
+
+  clearLineupSlot: (matchId, position) => {
+    set((s) => ({
+      matches: s.matches.map((m) => {
+        if (m.id !== matchId) return m
+        const lineup = { ...m.lineup }
+        delete lineup[position]
+        return { ...m, lineup }
+      }),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) syncLineup(matchId, m.lineup, m.bench).catch(console.error)
+  },
+
+  setBench: (matchId, playerIds) => {
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, bench: playerIds } : m
+      ),
+    }))
+    const m = get().matches.find((x) => x.id === matchId)
+    if (m) syncLineup(matchId, m.lineup, playerIds).catch(console.error)
+  },
+
+  setManOfTheMatch: (matchId, playerId) => {
+    get().updateMatch(matchId, { manOfTheMatch: playerId })
+  },
+
+  // ── Realtime callbacks ────────────────────────────────────────────────────
+  setMatchEvents: (matchId, events) => {
+    set((s) => ({
+      matches: s.matches.map((m) => (m.id === matchId ? { ...m, events } : m)),
+    }))
+  },
+
+  setMatchLineup: (matchId, lineup, bench) => {
+    set((s) => ({
+      matches: s.matches.map((m) => (m.id === matchId ? { ...m, lineup, bench } : m)),
+    }))
+  },
+
+  applyMatchPatch: (matchId, updates) => {
+    set((s) => ({
+      matches: s.matches.map((m) => (m.id === matchId ? { ...m, ...updates } : m)),
+    }))
+  },
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  getPlayerStats: (playerId) => {
+    const matches = get().matches
+    let goals = 0, assists = 0, matchesPlayed = 0, cleanSheets = 0
+    let yellowCards = 0, redCards = 0
+
+    for (const match of matches) {
+      if (match.isCompleted) {
+        const inSquad =
+          Object.values(match.lineup).includes(playerId) ||
+          match.bench.includes(playerId)
+        if (inSquad) matchesPlayed++
+      }
+      for (const event of match.events) {
+        if (event.type === 'goal') {
+          if (event.scorerId === playerId) goals++
+          if (event.assistId === playerId) assists++
+        } else if (event.type === 'yellow-card' && event.scorerId === playerId) {
+          yellowCards++
+        } else if (event.type === 'red-card' && event.scorerId === playerId) {
+          redCards++
+        }
+      }
+      if (match.lineup['MV'] === playerId && match.scoreThem === 0 && match.isCompleted) {
+        cleanSheets++
+      }
+    }
+    return { playerId, goals, assists, matchesPlayed, cleanSheets, yellowCards, redCards }
+  },
+
+  getAllStats: () => {
+    const ids = new Set<string>()
+    for (const m of get().matches) {
+      Object.values(m.lineup).forEach((id) => ids.add(id))
+      m.bench.forEach((id) => ids.add(id))
+      m.events.forEach((e) => {
+        ids.add(e.scorerId)
+        if (e.assistId) ids.add(e.assistId)
+      })
+    }
+    return Array.from(ids).map((id) => get().getPlayerStats(id))
+  },
+}))

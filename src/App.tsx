@@ -17,21 +17,20 @@ function AppContent() {
   const initMatches = useMatchStore((s) => s.init)
 
   useEffect(() => {
-    initPlayers()
-    initMatches()
+    Promise.all([initPlayers(), initMatches()]).catch(console.error)
   }, [initPlayers, initMatches])
 
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/spillere" element={<Players />} />
-        <Route path="/spillere/ny" element={<NewPlayer />} />
-        <Route path="/spillere/:id" element={<PlayerDetail />} />
-        <Route path="/kampe" element={<Matches />} />
-        <Route path="/kampe/ny" element={<NewMatch />} />
-        <Route path="/kampe/:id" element={<MatchDetail />} />
-        <Route path="/statistik" element={<Stats />} />
+        <Route path="/"              element={<Home />} />
+        <Route path="/spillere"      element={<Players />} />
+        <Route path="/spillere/ny"   element={<NewPlayer />} />
+        <Route path="/spillere/:id"  element={<PlayerDetail />} />
+        <Route path="/kampe"         element={<Matches />} />
+        <Route path="/kampe/ny"      element={<NewMatch />} />
+        <Route path="/kampe/:id"     element={<MatchDetail />} />
+        <Route path="/statistik"     element={<Stats />} />
       </Route>
     </Routes>
   )

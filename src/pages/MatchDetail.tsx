@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore'
 import EventsTab from '../components/matches/EventsTab'
 import LineupTab from '../components/lineup/LineupTab'
 import { displayName } from '../utils/playerName'
+import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 
 type Tab = 'begivenheder' | 'opstilling'
 
@@ -23,6 +24,8 @@ export default function MatchDetail() {
   const players = usePlayerStore((s) => s.players)
 
   const isAdmin = useAuthStore((s) => s.isAdmin)
+
+  useRealtimeMatch(id ?? '')
 
   const [tab, setTab] = useState<Tab>('begivenheder')
   const [editingScore, setEditingScore] = useState(false)

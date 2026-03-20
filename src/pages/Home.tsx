@@ -163,19 +163,7 @@ export default function Home() {
                 style={{ background: 'linear-gradient(180deg, #f97316, #fbbf24)' }}
               />
               <div className="pl-3">
-                <p className="font-bold text-base leading-tight" style={{ color: 'var(--text-primary)' }}>
-                  Spartak vs. {upcomingMatches[0].opponent}
-                </p>
-                <p className="text-orange-400/80 text-sm mt-0.5">
-                  {formatDate(upcomingMatches[0].date)} · {upcomingMatches[0].location}
-                </p>
-                <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
-                  {upcomingMatches[0].attendance.length === 1
-                    ? '1 spiller tilmeldt'
-                    : `${upcomingMatches[0].attendance.length} spillere tilmeldt`}
-                </p>
                 <NextMatchLineup match={upcomingMatches[0]} allPlayers={players} />
-                <p className="text-xs mt-3" style={{ color: 'var(--text-faint)' }}>Tryk for at se kamp →</p>
               </div>
             </button>
           </div>

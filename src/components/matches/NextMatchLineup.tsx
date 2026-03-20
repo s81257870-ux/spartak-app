@@ -1,12 +1,16 @@
 /**
- * NextMatchLineup — display-only pitch + bench preview for the Home page.
+ * NextMatchLineup — compact split-layout card content for the Home page.
  *
- * Derives all data from props:
- *   - formation : match.formation → getFormation()
- *   - starters  : Object.values(match.lineup) ∩ match.attendance
- *   - bench     : match.attendance − starters
+ * Layout:  [ match info (1fr) | mini pitch (auto) ]
+ *          [ bench row (full width, below grid)   ]
+ *          [ footer tap hint                       ]
  *
- * No drag-and-drop, no editing, no admin controls.
+ * Data derivation:
+ *   - formation  : getFormation(match.formation)
+ *   - starters   : Object.values(match.lineup) ∩ match.attendance
+ *   - bench      : match.attendance − starters
+ *
+ * Display-only. No drag-and-drop, no admin controls.
  */
 
 import type { Match, Player, Position } from '../../types'
@@ -18,16 +22,32 @@ interface Props {
   allPlayers: Player[]
 }
 
+/** Timezone-safe: parse date parts directly to avoid UTC-midnight shift. */
+function formatMatchDate(iso: string): string {
+  const [datePart] = iso.split('T')
+  const [y, m, d] = datePart.split('-').map(Number)
+  const dateObj  = new Date(y, m - 1, d)          // local time — no TZ offset
+  const weekday  = dateObj.toLocaleDateString('da-DK', { weekday: 'short' })
+  const dayMonth = dateObj.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })
+  const time     = iso.includes('T') ? iso.split('T')[1]?.slice(0, 5) : ''
+  return time ? `${weekday} ${dayMonth} · ${time}` : `${weekday} ${dayMonth}`
+}
+
+// ─── Mini pitch constants ─────────────────────────────────────────────────────
+const PITCH_W = 130   // px  (120–160 per spec)
+const ROW_H   = 42    // px per formation row
+const DOT     = 18    // px  player dot diameter
+
 export default function NextMatchLineup({ match, allPlayers }: Props) {
   const formation     = getFormation(match.formation)
   const attendanceIds = new Set(match.attendance ?? [])
 
-  // Starters: lineup slots whose player is still in attendance (guard stale IDs)
+  // Starters: lineup values still present in attendance (guards stale IDs)
   const starterIds = new Set(
     Object.values(match.lineup).filter((pid) => attendanceIds.has(pid))
   )
 
-  // Bench: attendance players not placed on the pitch
+  // Bench: signed-up players not on the pitch
   const benchPlayers = allPlayers.filter(
     (p) => attendanceIds.has(p.id) && !starterIds.has(p.id)
   )
@@ -39,168 +59,163 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
   }
 
   const maxRow  = Math.max(...formation.slots.map((s) => s.row))
-  const pitchH  = maxRow * 60   // compact: 60px per row (editor uses 68px)
+  const pitchH  = maxRow * ROW_H
+  const hasSomeStarter = starterIds.size > 0
 
   return (
     <>
-      {/* ── Divider ────────────────────────────────────────────────── */}
-      <div className="my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.09)' }} />
-
-      {/* ── Section header ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 mb-2">
-        <p
-          className="text-[10px] font-bold uppercase tracking-[0.12em]"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          Opstilling
-        </p>
-        <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
-          · {formation.name}
-        </span>
-        <span
-          className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-          style={{ background: 'rgba(0,0,0,0.30)', color: 'rgba(255,255,255,0.55)' }}
-        >
-          {starterIds.size}/7
-        </span>
-      </div>
-
-      {/* ── Pitch ──────────────────────────────────────────────────── */}
+      {/* ── Split grid: left=info, right=mini-pitch ───────────────────── */}
       <div
-        className="relative rounded-xl overflow-hidden w-full mb-2.5"
         style={{
-          height: `${pitchH}px`,
-          background: 'linear-gradient(180deg, #1e4a2e 0%, #16361f 40%, #16361f 60%, #1e4a2e 100%)',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          gap: '16px',
+          alignItems: 'start',
         }}
       >
-        {/* Pitch markings */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox={`0 0 280 ${pitchH}`}
-          preserveAspectRatio="none"
-        >
-          {/* Outer border */}
-          <rect
-            x="6" y="6" width="268" height={pitchH - 12} rx="3"
-            fill="none" stroke="white" strokeOpacity="0.15" strokeWidth="1.5"
-          />
-          {/* Centre line */}
-          <line
-            x1="6" y1={pitchH / 2} x2="274" y2={pitchH / 2}
-            stroke="white" strokeOpacity="0.10" strokeWidth="1"
-          />
-          {/* Alternating row shading */}
-          {Array.from({ length: maxRow }, (_, i) => (
-            <rect
-              key={i}
-              x="6"
-              y={6 + i * ((pitchH - 12) / maxRow)}
-              width="268"
-              height={(pitchH - 12) / maxRow}
-              fill="white"
-              fillOpacity={i % 2 === 0 ? 0.03 : 0}
-            />
-          ))}
-        </svg>
+        {/* ── LEFT: match info ─────────────────────────────────────────── */}
+        <div className="min-w-0">
 
-        {/* Player grid */}
+          {/* Title */}
+          <p
+            className="font-bold text-base leading-snug"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Spartak vs. {match.opponent}
+          </p>
+
+          {/* Date · time */}
+          <p className="text-sm mt-0.5" style={{ color: 'rgba(249,115,22,0.88)' }}>
+            {formatMatchDate(match.date)}
+          </p>
+
+          {/* Location */}
+          <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {match.location}
+          </p>
+
+          {/* Signed-up count */}
+          <p className="text-xs mt-2.5" style={{ color: 'var(--text-faint)' }}>
+            {match.attendance.length === 1
+              ? '1 spiller tilmeldt'
+              : `${match.attendance.length} spillere tilmeldt`}
+          </p>
+
+        </div>
+
+        {/* ── RIGHT: mini pitch ─────────────────────────────────────────── */}
         <div
-          className="absolute inset-0"
+          className="relative rounded-xl overflow-hidden shrink-0"
           style={{
-            display: 'grid',
-            gridTemplateRows: `repeat(${maxRow}, 1fr)`,
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            padding: '6px',
+            width:  `${PITCH_W}px`,
+            height: `${pitchH}px`,
+            background: 'linear-gradient(180deg, #1e4a2e 0%, #15341d 45%, #15341d 55%, #1e4a2e 100%)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
           }}
         >
-          {formation.slots.map(({ key, row, col }) => {
-            const player = getPlayerInSlot(key)
-            return (
-              <div
-                key={key}
-                style={{ gridRow: row, gridColumn: col }}
-                className="flex items-center justify-center"
+          {/* Pitch markings */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            viewBox={`0 0 ${PITCH_W} ${pitchH}`}
+            preserveAspectRatio="none"
+          >
+            {/* Border */}
+            <rect
+              x="3" y="3" width={PITCH_W - 6} height={pitchH - 6} rx="2"
+              fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1"
+            />
+            {/* Centre line */}
+            <line
+              x1="3" y1={pitchH / 2} x2={PITCH_W - 3} y2={pitchH / 2}
+              stroke="white" strokeOpacity="0.12" strokeWidth="0.75"
+            />
+            {/* Alternating row tint */}
+            {Array.from({ length: maxRow }, (_, i) => (
+              <rect
+                key={i}
+                x="3"
+                y={3 + i * ((pitchH - 6) / maxRow)}
+                width={PITCH_W - 6}
+                height={(pitchH - 6) / maxRow}
+                fill="white"
+                fillOpacity={i % 2 === 0 ? 0.035 : 0}
+              />
+            ))}
+          </svg>
+
+          {/* Empty state */}
+          {!hasSomeStarter && (
+            <div className="absolute inset-0 flex items-center justify-center px-3">
+              <p
+                className="text-[9px] text-center leading-relaxed"
+                style={{ color: 'rgba(255,255,255,0.28)' }}
               >
-                {player ? (
-                  /* Filled slot */
-                  <div className="flex flex-col items-center gap-0.5">
-                    <div
-                      className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-[9px] font-bold"
-                      style={{
-                        background: 'linear-gradient(135deg, #1e4a2e, #16361f)',
-                        borderColor: 'rgba(249,115,22,0.75)',
-                        color: 'white',
-                      }}
-                    >
-                      {/* Two-letter abbreviation from last name */}
-                      {player.name.trim().split(' ').pop()?.slice(0, 2).toUpperCase()}
-                    </div>
-                    <span
-                      className="text-[8px] font-semibold leading-tight text-center w-12 truncate"
-                      style={{ color: 'rgba(255,255,255,0.88)' }}
-                    >
-                      {chipLabel(player, allPlayers)}
-                    </span>
-                  </div>
-                ) : (
-                  /* Empty slot */
+                Ingen opstilling endnu
+              </p>
+            </div>
+          )}
+
+          {/* Player dots — only shown if at least one starter is placed */}
+          {hasSomeStarter && (
+            <div
+              className="absolute inset-0"
+              style={{
+                display: 'grid',
+                gridTemplateRows: `repeat(${maxRow}, 1fr)`,
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                padding: '4px',
+              }}
+            >
+              {formation.slots.map(({ key, row, col }) => {
+                const player = getPlayerInSlot(key)
+                return (
                   <div
-                    className="w-8 h-8 rounded-full border-2 border-dashed flex items-center justify-center"
-                    style={{
-                      borderColor: 'rgba(255,255,255,0.18)',
-                      background: 'rgba(0,0,0,0.15)',
-                    }}
+                    key={key}
+                    style={{ gridRow: row, gridColumn: col }}
+                    className="flex items-center justify-center"
                   >
-                    <span
-                      className="text-[8px] font-bold"
-                      style={{ color: 'rgba(255,255,255,0.28)' }}
-                    >
-                      {key}
-                    </span>
+                    {player && (
+                      /* Filled: orange-rimmed dot — no label at this scale */
+                      <div
+                        style={{
+                          width:  `${DOT}px`,
+                          height: `${DOT}px`,
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                          background: 'linear-gradient(135deg, #2d6a43, #1a4228)',
+                          border: '1.5px solid rgba(249,115,22,0.82)',
+                          boxShadow: '0 0 6px rgba(249,115,22,0.22)',
+                        }}
+                      />
+                    )}
+                    {/* Empty slot: render nothing (no dashed placeholder) */}
                   </div>
-                )}
-              </div>
-            )
-          })}
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Bench ──────────────────────────────────────────────────── */}
+      {/* ── Bench row ─────────────────────────────────────────────────── */}
       {benchPlayers.length > 0 && (
-        <div>
-          <p
-            className="text-[10px] font-bold uppercase tracking-[0.12em] mb-1.5"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            Bænk ({benchPlayers.length})
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {benchPlayers.map((p) => (
-              <span
-                key={p.id}
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                style={{
-                  background: 'var(--bg-raised)',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-faint)',
-                }}
-              >
-                {chipLabel(p, allPlayers)}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Empty pitch state (no starters assigned yet) ─────────── */}
-      {starterIds.size === 0 && attendanceIds.size > 0 && (
-        <p
-          className="text-[10px] text-center mt-1"
-          style={{ color: 'rgba(255,255,255,0.30)' }}
-        >
-          Opstillingen er ikke sat endnu
+        <p className="mt-2.5 text-[11px] leading-snug" style={{ color: 'var(--text-faint)' }}>
+          <span className="font-semibold" style={{ color: 'var(--text-muted)' }}>Bænk: </span>
+          {benchPlayers.map((p, i) => (
+            <span key={p.id}>
+              {chipLabel(p, allPlayers)}
+              {i < benchPlayers.length - 1 && (
+                <span style={{ color: 'var(--text-dimmer)' }}> · </span>
+              )}
+            </span>
+          ))}
         </p>
       )}
+
+      {/* ── Tap hint ──────────────────────────────────────────────────── */}
+      <p className="text-[11px] mt-3" style={{ color: 'var(--text-faint)' }}>
+        Tryk for at se kamp →
+      </p>
     </>
   )
 }

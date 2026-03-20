@@ -8,6 +8,7 @@ import LeagueTable from '../components/stats/LeagueTable'
 import { LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
 import LoginModal from '../components/auth/LoginModal'
 import ThemeSwitcher from '../components/ThemeSwitcher'
+import NextMatchLineup from '../components/matches/NextMatchLineup'
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -173,7 +174,8 @@ export default function Home() {
                     ? '1 spiller tilmeldt'
                     : `${upcomingMatches[0].attendance.length} spillere tilmeldt`}
                 </p>
-                <p className="text-xs mt-1.5" style={{ color: 'var(--text-faint)' }}>Tryk for at se kamp →</p>
+                <NextMatchLineup match={upcomingMatches[0]} allPlayers={players} />
+                <p className="text-xs mt-3" style={{ color: 'var(--text-faint)' }}>Tryk for at se kamp →</p>
               </div>
             </button>
           </div>

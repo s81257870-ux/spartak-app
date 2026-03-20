@@ -350,9 +350,17 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
     const updated = match.attendance.filter((id) => id !== playerId)
     // Also remove from starters if present (keep starters consistent with attendance)
     const updatedStarters = (match.starters ?? []).filter((id) => id !== playerId)
+    // Also remove from lineup and bench (keep formation builder consistent with attendance)
+    const updatedLineup: Record<string, string> = {}
+    for (const [pos, pid] of Object.entries(match.lineup)) {
+      if (pid !== playerId) updatedLineup[pos] = pid
+    }
+    const updatedBench = match.bench.filter((id) => id !== playerId)
     set((s) => ({
       matches: s.matches.map((m) =>
-        m.id === matchId ? { ...m, attendance: updated, starters: updatedStarters } : m
+        m.id === matchId
+          ? { ...m, attendance: updated, starters: updatedStarters, lineup: updatedLineup, bench: updatedBench }
+          : m
       ),
     }))
     cancelSignUpForMatch(matchId, playerId, match.attendance).catch((err) =>
@@ -361,6 +369,12 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
     if ((match.starters ?? []).includes(playerId)) {
       removeStarterForMatch(matchId, playerId, match.starters ?? []).catch((err) =>
         console.error('[MatchStore] Remove starter on cancel failed:', err)
+      )
+    }
+    const lineupChanged = Object.values(match.lineup).includes(playerId) || match.bench.includes(playerId)
+    if (lineupChanged) {
+      syncLineup(matchId, updatedLineup, updatedBench).catch((err) =>
+        console.error('[MatchStore] Sync lineup on cancel failed:', err)
       )
     }
   },

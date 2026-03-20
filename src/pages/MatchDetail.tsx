@@ -6,7 +6,7 @@ import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import EventsTab from '../components/matches/EventsTab'
 import AttendanceTab from '../components/matches/AttendanceTab'
-import StartopstillingTab from '../components/matches/StartopstillingTab'
+import LineupTab from '../components/lineup/LineupTab'
 import { displayName } from '../utils/playerName'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 
@@ -185,7 +185,7 @@ export default function MatchDetail() {
       <div className="px-4 mt-4">
         {tab === 'tilmelding'   && <AttendanceTab matchId={match.id} />}
         {tab === 'begivenheder' && <EventsTab matchId={match.id} />}
-        {tab === 'opstilling'   && <StartopstillingTab matchId={match.id} />}
+        {tab === 'opstilling'   && <LineupTab matchId={match.id} />}
       </div>
     </div>
   )

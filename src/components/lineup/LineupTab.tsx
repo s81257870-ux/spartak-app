@@ -12,7 +12,7 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { X } from 'lucide-react'
+import { X, Users } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { useAuthStore } from '../../store/authStore'
@@ -37,7 +37,6 @@ function PlayerChip({
   isDragging?: boolean
 }) {
   const label = chipLabel(player, allPlayers)
-  // Use last name initials (up to 2 chars) for the avatar circle
   const lastName = player.name.trim().split(' ').pop() ?? player.name
   const avatarText = lastName.slice(0, 2).toUpperCase()
 
@@ -117,18 +116,16 @@ function PitchSlot({
   )
 }
 
-// ─── Droppable bench row ──────────────────────────────────────────────────────
+// ─── Droppable bench ──────────────────────────────────────────────────────────
+// Bench = attendance players not currently on the pitch.
+// No remove button here — cancelling attendance is done in the Tilmelding tab.
 
 function BenchZone({
   players,
   allPlayers,
-  onRemove,
-  isAdmin,
 }: {
   players: Player[]
   allPlayers: Player[]
-  onRemove: (id: string) => void
-  isAdmin: boolean
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: 'bench' })
   return (
@@ -143,46 +140,10 @@ function BenchZone({
       </p>
       <div className="flex flex-wrap gap-2">
         {players.map((p) => (
-          <div key={p.id} className="relative">
-            <DraggableChip player={p} allPlayers={allPlayers} />
-            {isAdmin && (
-              <button
-                onClick={() => onRemove(p.id)}
-                className="absolute -top-1 -right-1 w-4 h-4 bg-slate-600 rounded-full flex items-center justify-center"
-              >
-                <X size={8} strokeWidth={3} className="text-white" />
-              </button>
-            )}
-          </div>
-        ))}
-        {players.length === 0 && (
-          <p className="text-slate-600 text-[10px] italic">Træk spillere hertil</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ─── Available (not selected) zone ────────────────────────────────────────────
-
-function AvailableZone({ players, allPlayers }: { players: Player[]; allPlayers: Player[] }) {
-  const { setNodeRef, isOver } = useDroppable({ id: 'available' })
-  return (
-    <div
-      ref={setNodeRef}
-      className={`rounded-2xl px-3 py-2 min-h-[46px] transition-colors ${
-        isOver ? 'bg-slate-700/30 border border-slate-500/40' : 'bg-[#1a1d27]'
-      }`}
-    >
-      <p className="text-slate-400 text-[10px] uppercase tracking-wide mb-1.5 font-semibold">
-        Ikke udtaget ({players.length})
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {players.map((p) => (
           <DraggableChip key={p.id} player={p} allPlayers={allPlayers} />
         ))}
         {players.length === 0 && (
-          <p className="text-slate-600 text-[10px] italic">Alle spillere er udtaget ✓</p>
+          <p className="text-slate-600 text-[10px] italic">Alle tilmeldte spillere er på banen</p>
         )}
       </div>
     </div>
@@ -192,14 +153,13 @@ function AvailableZone({ players, allPlayers }: { players: Player[]; allPlayers:
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function LineupTab({ matchId }: Props) {
-  const match = useMatchStore((s) => s.matches.find((m) => m.id === matchId))
-  const moveToLineup = useMatchStore((s) => s.moveToLineup)
-  const moveToBench = useMatchStore((s) => s.moveToBench)
-  const removeFromSquad = useMatchStore((s) => s.removeFromSquad)
-  const setFormation = useMatchStore((s) => s.setFormation)
-  const allPlayers = usePlayerStore((s) => s.players)
-
-  const isAdmin = useAuthStore((s) => s.isAdmin)
+  const match          = useMatchStore((s) => s.matches.find((m) => m.id === matchId))
+  const moveToLineup   = useMatchStore((s) => s.moveToLineup)
+  const moveToBench    = useMatchStore((s) => s.moveToBench)
+  const clearLineupSlot = useMatchStore((s) => s.clearLineupSlot)
+  const setFormation   = useMatchStore((s) => s.setFormation)
+  const allPlayers     = usePlayerStore((s) => s.players)
+  const isAdmin        = useAuthStore((s) => s.isAdmin)
 
   const [activePlayer, setActivePlayer] = useState<Player | null>(null)
   const [confirmFormation, setConfirmFormation] = useState<string | null>(null)
@@ -211,21 +171,31 @@ export default function LineupTab({ matchId }: Props) {
 
   if (!match) return null
 
-  const currentFormationId = match.formation ?? DEFAULT_FORMATION
-  const formation = getFormation(currentFormationId)
-  const maxRow = Math.max(...formation.slots.map((s) => s.row))
-  const pitchHeight = Math.max(220, maxRow * 68)
+  // ── Source of truth: only attendance players are available ─────────────────
+  const attendanceIds     = new Set(match.attendance ?? [])
+  const attendancePlayers = allPlayers.filter((p) => attendanceIds.has(p.id))
 
-  const starterIds = new Set(Object.values(match.lineup))
-  const benchIds = new Set(match.bench)
+  // Starter IDs — only those still in attendance (guards against stale IDs)
+  const starterIds = new Set(
+    Object.values(match.lineup).filter((pid) => attendanceIds.has(pid))
+  )
 
-  const getPlayerInSlot = (pos: Position) => {
+  // Bench = attendance players not currently on the pitch
+  const benchPlayers = attendancePlayers.filter((p) => !starterIds.has(p.id))
+
+  // Resolve a pitch slot: return undefined if player left attendance (stale)
+  const getPlayerInSlot = (pos: Position): Player | undefined => {
     const pid = match.lineup[pos]
-    return pid ? allPlayers.find((p) => p.id === pid) : undefined
+    if (!pid || !attendanceIds.has(pid)) return undefined
+    return allPlayers.find((p) => p.id === pid)
   }
 
-  const benchPlayers = allPlayers.filter((p) => benchIds.has(p.id))
-  const availablePlayers = allPlayers.filter((p) => !starterIds.has(p.id) && !benchIds.has(p.id))
+  const currentFormationId = match.formation ?? DEFAULT_FORMATION
+  const formation  = getFormation(currentFormationId)
+  const maxRow     = Math.max(...formation.slots.map((s) => s.row))
+  const pitchHeight = Math.max(220, maxRow * 68)
+
+  // ── Drag handlers ──────────────────────────────────────────────────────────
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     setActivePlayer(allPlayers.find((p) => p.id === active.id) ?? null)
@@ -235,32 +205,50 @@ export default function LineupTab({ matchId }: Props) {
     setActivePlayer(null)
     if (!over || !isAdmin) return
     const playerId = active.id as string
-    const target = over.id as string
+    const target   = over.id as string
+
+    // Only allow moves for attendance players
+    if (!attendanceIds.has(playerId)) return
 
     if (target === 'bench') {
+      // Remove from pitch — player returns to derived bench
       moveToBench(matchId, playerId)
-    } else if (target === 'available') {
-      removeFromSquad(matchId, playerId)
     } else if (target.startsWith('slot:')) {
       const position = target.replace('slot:', '') as Position
       moveToLineup(matchId, position, playerId)
     }
   }
 
+  // ── Formation change ────────────────────────────────────────────────────────
+
   const handleFormationClick = (fId: string) => {
     if (fId === currentFormationId) return
-    // If lineup already has players, ask for confirmation
-    if (starterIds.size > 0 || benchIds.size > 0) {
+    // Ask for confirmation only if someone is already placed on the pitch
+    if (starterIds.size > 0) {
       setConfirmFormation(fId)
     } else {
       setFormation(matchId, fId)
     }
   }
 
+  // ── Empty state ─────────────────────────────────────────────────────────────
+
+  if (attendancePlayers.length === 0) {
+    return (
+      <div className="text-center py-12 text-slate-500">
+        <Users size={32} className="mx-auto mb-3 opacity-20" />
+        <p className="text-sm font-medium">Ingen tilmeldte spillere endnu</p>
+        <p className="text-xs mt-1 text-slate-600">Spillere vises her når de tilmelder sig under "Tilmelding"</p>
+      </div>
+    )
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 
-      {/* ── Formation dropdown — admin only ──────────────────── */}
+      {/* ── Formation selector ─────────────────────────────────── */}
       {isAdmin ? (
         <div className="relative mb-3">
           <select
@@ -290,11 +278,11 @@ export default function LineupTab({ matchId }: Props) {
         </div>
       )}
 
-      {/* ── Confirmation dialog when switching formation ─────── */}
+      {/* ── Formation change confirmation ─────────────────────── */}
       {confirmFormation && (
         <div className="bg-orange-900/30 border border-orange-500/40 rounded-2xl p-4 mb-3 text-sm">
           <p className="text-orange-200 font-medium mb-3">
-            Skift til <strong>{confirmFormation}</strong>? Det nulstiller den nuværende opstilling.
+            Skift til <strong>{confirmFormation}</strong>? Placeringerne på banen nulstilles — tilmeldte spillere beholder deres plads på bænken.
           </p>
           <div className="flex gap-2">
             <button
@@ -314,7 +302,6 @@ export default function LineupTab({ matchId }: Props) {
       )}
 
       {/* ── Pitch ──────────────────────────────────────────────── */}
-      {/* Constrained width to create the narrow portrait look */}
       <div className="flex justify-center mb-3">
         <div
           className="relative rounded-2xl overflow-hidden w-full"
@@ -330,34 +317,25 @@ export default function LineupTab({ matchId }: Props) {
             viewBox="0 0 260 347"
             preserveAspectRatio="none"
           >
-            {/* Outer border */}
             <rect x="8" y="8" width="244" height="331" rx="4" fill="none" stroke="white" strokeOpacity="0.15" strokeWidth="1.5"/>
-            {/* Half-way line */}
             <line x1="8" y1="173" x2="252" y2="173" stroke="white" strokeOpacity="0.15" strokeWidth="1"/>
-            {/* Top goal box */}
             <rect x="72" y="8" width="116" height="42" rx="2" fill="none" stroke="white" strokeOpacity="0.15" strokeWidth="1"/>
-            {/* Top 6-yard box */}
             <rect x="102" y="8" width="56" height="20" rx="1" fill="none" stroke="white" strokeOpacity="0.15" strokeWidth="1"/>
-            {/* Bottom goal box */}
             <rect x="72" y="297" width="116" height="42" rx="2" fill="none" stroke="white" strokeOpacity="0.15" strokeWidth="1"/>
-            {/* Bottom 6-yard box */}
             <rect x="102" y="319" width="56" height="20" rx="1" fill="none" stroke="white" strokeOpacity="0.15" strokeWidth="1"/>
-            {/* Top penalty arc */}
             <path d="M 100 62 A 30 30 0 0 1 160 62" fill="none" stroke="white" strokeOpacity="0.12" strokeWidth="1"/>
-            {/* Bottom penalty arc */}
             <path d="M 100 285 A 30 30 0 0 0 160 285" fill="none" stroke="white" strokeOpacity="0.12" strokeWidth="1"/>
-            {/* Alternating grass stripes */}
             {Array.from({ length: maxRow + 1 }, (_, i) => (
               <rect key={i} x="8" y={8 + i * 55} width="244" height="55" fill="white" fillOpacity={i % 2 === 0 ? 0.025 : 0}/>
             ))}
           </svg>
 
-          {/* Starter count badge */}
+          {/* Starter count */}
           <div className="absolute top-2 right-2 z-10 bg-black/50 rounded-full px-2 py-0.5">
             <span className="text-white text-[10px] font-bold">{starterIds.size}/7</span>
           </div>
 
-          {/* 4-row × 3-col grid — rows 1-4 mapped to pitch rows */}
+          {/* Grid */}
           <div
             className="absolute inset-0"
             style={{
@@ -378,7 +356,8 @@ export default function LineupTab({ matchId }: Props) {
                   shortLabel={key}
                   player={getPlayerInSlot(key)}
                   allPlayers={allPlayers}
-                  onRemove={() => removeFromSquad(matchId, match.lineup[key])}
+                  // X on pitch: just remove from slot — player returns to derived bench
+                  onRemove={() => clearLineupSlot(matchId, key)}
                   isAdmin={isAdmin}
                 />
               </div>
@@ -387,24 +366,15 @@ export default function LineupTab({ matchId }: Props) {
         </div>
       </div>
 
-      {/* ── Bench ─────────────────────────────────────────────── */}
+      {/* ── Bench (derived: attendance − pitch) ───────────────── */}
       <div className="mb-2">
         <BenchZone
           players={benchPlayers}
           allPlayers={allPlayers}
-          onRemove={(id) => removeFromSquad(matchId, id)}
-          isAdmin={isAdmin}
         />
       </div>
 
-      {/* ── Not selected — admin only ──────────────────────────── */}
-      {isAdmin && (
-        <div className="mb-2">
-          <AvailableZone players={availablePlayers} allPlayers={allPlayers} />
-        </div>
-      )}
-
-      {/* ── Collapsible legend ────────────────────────────────── */}
+      {/* ── Collapsible position legend ────────────────────────── */}
       <details className="bg-[#1a1d27] rounded-2xl overflow-hidden">
         <summary className="px-4 py-3 text-slate-400 text-[10px] uppercase tracking-wide font-semibold cursor-pointer list-none flex justify-between items-center">
           Startopstilling — {formation.name}

@@ -6,10 +6,11 @@ import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import EventsTab from '../components/matches/EventsTab'
 import LineupTab from '../components/lineup/LineupTab'
+import AttendanceTab from '../components/matches/AttendanceTab'
 import { displayName } from '../utils/playerName'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 
-type Tab = 'begivenheder' | 'opstilling'
+type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -26,7 +27,7 @@ export default function MatchDetail() {
 
   useRealtimeMatch(id ?? '')
 
-  const [tab, setTab] = useState<Tab>('begivenheder')
+  const [tab, setTab] = useState<Tab>('tilmelding')
 
   if (!match) {
     return (
@@ -159,11 +160,11 @@ export default function MatchDetail() {
 
       {/* ── Tabs ──────────────────────────────────────────────── */}
       <div className="flex px-4 mt-4 gap-2">
-        {(['begivenheder', 'opstilling'] as Tab[]).map((t) => (
+        {(['tilmelding', 'begivenheder', 'opstilling'] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all ${
               tab === t ? 'text-black' : 'text-slate-500 border border-white/[0.06] active:opacity-75'
             }`}
             style={
@@ -175,13 +176,14 @@ export default function MatchDetail() {
                 : { background: '#12131c' }
             }
           >
-            {t === 'begivenheder' ? 'Begivenheder' : 'Opstilling'}
+            {t === 'tilmelding' ? 'Tilmelding' : t === 'begivenheder' ? 'Begivenheder' : 'Opstilling'}
           </button>
         ))}
       </div>
 
       {/* ── Tab content ───────────────────────────────────────── */}
       <div className="px-4 mt-4">
+        {tab === 'tilmelding'   && <AttendanceTab matchId={match.id} />}
         {tab === 'begivenheder' && <EventsTab matchId={match.id} />}
         {tab === 'opstilling'   && <LineupTab matchId={match.id} />}
       </div>

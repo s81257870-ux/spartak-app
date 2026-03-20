@@ -71,3 +71,10 @@ ALTER TABLE events ADD COLUMN IF NOT EXISTS team text NOT NULL DEFAULT 'us'
 
 -- 7. Make player_id nullable so opponent goals can be stored without a player
 ALTER TABLE events ALTER COLUMN player_id DROP NOT NULL;
+
+-- ============================================================
+-- Migration 3 — Match attendance / signup
+-- ============================================================
+
+-- 8. Add signed_up column to matches (array of player UUIDs)
+ALTER TABLE matches ADD COLUMN IF NOT EXISTS signed_up uuid[] NOT NULL DEFAULT '{}';

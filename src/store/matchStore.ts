@@ -12,6 +12,8 @@ import {
   removeEvent,
   syncLineup,
   recalculateMatchScore,
+  signUpForMatch,
+  cancelSignUpForMatch,
 } from '../lib/supabaseService'
 
 // ── helper: seed matches to Supabase if table is empty ────────────────────────
@@ -46,7 +48,7 @@ interface MatchStore {
   init: () => Promise<void>
 
   // CRUD
-  addMatch: (match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'formation' | 'isCompleted'>) => Promise<string>
+  addMatch: (match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'formation' | 'isCompleted' | 'attendance'>) => Promise<string>
   updateMatch: (id: string, updates: Partial<Omit<Match, 'id'>>) => void
   deleteMatch: (id: string) => void
   getMatch: (id: string) => Match | undefined
@@ -68,6 +70,10 @@ interface MatchStore {
 
   // Man of the match
   setManOfTheMatch: (matchId: string, playerId: string | undefined) => void
+
+  // Attendance
+  signUp: (matchId: string, playerId: string) => void
+  cancelSignUp: (matchId: string, playerId: string) => void
 
   // Realtime callbacks (called by useRealtimeMatch hook)
   setMatchEvents: (matchId: string, events: MatchEvent[]) => void
@@ -315,6 +321,35 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
 
   setManOfTheMatch: (matchId, playerId) => {
     get().updateMatch(matchId, { manOfTheMatch: playerId })
+  },
+
+  // ── Attendance ────────────────────────────────────────────────────────────
+  signUp: (matchId, playerId) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    if (!match || match.attendance.includes(playerId)) return
+    const updated = [...match.attendance, playerId]
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, attendance: updated } : m
+      ),
+    }))
+    signUpForMatch(matchId, playerId, match.attendance).catch((err) =>
+      console.error('[MatchStore] Sign up failed:', err)
+    )
+  },
+
+  cancelSignUp: (matchId, playerId) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    if (!match) return
+    const updated = match.attendance.filter((id) => id !== playerId)
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, attendance: updated } : m
+      ),
+    }))
+    cancelSignUpForMatch(matchId, playerId, match.attendance).catch((err) =>
+      console.error('[MatchStore] Cancel sign up failed:', err)
+    )
   },
 
   // ── Realtime callbacks ────────────────────────────────────────────────────

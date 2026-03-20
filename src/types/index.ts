@@ -72,7 +72,8 @@ export interface Match {
   scoreThem: number
   events: MatchEvent[]
   lineup: Record<string, string>   // Position key → playerId (starters)
-  bench: string[]                  // playerIds on bench
+  bench: string[]                  // playerIds on bench (admin-managed via lineup builder)
+  attendance: string[]             // playerIds who signed up (player-managed)
   formation: string                // e.g. '1-2-3-1'
   manOfTheMatch?: string           // playerId
   cleanSheet?: boolean

@@ -27,6 +27,7 @@ interface DbMatch {
   is_completed: boolean | null
   formation: string | null
   man_of_the_match: string | null
+  signed_up: string[] | null
   events?: DbEvent[]
 }
 
@@ -90,6 +91,7 @@ function mapMatch(row: DbMatch, slots: DbLineupSlot[], events: DbEvent[]): Match
     isCompleted: row.is_completed ?? false,
     formation: row.formation ?? DEFAULT_FORMATION,
     manOfTheMatch: row.man_of_the_match ?? undefined,
+    attendance: row.signed_up ?? [],
     events: events.map(mapEvent),
     lineup,
     bench,
@@ -164,7 +166,7 @@ export async function fetchAllMatches(): Promise<Match[]> {
 }
 
 export async function insertMatch(
-  match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench'>
+  match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'attendance'>
 ): Promise<Match> {
   const { data, error } = await supabase
     .from('matches')
@@ -197,6 +199,7 @@ export async function patchMatch(
   if (updates.isCompleted   !== undefined) row.is_completed     = updates.isCompleted
   if (updates.formation     !== undefined) row.formation        = updates.formation
   if ('manOfTheMatch' in updates)          row.man_of_the_match = updates.manOfTheMatch ?? null
+  if (updates.attendance    !== undefined) row.signed_up        = updates.attendance
 
   const { error } = await supabase.from('matches').update(row).eq('id', id)
   if (error) throw error
@@ -273,6 +276,25 @@ export async function recalculateMatchScore(
 
 export async function removeEvent(eventId: string): Promise<void> {
   const { error } = await supabase.from('events').delete().eq('id', eventId)
+  if (error) throw error
+}
+
+// ── Attendance ────────────────────────────────────────────────────────────────
+
+export async function signUpForMatch(matchId: string, playerId: string, current: string[]): Promise<void> {
+  if (current.includes(playerId)) return
+  const { error } = await supabase
+    .from('matches')
+    .update({ signed_up: [...current, playerId] })
+    .eq('id', matchId)
+  if (error) throw error
+}
+
+export async function cancelSignUpForMatch(matchId: string, playerId: string, current: string[]): Promise<void> {
+  const { error } = await supabase
+    .from('matches')
+    .update({ signed_up: current.filter((id) => id !== playerId) })
+    .eq('id', matchId)
   if (error) throw error
 }
 
@@ -387,6 +409,7 @@ export function subscribeMatchRow(
           isCompleted:    row.is_completed     ?? false,
           formation:      row.formation        ?? DEFAULT_FORMATION,
           manOfTheMatch:  row.man_of_the_match ?? undefined,
+          attendance:     row.signed_up        ?? [],
         })
       }
     )

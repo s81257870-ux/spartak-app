@@ -217,8 +217,10 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                           className="text-[8px] md:text-[10px] lg:text-[12px] font-semibold leading-none text-center truncate block"
                           style={{
                             color: 'rgba(255,255,255,0.92)',
-                            /* Cell width = (pitch_w − 2×pad) / 3; −2px safety margin */
-                            maxWidth: 'calc((var(--nm-pitch-w) - 2 * var(--nm-pitch-pad)) / 3 - 2px)',
+                            /* Concrete px value per breakpoint — never a % here.
+                               Using 100% would resolve against the unsized flex-col
+                               ancestor and collapse the label to ~1 char. */
+                            maxWidth: 'var(--nm-label-w)',
                           }}
                         >
                           {pitchLabel(player)}

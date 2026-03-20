@@ -91,6 +91,10 @@
   --nm-dot:        18px;    /* player dot diameter             */
   --nm-pitch-pad:   4px;    /* inner grid padding inside pitch */
   --nm-gap:        16px;    /* gap between info and pitch cols */
+  /* label max-width: (pitch_w - 2×pad) / 3 - 2px, as a concrete px value.
+     Never use 100% here — it resolves against the span's own containing
+     block (an unsized flex-col), which collapses the label to 1 char. */
+  --nm-label-w:    38px;    /* (130 - 8) / 3 - 2 ≈ 38px       */
 }
 /* md: slightly larger pitch, same auto-width column */
 @media (min-width: 768px) {
@@ -100,6 +104,7 @@
     --nm-dot:        24px;
     --nm-pitch-pad:   6px;
     --nm-gap:        24px;
+    --nm-label-w:    53px;  /* (176 - 12) / 3 - 2 ≈ 53px      */
   }
 }
 /* lg: balanced 2-col split — pitch fills its column instead of fixed px width */
@@ -111,6 +116,9 @@
     --nm-dot:        28px;
     --nm-pitch-pad:   8px;
     --nm-gap:        28px;
+    /* At lg the pitch column is ~420-600px depending on screen width.
+       Each of the 3 cells is ~135-195px — 120px covers the longest surnames. */
+    --nm-label-w:   120px;
   }
 }
 

@@ -85,12 +85,14 @@
    — Mobile defaults; desktop overrides at md (768 px)
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --nm-pitch-w:   130px;  /* mini pitch width                */
-  --nm-pitch-rh:   50px;  /* row height inside pitch         */
-  --nm-dot:        18px;  /* player dot diameter             */
-  --nm-pitch-pad:   4px;  /* inner grid padding inside pitch */
-  --nm-gap:        16px;  /* gap between info and pitch cols */
+  --nm-grid-cols: 1fr auto; /* grid split: info | pitch        */
+  --nm-pitch-w:   130px;    /* mini pitch width                */
+  --nm-pitch-rh:   50px;    /* row height inside pitch         */
+  --nm-dot:        18px;    /* player dot diameter             */
+  --nm-pitch-pad:   4px;    /* inner grid padding inside pitch */
+  --nm-gap:        16px;    /* gap between info and pitch cols */
 }
+/* md: slightly larger pitch, same auto-width column */
 @media (min-width: 768px) {
   :root {
     --nm-pitch-w:   176px;
@@ -98,6 +100,17 @@
     --nm-dot:        24px;
     --nm-pitch-pad:   6px;
     --nm-gap:        24px;
+  }
+}
+/* lg: balanced 2-col split — pitch fills its column instead of fixed px width */
+@media (min-width: 1024px) {
+  :root {
+    --nm-grid-cols: 1.1fr 1fr;
+    --nm-pitch-w:   100%;   /* fills the 1fr right column      */
+    --nm-pitch-rh:   80px;
+    --nm-dot:        28px;
+    --nm-pitch-pad:   8px;
+    --nm-gap:        28px;
   }
 }
 

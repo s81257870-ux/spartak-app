@@ -2,13 +2,16 @@
  * NextMatchLineup — compact split-layout card content for the Home page.
  *
  * Responsive sizing is driven entirely by CSS custom properties:
- *   --nm-pitch-w   : pitch width          (130 px → 176 px at md)
- *   --nm-pitch-rh  : row height per row   ( 42 px →  56 px at md)
- *   --nm-dot       : player dot diameter  ( 18 px →  24 px at md)
- *   --nm-pitch-pad : inner grid padding   (  4 px →   6 px at md)
- *   --nm-gap       : info ↔ pitch gap     ( 16 px →  24 px at md)
  *
- * Text sizes use Tailwind responsive prefixes (md:).
+ *   token            mobile    md(768)   lg(1024)
+ *   --nm-grid-cols   1fr auto  1fr auto  1.1fr 1fr  ← balanced split at lg
+ *   --nm-pitch-w     130px     176px     100%       ← fills column at lg
+ *   --nm-pitch-rh     50px      62px      80px
+ *   --nm-dot          18px      24px      28px
+ *   --nm-pitch-pad     4px       6px       8px
+ *   --nm-gap          16px      24px      28px
+ *
+ * Text sizes use Tailwind responsive prefixes (md: / lg:).
  * No JS needed for breakpoint detection.
  *
  * Data derivation:
@@ -67,7 +70,7 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1fr auto',
+          gridTemplateColumns: 'var(--nm-grid-cols)',
           gap: 'var(--nm-gap)',
           alignItems: 'start',
         }}

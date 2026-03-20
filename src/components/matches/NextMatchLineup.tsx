@@ -28,6 +28,17 @@ interface Props {
   allPlayers: Player[]
 }
 
+/**
+ * Pitch label: plain surname, no disambiguation suffix.
+ * CSS truncation (ellipsis) handles anything too long to fit — the user sees
+ * "Hesselb..." rather than a cryptic initial like "H." or "He.".
+ * The bench uses chipLabel (with squad-wide disambiguation) since it has more room.
+ */
+function pitchLabel(player: Player): string {
+  const parts = player.name.trim().split(' ')
+  return parts[parts.length - 1]
+}
+
 /** Timezone-safe — parses date parts directly so no UTC-midnight weekday shift. */
 function formatMatchDate(iso: string): string {
   const [datePart] = iso.split('T')
@@ -203,13 +214,14 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                           }}
                         />
                         <span
-                          className="text-[8px] md:text-[10px] font-semibold leading-none text-center truncate block"
+                          className="text-[8px] md:text-[10px] lg:text-[12px] font-semibold leading-none text-center truncate block"
                           style={{
                             color: 'rgba(255,255,255,0.92)',
-                            maxWidth: 'calc(var(--nm-pitch-w) / 3 - 2px)',
+                            /* Cell width = (pitch_w − 2×pad) / 3; −2px safety margin */
+                            maxWidth: 'calc((var(--nm-pitch-w) - 2 * var(--nm-pitch-pad)) / 3 - 2px)',
                           }}
                         >
-                          {chipLabel(player, allPlayers)}
+                          {pitchLabel(player)}
                         </span>
                       </div>
                     )}

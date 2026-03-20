@@ -79,24 +79,15 @@ export default function AttendanceTab({ matchId }: Props) {
           </div>
         )}
 
-        {/* Signup action */}
+        {/* Signup action — only "Tilmeld" CTA; "Afmeld" lives in the player row */}
         {!showPicker && myPlayerId !== '' && (
           isSignedUp ? (
-            <div className="space-y-3">
-              <div
-                className="flex items-center gap-2.5 rounded-xl px-3 py-3 border border-green-500/25"
-                style={{ background: 'rgba(74,222,128,0.08)' }}
-              >
-                <CheckCircle2 size={16} className="text-green-400 shrink-0" />
-                <span className="text-green-400 font-semibold text-sm">Du er tilmeldt</span>
-              </div>
-              <button
-                onClick={() => cancelSignUp(matchId, myPlayerId)}
-                className="w-full py-2.5 rounded-xl text-sm font-semibold text-slate-400 border border-white/10 active:border-red-500/40 active:text-red-400 transition-colors"
-                style={{ background: 'rgba(255,255,255,0.04)' }}
-              >
-                Afmeld
-              </button>
+            <div
+              className="flex items-center gap-2.5 rounded-xl px-3 py-3 border border-green-500/25"
+              style={{ background: 'rgba(74,222,128,0.08)' }}
+            >
+              <CheckCircle2 size={16} className="text-green-400 shrink-0" />
+              <span className="text-green-400 font-semibold text-sm">Du er tilmeldt</span>
             </div>
           ) : (
             <button
@@ -139,25 +130,39 @@ export default function AttendanceTab({ matchId }: Props) {
               return (
                 <div
                   key={id}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3"
                   style={{
                     background: isMe ? 'rgba(249,115,22,0.10)' : '#1a1d27',
                     border:     isMe ? '1px solid rgba(249,115,22,0.25)' : '1px solid transparent',
                   }}
                 >
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-black text-white"
-                    style={{
-                      background: isMe ? 'rgba(249,115,22,0.35)' : 'rgba(249,115,22,0.12)',
-                      border:     isMe ? '1.5px solid rgba(249,115,22,0.5)' : '1px solid rgba(249,115,22,0.2)',
-                    }}
-                  >
-                    {initial}
+                  {/* Left: avatar + name */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-black text-white"
+                      style={{
+                        background: isMe ? 'rgba(249,115,22,0.35)' : 'rgba(249,115,22,0.12)',
+                        border:     isMe ? '1.5px solid rgba(249,115,22,0.5)' : '1px solid rgba(249,115,22,0.2)',
+                      }}
+                    >
+                      {initial}
+                    </div>
+                    <span className={`text-sm font-medium truncate ${isMe ? 'text-orange-300' : 'text-white'}`}>
+                      {name}
+                      {isMe && <span className="ml-1.5 text-orange-500/70 text-xs font-normal">(dig)</span>}
+                    </span>
                   </div>
-                  <span className={`flex-1 text-sm font-medium truncate ${isMe ? 'text-orange-300' : 'text-white'}`}>
-                    {name}
-                    {isMe && <span className="ml-1.5 text-orange-500/70 text-xs font-normal">(dig)</span>}
-                  </span>
+
+                  {/* Right: "Afmeld" only for the current player */}
+                  {isMe && (
+                    <button
+                      onClick={() => cancelSignUp(matchId, id)}
+                      className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors text-slate-400 border border-white/10 active:border-red-500/40 active:text-red-400"
+                      style={{ background: 'rgba(255,255,255,0.04)' }}
+                    >
+                      Afmeld
+                    </button>
+                  )}
                 </div>
               )
             })}

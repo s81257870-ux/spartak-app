@@ -59,3 +59,15 @@ ALTER TABLE events ADD COLUMN IF NOT EXISTS assist_player_id uuid REFERENCES pla
 ALTER PUBLICATION supabase_realtime ADD TABLE lineup_slots;
 ALTER PUBLICATION supabase_realtime ADD TABLE events;
 ALTER PUBLICATION supabase_realtime ADD TABLE matches;
+
+-- ============================================================
+-- Migration 2 — Live score from events
+-- Run this after the initial migration above
+-- ============================================================
+
+-- 6. Add team column to events ('us' = Spartak goal, 'them' = opponent goal)
+ALTER TABLE events ADD COLUMN IF NOT EXISTS team text NOT NULL DEFAULT 'us'
+  CHECK (team IN ('us', 'them'));
+
+-- 7. Make player_id nullable so opponent goals can be stored without a player
+ALTER TABLE events ALTER COLUMN player_id DROP NOT NULL;

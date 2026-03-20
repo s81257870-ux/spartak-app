@@ -33,9 +33,10 @@ interface DbMatch {
 interface DbEvent {
   id: string
   match_id: string
-  player_id: string
+  player_id: string | null
   assist_player_id: string | null
   type: string
+  team: string | null
 }
 
 interface DbLineupSlot {
@@ -61,8 +62,9 @@ function mapEvent(row: DbEvent): MatchEvent {
   return {
     id: row.id,
     type: row.type as MatchEvent['type'],
-    scorerId: row.player_id,
+    scorerId: row.player_id ?? '',
     assistId: row.assist_player_id ?? undefined,
+    team: (row.team === 'them' ? 'them' : 'us') as 'us' | 'them',
   }
 }
 
@@ -215,9 +217,10 @@ export async function insertEvent(
     .from('events')
     .insert({
       match_id:         matchId,
-      player_id:        event.scorerId,
+      player_id:        event.scorerId || null,
       assist_player_id: event.assistId ?? null,
       type:             event.type,
+      team:             event.team ?? 'us',
     })
     .select()
     .single()
@@ -231,11 +234,41 @@ export async function patchEvent(
 ): Promise<void> {
   const row: Record<string, unknown> = {}
   if (updates.type     !== undefined) row.type             = updates.type
-  if (updates.scorerId !== undefined) row.player_id        = updates.scorerId
+  if (updates.scorerId !== undefined) row.player_id        = updates.scorerId || null
   if ('assistId' in updates)          row.assist_player_id = updates.assistId ?? null
+  if (updates.team     !== undefined) row.team             = updates.team
 
   const { error } = await supabase.from('events').update(row).eq('id', eventId)
   if (error) throw error
+}
+
+// ── Score recalculation ───────────────────────────────────────────────────────
+
+/**
+ * Counts goal events for a match, writes score_us / score_them to matches table,
+ * and returns the new scores so local state can be updated immediately.
+ */
+export async function recalculateMatchScore(
+  matchId: string
+): Promise<{ scoreUs: number; scoreThem: number }> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('team')
+    .eq('match_id', matchId)
+    .eq('type', 'goal')
+  if (error) throw error
+
+  const goals = (data ?? []) as { team: string | null }[]
+  const scoreUs   = goals.filter((g) => g.team !== 'them').length
+  const scoreThem = goals.filter((g) => g.team === 'them').length
+
+  const { error: updateError } = await supabase
+    .from('matches')
+    .update({ score_us: scoreUs, score_them: scoreThem })
+    .eq('id', matchId)
+  if (updateError) throw updateError
+
+  return { scoreUs, scoreThem }
 }
 
 export async function removeEvent(eventId: string): Promise<void> {

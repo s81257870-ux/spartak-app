@@ -58,8 +58,9 @@ export interface Player {
 export interface MatchEvent {
   id: string
   type: 'goal' | 'yellow-card' | 'red-card'
-  scorerId: string   // for goal: scorer; for card: player who received the card
-  assistId?: string  // only used for goals
+  scorerId: string   // for goal (us): scorer; for card: player; empty for opponent goals
+  assistId?: string  // only used for our goals
+  team?: 'us' | 'them'  // goal team — defaults to 'us'; only meaningful for type='goal'
 }
 
 export interface Match {

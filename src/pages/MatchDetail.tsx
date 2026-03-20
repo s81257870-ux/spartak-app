@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, X, Star } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -18,7 +18,6 @@ export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const match = useMatchStore((s) => s.matches.find((m) => m.id === id))
-  const updateMatch = useMatchStore((s) => s.updateMatch)
   const completeMatch = useMatchStore((s) => s.completeMatch)
   const setManOfTheMatch = useMatchStore((s) => s.setManOfTheMatch)
   const players = usePlayerStore((s) => s.players)
@@ -28,9 +27,6 @@ export default function MatchDetail() {
   useRealtimeMatch(id ?? '')
 
   const [tab, setTab] = useState<Tab>('begivenheder')
-  const [editingScore, setEditingScore] = useState(false)
-  const [scoreUs, setScoreUs] = useState('')
-  const [scoreThem, setScoreThem] = useState('')
 
   if (!match) {
     return (
@@ -49,21 +45,6 @@ export default function MatchDetail() {
 
   const resultColor = won ? '#4ade80' : draw ? '#facc15' : lost ? '#f87171' : undefined
   const resultLabel = won ? 'Sejr' : draw ? 'Uafgjort' : lost ? 'Nederlag' : null
-
-  const startEditScore = () => {
-    setScoreUs(match.scoreUs.toString())
-    setScoreThem(match.scoreThem.toString())
-    setEditingScore(true)
-  }
-
-  const saveScore = () => {
-    updateMatch(match.id, {
-      scoreUs: parseInt(scoreUs) || 0,
-      scoreThem: parseInt(scoreThem) || 0,
-      isCompleted: true,
-    })
-    setEditingScore(false)
-  }
 
   return (
     <div className="pb-8">
@@ -126,73 +107,25 @@ export default function MatchDetail() {
 
         {/* ── Score display ──────────────────────────────────── */}
         <div className="mt-5">
-          {editingScore && isAdmin ? (
-            <div className="flex items-center gap-3">
-              <div className="flex-1 text-center">
-                <p className="text-slate-500 text-xs mb-1.5 font-medium">Spartak</p>
-                <input
-                  type="number"
-                  min="0"
-                  value={scoreUs}
-                  onChange={(e) => setScoreUs(e.target.value)}
-                  className="w-full text-white text-4xl font-black text-center rounded-2xl py-2 focus:outline-none border border-orange-500/40 transition-colors"
-                  style={{ background: '#0f1117' }}
-                />
-              </div>
-              <span className="text-slate-600 text-2xl font-bold">–</span>
-              <div className="flex-1 text-center">
-                <p className="text-slate-500 text-xs mb-1.5 font-medium">{match.opponent}</p>
-                <input
-                  type="number"
-                  min="0"
-                  value={scoreThem}
-                  onChange={(e) => setScoreThem(e.target.value)}
-                  className="w-full text-white text-4xl font-black text-center rounded-2xl py-2 focus:outline-none border border-orange-500/40 transition-colors"
-                  style={{ background: '#0f1117' }}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={saveScore}
-                  className="p-2.5 rounded-xl active:scale-95 text-black"
-                  style={{ background: 'linear-gradient(135deg, #f97316, #fbbf24)' }}
-                >
-                  <Check size={15} strokeWidth={2.5} />
-                </button>
-                <button
-                  onClick={() => setEditingScore(false)}
-                  className="bg-white/8 text-white p-2.5 rounded-xl active:scale-95 border border-white/10"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
-                >
-                  <X size={15} />
-                </button>
-              </div>
+          <div className="flex items-center justify-center gap-6">
+            <div className="text-center">
+              <p className="text-slate-500 text-xs font-medium mb-1">Spartak</p>
+              <p
+                className="text-6xl font-black leading-none"
+                style={{ color: won ? '#4ade80' : 'white' }}
+              >
+                {match.scoreUs}
+              </p>
             </div>
-          ) : (
-            <button onClick={isAdmin ? startEditScore : undefined} className={`w-full transition-opacity ${isAdmin ? 'active:opacity-75' : 'cursor-default'}`}>
-              <div className="flex items-center justify-center gap-6">
-                <div className="text-center">
-                  <p className="text-slate-500 text-xs font-medium mb-1">Spartak</p>
-                  <p
-                    className="text-6xl font-black leading-none"
-                    style={resultColor ? { color: won ? '#4ade80' : 'white' } : { color: 'white' }}
-                  >
-                    {match.scoreUs}
-                  </p>
-                </div>
-                <p className="text-slate-700 text-3xl font-bold mt-3">–</p>
-                <div className="text-center">
-                  <p className="text-slate-500 text-xs font-medium mb-1">{match.opponent}</p>
-                  <p className="text-6xl font-black leading-none text-white">{match.scoreThem}</p>
-                </div>
-              </div>
-              {isAdmin && (
-                <p className="text-slate-600 text-xs text-center mt-3">
-                  {match.isCompleted ? 'Afsluttet · tryk for at rette' : 'Tryk for at sætte resultat'}
-                </p>
-              )}
-            </button>
-          )}
+            <p className="text-slate-700 text-3xl font-bold mt-3">–</p>
+            <div className="text-center">
+              <p className="text-slate-500 text-xs font-medium mb-1">{match.opponent}</p>
+              <p className="text-6xl font-black leading-none text-white">{match.scoreThem}</p>
+            </div>
+          </div>
+          <p className="text-slate-600 text-xs text-center mt-3">
+            {match.isCompleted ? 'Afsluttet' : 'Scoren opdateres automatisk fra mål'}
+          </p>
         </div>
 
         {/* ── Man of the match ──────────────────────────────── */}

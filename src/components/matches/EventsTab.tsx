@@ -11,15 +11,18 @@ interface Props {
 }
 
 type EventType = 'goal' | 'yellow-card' | 'red-card'
+type GoalTeam = 'us' | 'them'
 
 interface EventFormData {
   type: EventType
+  team: GoalTeam
   scorerId: string
   assistId: string
 }
 
-const emptyForm = (type: EventType = 'goal'): EventFormData => ({
+const emptyForm = (type: EventType = 'goal', team: GoalTeam = 'us'): EventFormData => ({
   type,
+  team,
   scorerId: '',
   assistId: '',
 })
@@ -46,17 +49,20 @@ export default function EventsTab({ matchId }: Props) {
 
   if (!match) return null
 
-  const openForm = (type: EventType) => {
-    setForm(emptyForm(type))
+  const openForm = (type: EventType, team: GoalTeam = 'us') => {
+    setForm(emptyForm(type, team))
     setShowForm(true)
   }
 
   const submit = () => {
-    if (!form.scorerId) return
+    // Cards always need a player; 'us' goals need a scorer
+    if (form.type !== 'goal' && !form.scorerId) return
+    if (form.type === 'goal' && form.team === 'us' && !form.scorerId) return
     addEvent(matchId, {
       type: form.type,
       scorerId: form.scorerId,
-      assistId: form.type === 'goal' ? form.assistId || undefined : undefined,
+      assistId: form.type === 'goal' && form.team === 'us' ? form.assistId || undefined : undefined,
+      team: form.team,
     })
     setForm(emptyForm())
     setShowForm(false)
@@ -66,17 +72,21 @@ export default function EventsTab({ matchId }: Props) {
     setEditingId(event.id)
     setEditForm({
       type: event.type,
+      team: event.team ?? 'us',
       scorerId: event.scorerId,
       assistId: event.assistId ?? '',
     })
   }
 
   const saveEdit = () => {
-    if (!editingId || !editForm.scorerId) return
+    if (!editingId) return
+    if (editForm.type !== 'goal' && !editForm.scorerId) return
+    if (editForm.type === 'goal' && editForm.team === 'us' && !editForm.scorerId) return
     updateEvent(matchId, editingId, {
       type: editForm.type,
       scorerId: editForm.scorerId,
-      assistId: editForm.type === 'goal' ? editForm.assistId || undefined : undefined,
+      assistId: editForm.type === 'goal' && editForm.team === 'us' ? editForm.assistId || undefined : undefined,
+      team: editForm.team,
     })
     setEditingId(null)
   }
@@ -90,17 +100,39 @@ export default function EventsTab({ matchId }: Props) {
     <div>
       {/* Add event buttons — admin only */}
       {isAdmin && !showForm && (
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {(Object.entries(EVENT_CONFIG) as [EventType, typeof EVENT_CONFIG[EventType]][]).map(([type, cfg]) => (
-            <button
-              key={type}
-              onClick={() => openForm(type)}
-              className={`flex flex-col items-center justify-center gap-1 ${cfg.bgColor} border ${cfg.borderColor} ${cfg.color} rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform`}
-            >
-              <Plus size={15} strokeWidth={2.5} />
-              <span>{cfg.emoji} {cfg.label}</span>
-            </button>
-          ))}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {/* Our goal */}
+          <button
+            onClick={() => openForm('goal', 'us')}
+            className="flex flex-col items-center justify-center gap-1 bg-green-900/50 border border-green-500/30 text-green-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>⚽ Mål</span>
+          </button>
+          {/* Opponent goal */}
+          <button
+            onClick={() => openForm('goal', 'them')}
+            className="flex flex-col items-center justify-center gap-1 bg-red-900/30 border border-red-500/20 text-red-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>⚽ Modstandermål</span>
+          </button>
+          {/* Yellow card */}
+          <button
+            onClick={() => openForm('yellow-card')}
+            className="flex flex-col items-center justify-center gap-1 bg-yellow-900/40 border border-yellow-500/30 text-yellow-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>🟡 Gult kort</span>
+          </button>
+          {/* Red card */}
+          <button
+            onClick={() => openForm('red-card')}
+            className="flex flex-col items-center justify-center gap-1 bg-red-900/40 border border-red-500/30 text-red-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>🔴 Rødt kort</span>
+          </button>
         </div>
       )}
 
@@ -112,7 +144,7 @@ export default function EventsTab({ matchId }: Props) {
           onChange={(f) => setForm(f)}
           onSubmit={submit}
           onCancel={() => { setShowForm(false); setForm(emptyForm()) }}
-          submitLabel={`Gem ${EVENT_CONFIG[form.type].label.toLowerCase()}`}
+          submitLabel={form.type === 'goal' && form.team === 'them' ? 'Gem modstandermål' : `Gem ${EVENT_CONFIG[form.type].label.toLowerCase()}`}
         />
       )}
 
@@ -126,6 +158,7 @@ export default function EventsTab({ matchId }: Props) {
         <div className="space-y-2">
           {match.events.map((event) => {
             const cfg = EVENT_CONFIG[event.type]
+            const isOpponentGoal = event.type === 'goal' && event.team === 'them'
             return (
               <div key={event.id} className="bg-[#1a1d27] rounded-2xl p-4">
                 {editingId === event.id ? (
@@ -139,17 +172,19 @@ export default function EventsTab({ matchId }: Props) {
                   />
                 ) : (
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${cfg.bgColor} rounded-full flex items-center justify-center shrink-0`}>
+                    <div className={`w-10 h-10 ${isOpponentGoal ? 'bg-red-900/40' : cfg.bgColor} rounded-full flex items-center justify-center shrink-0`}>
                       <span className="text-lg leading-none">{cfg.emoji}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`font-semibold text-sm truncate ${cfg.color}`}>
-                        {cfg.label}
+                      <p className={`font-semibold text-sm truncate ${isOpponentGoal ? 'text-red-400' : cfg.color}`}>
+                        {isOpponentGoal ? 'Modstandermål' : cfg.label}
                       </p>
-                      <p className="text-white text-sm truncate">
-                        {getPlayerName(event.scorerId)}
-                      </p>
-                      {event.type === 'goal' && event.assistId && (
+                      {!isOpponentGoal && (
+                        <p className="text-white text-sm truncate">
+                          {getPlayerName(event.scorerId)}
+                        </p>
+                      )}
+                      {event.type === 'goal' && !isOpponentGoal && event.assistId && (
                         <p className="text-slate-400 text-xs">
                           Assist: {getPlayerName(event.assistId)}
                         </p>
@@ -194,44 +229,75 @@ interface FormProps {
 function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }: FormProps) {
   const cfg = EVENT_CONFIG[form.type]
   const isGoal = form.type === 'goal'
-  const playerLabel = isGoal ? 'Målscorer *' : 'Spiller *'
+  const isOpponentGoal = isGoal && form.team === 'them'
 
   return (
     <div className="bg-[#1a1d27] rounded-2xl p-4 mb-4 space-y-3">
-      {/* Type selector */}
-      <div className="grid grid-cols-3 gap-2">
-        {(Object.entries(EVENT_CONFIG) as [EventType, typeof EVENT_CONFIG[EventType]][]).map(([type, c]) => (
-          <button
-            key={type}
-            onClick={() => onChange({ ...form, type, assistId: '' })}
-            className={`py-2 rounded-xl text-xs font-semibold transition-all ${
-              form.type === type
-                ? `${c.bgColor} ${c.color} border ${c.borderColor}`
-                : 'bg-white/5 text-slate-500 border border-transparent'
-            }`}
-          >
-            {c.emoji} {c.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Player select */}
-      <div>
-        <label className="text-xs text-slate-400 mb-1 block">{playerLabel}</label>
-        <select
-          value={form.scorerId}
-          onChange={(e) => onChange({ ...form, scorerId: e.target.value })}
-          className="w-full bg-[#0f1117] border border-white/10 text-white rounded-xl px-3 py-3 focus:outline-none focus:border-orange-500/50"
+      {/* Type + team selector */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => onChange({ ...form, type: 'goal', team: 'us', assistId: '' })}
+          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+            isGoal && form.team === 'us'
+              ? 'bg-green-900/50 text-green-400 border border-green-500/30'
+              : 'bg-white/5 text-slate-500 border border-transparent'
+          }`}
         >
-          <option value="">Vælg spiller...</option>
-          {players.map((p) => (
-            <option key={p.id} value={p.id}>{displayName(p, players)}</option>
-          ))}
-        </select>
+          ⚽ Mål
+        </button>
+        <button
+          onClick={() => onChange({ ...form, type: 'goal', team: 'them', scorerId: '', assistId: '' })}
+          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+            isOpponentGoal
+              ? 'bg-red-900/30 text-red-400 border border-red-500/20'
+              : 'bg-white/5 text-slate-500 border border-transparent'
+          }`}
+        >
+          ⚽ Modstandermål
+        </button>
+        <button
+          onClick={() => onChange({ ...form, type: 'yellow-card', team: 'us', assistId: '' })}
+          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+            form.type === 'yellow-card'
+              ? 'bg-yellow-900/40 text-yellow-400 border border-yellow-500/30'
+              : 'bg-white/5 text-slate-500 border border-transparent'
+          }`}
+        >
+          🟡 Gult kort
+        </button>
+        <button
+          onClick={() => onChange({ ...form, type: 'red-card', team: 'us', assistId: '' })}
+          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+            form.type === 'red-card'
+              ? 'bg-red-900/40 text-red-400 border border-red-500/30'
+              : 'bg-white/5 text-slate-500 border border-transparent'
+          }`}
+        >
+          🔴 Rødt kort
+        </button>
       </div>
 
-      {/* Assist (goals only) */}
-      {isGoal && (
+      {/* Player select — hidden for opponent goals */}
+      {!isOpponentGoal && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            {isGoal ? 'Målscorer *' : 'Spiller *'}
+          </label>
+          <select
+            value={form.scorerId}
+            onChange={(e) => onChange({ ...form, scorerId: e.target.value })}
+            className="w-full bg-[#0f1117] border border-white/10 text-white rounded-xl px-3 py-3 focus:outline-none focus:border-orange-500/50"
+          >
+            <option value="">Vælg spiller...</option>
+            {players.map((p) => (
+              <option key={p.id} value={p.id}>{displayName(p, players)}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Assist — only for our goals */}
+      {isGoal && !isOpponentGoal && (
         <div>
           <label className="text-xs text-slate-400 mb-1 block">Assist (valgfri)</label>
           <select
@@ -247,6 +313,13 @@ function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }:
         </div>
       )}
 
+      {/* Confirm hint for opponent goal */}
+      {isOpponentGoal && (
+        <p className="text-slate-500 text-xs px-1">
+          Modstandermålet registreres uden målscorer.
+        </p>
+      )}
+
       <div className="flex gap-2 pt-1">
         <button
           onClick={onCancel}
@@ -256,8 +329,8 @@ function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }:
         </button>
         <button
           onClick={onSubmit}
-          disabled={!form.scorerId}
-          className={`flex-1 ${cfg.btnColor} disabled:opacity-30 text-black font-bold py-3 rounded-xl text-sm active:scale-[0.98]`}
+          disabled={!isOpponentGoal && !form.scorerId}
+          className={`flex-1 ${isOpponentGoal ? 'bg-red-500' : cfg.btnColor} disabled:opacity-30 text-black font-bold py-3 rounded-xl text-sm active:scale-[0.98]`}
         >
           {submitLabel}
         </button>

@@ -11,6 +11,7 @@ import {
   patchEvent,
   removeEvent,
   syncLineup,
+  recalculateMatchScore,
 } from '../lib/supabaseService'
 
 // ── helper: seed matches to Supabase if table is empty ────────────────────────
@@ -152,21 +153,51 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
         m.id === matchId ? { ...m, events: [...m.events, created] } : m
       ),
     }))
+    if (event.type === 'goal') {
+      recalculateMatchScore(matchId)
+        .then(({ scoreUs, scoreThem }) =>
+          set((s) => ({
+            matches: s.matches.map((m) =>
+              m.id === matchId ? { ...m, scoreUs, scoreThem } : m
+            ),
+          }))
+        )
+        .catch((err) => console.error('[MatchStore] Score recalculation failed:', err))
+    }
   },
 
   updateEvent: (matchId, eventId, updates) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    const prevEvent = match?.events.find((e) => e.id === eventId)
+    const wasGoal = prevEvent?.type === 'goal'
+    const isGoal = updates.type ? updates.type === 'goal' : wasGoal
+
     set((s) => ({
       matches: s.matches.map((m) => {
         if (m.id !== matchId) return m
         return { ...m, events: m.events.map((e) => (e.id === eventId ? { ...e, ...updates } : e)) }
       }),
     }))
-    patchEvent(eventId, updates).catch((err) =>
-      console.error('[MatchStore] Failed to update event:', err)
-    )
+
+    const sync = async () => {
+      await patchEvent(eventId, updates)
+      if (wasGoal || isGoal) {
+        const { scoreUs, scoreThem } = await recalculateMatchScore(matchId)
+        set((s) => ({
+          matches: s.matches.map((m) =>
+            m.id === matchId ? { ...m, scoreUs, scoreThem } : m
+          ),
+        }))
+      }
+    }
+    sync().catch((err) => console.error('[MatchStore] Failed to update event:', err))
   },
 
   deleteEvent: (matchId, eventId) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    const event = match?.events.find((e) => e.id === eventId)
+    const wasGoal = event?.type === 'goal'
+
     set((s) => ({
       matches: s.matches.map((m) =>
         m.id === matchId
@@ -174,9 +205,19 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
           : m
       ),
     }))
-    removeEvent(eventId).catch((err) =>
-      console.error('[MatchStore] Failed to delete event:', err)
-    )
+
+    const cleanup = async () => {
+      await removeEvent(eventId)
+      if (wasGoal) {
+        const { scoreUs, scoreThem } = await recalculateMatchScore(matchId)
+        set((s) => ({
+          matches: s.matches.map((m) =>
+            m.id === matchId ? { ...m, scoreUs, scoreThem } : m
+          ),
+        }))
+      }
+    }
+    cleanup().catch((err) => console.error('[MatchStore] Failed to delete event:', err))
   },
 
   // ── Lineup ────────────────────────────────────────────────────────────────

@@ -26,7 +26,7 @@ const formatDate = (iso: string): string => {
   const [datePart] = iso.split('T')
   const [y, m, d] = datePart.split('-').map(Number)
   const dateObj = new Date(y, m - 1, d)
-  const weekday = dateObj.toLocaleDateString('da-DK', { weekday: 'long' })
+  const weekday  = dateObj.toLocaleDateString('da-DK', { weekday: 'long' })
   const dayMonth = dateObj.toLocaleDateString('da-DK', { day: 'numeric', month: 'long' })
   const cap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
   const time = extractTime(iso)
@@ -53,7 +53,7 @@ export default function MatchDetail() {
         <button onClick={() => navigate(-1)} className="text-orange-400 flex items-center gap-1">
           <ArrowLeft size={18} /> Tilbage
         </button>
-        <p className="text-slate-400 mt-4">Kamp ikke fundet</p>
+        <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>Kamp ikke fundet</p>
       </div>
     )
   }
@@ -71,9 +71,9 @@ export default function MatchDetail() {
       {/* ── Match header ──────────────────────────────────────── */}
       <div
         className="relative px-4 pt-8 pb-6 overflow-hidden"
-        style={{ background: '#12131c' }}
+        style={{ background: 'var(--bg-card)' }}
       >
-        {/* Subtle glow behind score */}
+        {/* Subtle result glow */}
         {resultColor && (
           <div
             className="absolute top-0 right-0 w-48 h-36 rounded-full pointer-events-none"
@@ -92,8 +92,12 @@ export default function MatchDetail() {
           {isAdmin && !match.isCompleted && (
             <button
               onClick={() => completeMatch(match.id)}
-              className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform border border-orange-500/30"
-              style={{ background: 'rgba(249,115,22,0.12)', color: '#fb923c' }}
+              className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform"
+              style={{
+                background: 'rgba(249,115,22,0.12)',
+                color: '#fb923c',
+                border: '1px solid rgba(249,115,22,0.30)',
+              }}
             >
               Afslut kamp
             </button>
@@ -119,41 +123,46 @@ export default function MatchDetail() {
             {match.location}
           </p>
         </div>
-        <h2 className="text-xl font-black text-white mb-0.5 tracking-tight">
+        <h2 className="text-xl font-black tracking-tight mb-0.5" style={{ color: 'var(--text-primary)' }}>
           Spartak vs. {match.opponent}
         </h2>
-        <p className="text-slate-500 text-sm">{formatDate(match.date)}</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(match.date)}</p>
 
         {/* ── Score display ──────────────────────────────────── */}
         <div className="mt-5">
           <div className="flex items-center justify-center gap-6">
             <div className="text-center">
-              <p className="text-slate-500 text-xs font-medium mb-1">Spartak</p>
+              <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Spartak</p>
               <p
                 className="text-6xl font-black leading-none"
-                style={{ color: won ? '#4ade80' : 'white' }}
+                style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}
               >
                 {match.scoreUs}
               </p>
             </div>
-            <p className="text-slate-700 text-3xl font-bold mt-3">–</p>
+            <p className="text-3xl font-bold mt-3" style={{ color: 'var(--text-dimmer)' }}>–</p>
             <div className="text-center">
-              <p className="text-slate-500 text-xs font-medium mb-1">{match.opponent}</p>
-              <p className="text-6xl font-black leading-none text-white">{match.scoreThem}</p>
+              <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>{match.opponent}</p>
+              <p className="text-6xl font-black leading-none" style={{ color: 'var(--text-primary)' }}>
+                {match.scoreThem}
+              </p>
             </div>
           </div>
-          <p className="text-slate-600 text-xs text-center mt-3">
+          <p className="text-xs text-center mt-3" style={{ color: 'var(--text-faint)' }}>
             {match.isCompleted ? 'Afsluttet' : 'Scoren opdateres automatisk fra mål'}
           </p>
         </div>
 
         {/* ── Man of the match ──────────────────────────────── */}
         <div
-          className="mt-4 flex items-center gap-2.5 rounded-xl px-3 py-2.5 border border-white/[0.05]"
-          style={{ background: 'rgba(255,255,255,0.03)' }}
+          className="mt-4 flex items-center gap-2.5 rounded-xl px-3 py-2.5"
+          style={{
+            background: 'var(--bg-raised)',
+            border: '1px solid var(--border-faint)',
+          }}
         >
           <Star size={13} className="text-yellow-400 shrink-0" />
-          <span className="text-xs text-slate-500 shrink-0">Kampens spiller</span>
+          <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Kampens spiller</span>
           {isAdmin ? (
             <select
               value={match.manOfTheMatch ?? ''}
@@ -169,7 +178,7 @@ export default function MatchDetail() {
             <span className="flex-1 text-yellow-400 text-xs font-semibold min-w-0 truncate">
               {match.manOfTheMatch
                 ? displayName(players.find((p) => p.id === match.manOfTheMatch)!, players)
-                : <span className="text-slate-600 italic">Ikke valgt</span>
+                : <span className="italic" style={{ color: 'var(--text-faint)' }}>Ikke valgt</span>
               }
             </span>
           )}
@@ -182,16 +191,19 @@ export default function MatchDetail() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-              tab === t ? 'text-black' : 'text-slate-500 border border-white/[0.06] active:opacity-75'
-            }`}
+            className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all"
             style={
               tab === t
                 ? {
                     background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
                     boxShadow: '0 4px 14px rgba(249,115,22,0.28)',
+                    color: '#000',
                   }
-                : { background: '#12131c' }
+                : {
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-muted)',
+                  }
             }
           >
             {t === 'tilmelding' ? 'Tilmelding' : t === 'begivenheder' ? 'Begivenheder' : 'Opstilling'}

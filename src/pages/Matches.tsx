@@ -3,16 +3,15 @@ import { Plus, MapPin } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
 
-/** Extracts HH:MM from '2026-04-07T20:30' — returns '' if no time present. */
+/** Extracts HH:MM from an ISO string like '2026-04-07T20:30' — returns '' if no time present. */
 const extractTime = (iso: string): string => {
   const t = iso.split('T')[1]
   return t ? t.slice(0, 5) : ''
 }
 
 /**
- * Upcoming list:  "Tirs. 07-04-2026 · 20:30"
- * Completed list: "Tirs. 07-04-2026 · 20:30"
- * Both fall back to date-only if no time is stored.
+ * "Tirs. 07-04-2026 · 20:30"  (with time)
+ * "Tirs. 07-04-2026"           (date-only)
  */
 const formatListDate = (iso: string): string => {
   const [datePart] = iso.split('T')
@@ -25,8 +24,7 @@ const formatListDate = (iso: string): string => {
   return time ? `${base} · ${time}` : base
 }
 
-// Legacy alias used for completed match meta line (same format)
-const formatDate = formatListDate
+const formatDate    = formatListDate
 const formatShortDate = formatListDate
 
 export default function Matches() {
@@ -54,7 +52,8 @@ export default function Matches() {
                 Kampprogram
               </span>
             </div>
-            <h1 className="text-[2rem] font-black text-white tracking-tight leading-none">
+            <h1 className="text-[2rem] font-black tracking-tight leading-none"
+                style={{ color: 'var(--text-primary)' }}>
               Kampe
             </h1>
           </div>
@@ -75,9 +74,9 @@ export default function Matches() {
 
       {/* ── Empty state ───────────────────────────────────── */}
       {matches.length === 0 && (
-        <div className="text-center py-20 text-slate-600 px-4">
+        <div className="text-center py-20 px-4" style={{ color: 'var(--text-faint)' }}>
           <p className="text-4xl mb-4">🏟️</p>
-          <p className="text-slate-400 font-semibold">Ingen kampe endnu</p>
+          <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Ingen kampe endnu</p>
           <p className="text-sm mt-1">Tryk + for at oprette en kamp</p>
         </div>
       )}
@@ -93,8 +92,11 @@ export default function Matches() {
                 <button
                   key={match.id}
                   onClick={() => navigate(`/kampe/${match.id}`)}
-                  className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden border border-orange-500/15"
-                  style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.07) 0%, #12131c 70%)' }}
+                  className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(249,115,22,0.07) 0%, var(--bg-card) 70%)`,
+                    border: '1px solid rgba(249,115,22,0.15)',
+                  }}
                 >
                   <div
                     className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
@@ -102,17 +104,22 @@ export default function Matches() {
                   />
                   <div className="pl-3 flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-white text-base truncate">
+                      <p className="font-bold text-base truncate" style={{ color: 'var(--text-primary)' }}>
                         vs. {match.opponent}
                       </p>
-                      <p className="text-slate-500 text-xs mt-0.5 flex items-center gap-1">
+                      <p className="text-xs mt-0.5 flex items-center gap-1"
+                         style={{ color: 'var(--text-muted)' }}>
                         <MapPin size={10} className="shrink-0" />
                         {match.location} · {formatShortDate(match.date)}
                       </p>
                     </div>
                     <span
-                      className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0 border border-orange-500/30"
-                      style={{ background: 'rgba(249,115,22,0.12)', color: '#fb923c' }}
+                      className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
+                      style={{
+                        background: 'rgba(249,115,22,0.12)',
+                        color: '#fb923c',
+                        border: '1px solid rgba(249,115,22,0.30)',
+                      }}
                     >
                       Kommende
                     </span>
@@ -139,8 +146,8 @@ export default function Matches() {
                   <button
                     key={match.id}
                     onClick={() => navigate(`/kampe/${match.id}`)}
-                    className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform border border-white/[0.05]"
-                    style={{ background: '#12131c' }}
+                    className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-faint)' }}
                   >
                     <div className="flex items-center gap-3">
                       {/* Result indicator */}
@@ -149,16 +156,17 @@ export default function Matches() {
                         style={{ background: resultColor, minHeight: '36px' }}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white text-sm truncate">
+                        <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>
                           vs. {match.opponent}
                         </p>
-                        <p className="text-slate-600 text-xs mt-0.5 flex items-center gap-1">
+                        <p className="text-xs mt-0.5 flex items-center gap-1"
+                           style={{ color: 'var(--text-faint)' }}>
                           <MapPin size={10} className="shrink-0" />
                           {match.location} · {formatDate(match.date)}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-xl font-black text-white leading-none">
+                        <p className="text-xl font-black leading-none" style={{ color: 'var(--text-primary)' }}>
                           {match.scoreUs}–{match.scoreThem}
                         </p>
                         <span
@@ -171,7 +179,8 @@ export default function Matches() {
                     </div>
 
                     {/* Footer meta */}
-                    <div className="flex gap-4 mt-3 pt-3 border-t border-white/[0.04] text-xs text-slate-600">
+                    <div className="flex gap-4 mt-3 pt-3 text-xs"
+                         style={{ borderTop: '1px solid var(--border-faint)', color: 'var(--text-faint)' }}>
                       <span>⚽ {match.events.filter(e => e.type === 'goal').length} mål</span>
                       <span>👥 {Object.values(match.lineup).length + match.bench.length} udtaget</span>
                     </div>
@@ -189,7 +198,8 @@ export default function Matches() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.12em] mb-3">
+    <p className="text-[11px] font-bold uppercase tracking-[0.12em] mb-3"
+       style={{ color: 'var(--text-muted)' }}>
       {children}
     </p>
   )

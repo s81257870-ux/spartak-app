@@ -19,6 +19,12 @@ export default function NewMatch() {
   const [isCompleted, setIsCompleted] = useState(false)
   const [saving,      setSaving]      = useState(false)
 
+  const inputStyle = {
+    background: 'var(--bg-raised)',
+    border: '1px solid var(--border-input)',
+    color: 'var(--text-primary)',
+  }
+
   const submit = async () => {
     if (!opponent.trim() || saving) return
     setSaving(true)
@@ -43,60 +49,82 @@ export default function NewMatch() {
         <button onClick={() => navigate(-1)} className="text-orange-400 active:opacity-70">
           <ArrowLeft size={22} />
         </button>
-        <h1 className="text-xl font-bold text-white">Ny kamp</h1>
+        <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Ny kamp</h1>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Modstander *</label>
+          <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                 style={{ color: 'var(--text-secondary)' }}>
+            Modstander *
+          </label>
           <input
             type="text"
             value={opponent}
             onChange={(e) => setOpponent(e.target.value)}
             placeholder="Modstanderhold"
             autoFocus
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            style={inputStyle}
           />
         </div>
 
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Dato</label>
+            <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                   style={{ color: 'var(--text-secondary)' }}>
+              Dato
+            </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+              className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+              style={inputStyle}
             />
           </div>
           <div className="w-32">
-            <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Tidspunkt</label>
+            <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                   style={{ color: 'var(--text-secondary)' }}>
+              Tidspunkt
+            </label>
             <input
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+              className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+              style={inputStyle}
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Sted</label>
+          <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                 style={{ color: 'var(--text-secondary)' }}>
+            Sted
+          </label>
           <input
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="f.eks. Valby Idrætspark"
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            style={inputStyle}
           />
         </div>
 
-        <div className="flex items-center justify-between bg-[#1a1d27] rounded-xl px-4 py-3.5">
-          <span className="text-white text-sm">Kampen er afsluttet</span>
+        <div
+          className="flex items-center justify-between rounded-xl px-4 py-3.5"
+          style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
+        >
+          <span className="text-sm" style={{ color: 'var(--text-primary)' }}>Kampen er afsluttet</span>
           <button
             onClick={() => setIsCompleted(!isCompleted)}
-            className={`w-12 h-6 rounded-full transition-colors relative ${isCompleted ? '' : 'bg-slate-600'}`}
-            style={isCompleted ? { background: 'linear-gradient(135deg, #f97316, #fbbf24)' } : {}}
+            className="w-12 h-6 rounded-full transition-colors relative"
+            style={isCompleted
+              ? { background: 'linear-gradient(135deg, #f97316, #fbbf24)' }
+              : { background: 'var(--text-dimmer)' }
+            }
           >
             <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isCompleted ? 'translate-x-6' : 'translate-x-0.5'}`} />
           </button>
@@ -104,23 +132,31 @@ export default function NewMatch() {
 
         {isCompleted && (
           <div>
-            <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Resultat</label>
-            <div className="flex items-center gap-3 bg-[#1a1d27] rounded-xl p-4">
+            <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                   style={{ color: 'var(--text-secondary)' }}>
+              Resultat
+            </label>
+            <div
+              className="flex items-center gap-3 rounded-xl p-4"
+              style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
+            >
               <div className="flex-1 text-center">
-                <p className="text-slate-400 text-xs mb-2">Spartak</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>Spartak</p>
                 <input
                   type="number" min="0" value={scoreUs}
                   onChange={(e) => setScoreUs(e.target.value)}
-                  className="w-full bg-[#0f1117] text-white text-3xl font-bold text-center rounded-lg py-2 focus:outline-none border border-white/10 focus:border-orange-500/40"
+                  className="w-full text-3xl font-bold text-center rounded-lg py-2 focus:outline-none"
+                  style={{ background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
                 />
               </div>
-              <span className="text-slate-500 text-2xl font-bold">–</span>
+              <span className="text-2xl font-bold" style={{ color: 'var(--text-muted)' }}>–</span>
               <div className="flex-1 text-center">
-                <p className="text-slate-400 text-xs mb-2">Modstander</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>Modstander</p>
                 <input
                   type="number" min="0" value={scoreThem}
                   onChange={(e) => setScoreThem(e.target.value)}
-                  className="w-full bg-[#0f1117] text-white text-3xl font-bold text-center rounded-lg py-2 focus:outline-none border border-white/10 focus:border-orange-500/40"
+                  className="w-full text-3xl font-bold text-center rounded-lg py-2 focus:outline-none"
+                  style={{ background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
                 />
               </div>
             </div>

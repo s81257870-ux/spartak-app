@@ -1,5 +1,64 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════
+   Theme tokens — dark mode (default)
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  /* surfaces */
+  --bg-app:      #0f1117;
+  --bg-card:     #12131c;
+  --bg-raised:   #1a1d27;
+  --bg-input:    #0c0d14;
+  --bg-nav:      #0e0f17;
+
+  /* borders */
+  --border:        rgba(255, 255, 255, 0.06);
+  --border-faint:  rgba(255, 255, 255, 0.04);
+  --border-input:  rgba(255, 255, 255, 0.10);
+
+  /* text */
+  --text-primary:    #f1f5f9;
+  --text-secondary:  #94a3b8;   /* slate-400 */
+  --text-muted:      #64748b;   /* slate-500 */
+  --text-faint:      #475569;   /* slate-600 */
+  --text-dimmer:     #334155;   /* slate-700 */
+
+  /* misc */
+  --shadow-modal: rgba(0, 0, 0, 0.60);
+  --shadow-nav:   rgba(0, 0, 0, 0.50);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Theme tokens — light mode (warm premium palette)
+   ═══════════════════════════════════════════════════════════════════ */
+:root.light {
+  /* surfaces — warm off-white / cream, not plain white */
+  --bg-app:      #f0ebe3;
+  --bg-card:     #faf6f0;
+  --bg-raised:   #ffffff;
+  --bg-input:    #ede8e0;
+  --bg-nav:      #fdf9f4;
+
+  /* borders — dark/transparent instead of white/transparent */
+  --border:        rgba(0, 0, 0, 0.07);
+  --border-faint:  rgba(0, 0, 0, 0.04);
+  --border-input:  rgba(0, 0, 0, 0.10);
+
+  /* text — dark navy hierarchy on warm backgrounds */
+  --text-primary:    #1a1c2e;
+  --text-secondary:  #64748b;   /* slate-500 — readable on warm light bg */
+  --text-muted:      #94a3b8;   /* slate-400 */
+  --text-faint:      #b0b8c8;
+  --text-dimmer:     #cbd5e1;
+
+  /* misc */
+  --shadow-modal: rgba(0, 0, 0, 0.30);
+  --shadow-nav:   rgba(0, 0, 0, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Base
+   ═══════════════════════════════════════════════════════════════════ */
 * {
   box-sizing: border-box;
 }
@@ -8,9 +67,10 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #0f1117;
-  color: #f1f5f9;
+  background: var(--bg-app);
+  color: var(--text-primary);
   overscroll-behavior: none;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 #root {
@@ -23,3 +83,61 @@ body {
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Light-mode overrides for Tailwind utility classes
+   These flip the dark-mode utility classes to light-mode equivalents.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── text ──────────────────────────────────────────────────────── */
+/* `text-white` on headings / content flips to dark navy in light mode.
+   Exception: elements with explicit colored backgrounds (player avatars,
+   badges) use style={{ color: 'white' }} directly and are unaffected. */
+.light .text-white {
+  color: var(--text-primary);
+}
+.light .text-slate-300 {
+  color: var(--text-secondary);
+}
+
+/* ── borders (white/opacity → black/opacity) ─────────────────────── */
+.light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.07); }
+.light .border-white\/\[0\.05\]   { border-color: rgba(0,0,0,0.05); }
+.light .border-white\/\[0\.04\]   { border-color: rgba(0,0,0,0.04); }
+.light .border-white\/10          { border-color: rgba(0,0,0,0.10); }
+.light .border-white\/\[0\.08\]   { border-color: rgba(0,0,0,0.08); }
+
+/* ── dividers ────────────────────────────────────────────────────── */
+.light .divide-white\/\[0\.04\] > * + * { border-color: rgba(0,0,0,0.04); }
+.light .divide-white\/\[0\.06\] > * + * { border-color: rgba(0,0,0,0.06); }
+
+/* ── transparent white backgrounds ──────────────────────────────── */
+.light .bg-white\/5  { background-color: rgba(0,0,0,0.04); }
+.light .bg-white\/8  { background-color: rgba(0,0,0,0.05); }
+.light .bg-white\/10 { background-color: rgba(0,0,0,0.06); }
+
+/* ── event-type buttons (dark tints → light tints on warm bg) ─── */
+.light .bg-green-900\/50  { background-color: rgba(22, 163, 74, 0.10); }
+.light .bg-red-900\/40    { background-color: rgba(220, 38, 38, 0.10); }
+.light .bg-red-900\/30    { background-color: rgba(220, 38, 38, 0.08); }
+.light .bg-yellow-900\/40 { background-color: rgba(202, 138, 4, 0.10); }
+
+/* ── cancel button in forms ──────────────────────────────────────── */
+.light .bg-slate-700 {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+}
+
+
+/* placeholder text in light mode */
+.light .placeholder-slate-500::placeholder { color: #94a3b8; }
+.light .placeholder-slate-600::placeholder { color: #94a3b8; }
+
+/* select element option backgrounds */
+.light select option {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+}
+
+/* pitch slot empty circle in light mode — keep dashed ring visible */
+.light .border-white\/25 { border-color: rgba(0,0,0,0.18); }

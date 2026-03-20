@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore'
 import LeagueTable from '../components/stats/LeagueTable'
 import { LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
 import LoginModal from '../components/auth/LoginModal'
+import ThemeSwitcher from '../components/ThemeSwitcher'
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -36,7 +37,6 @@ export default function Home() {
   const topScorer   = [...playerStats].sort((a, b) => b.goals     - a.goals)[0]
   const topAssister = [...playerStats].sort((a, b) => b.assists   - a.assists)[0]
 
-  // Spartak's current position in the league table
   const spartakRow    = LEAGUE_TABLE.find((r) => r.isSpartak)
   const spartakPos    = spartakRow?.position ?? '–'
   const totalTeams    = LEAGUE_TABLE.length
@@ -55,19 +55,21 @@ export default function Home() {
         />
         <div className="flex items-center justify-between relative">
           <div>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em] mb-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1"
+               style={{ color: 'var(--text-muted)' }}>
               Sæson 2025
             </p>
-            <h1 className="text-[2rem] font-black text-white tracking-tight leading-none">
+            <h1 className="text-[2rem] font-black tracking-tight leading-none"
+                style={{ color: 'var(--text-primary)' }}>
               Spartak
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
               {players.length} spillere i truppen
             </p>
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            {/* Club crest */}
+            {/* Club crest — always white text on red bg */}
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
               style={{
@@ -75,13 +77,14 @@ export default function Home() {
                 boxShadow: '0 8px 24px rgba(220,38,38,0.30)',
               }}
             >
-              <span className="text-white font-black text-2xl leading-none">S</span>
+              <span style={{ color: 'white' }} className="font-black text-2xl leading-none">S</span>
             </div>
             {/* Auth button */}
             {isAdmin ? (
               <button
                 onClick={logout}
-                className="flex items-center gap-1 text-[10px] text-slate-500 active:text-orange-400 transition-colors"
+                className="flex items-center gap-1 text-[10px] active:text-orange-400 transition-colors"
+                style={{ color: 'var(--text-muted)' }}
               >
                 <LogOut size={10} />
                 Log ud
@@ -89,7 +92,8 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => setShowLogin(true)}
-                className="flex items-center gap-1 text-[10px] text-slate-600 active:text-orange-400 transition-colors"
+                className="flex items-center gap-1 text-[10px] active:text-orange-400 transition-colors"
+                style={{ color: 'var(--text-faint)' }}
               >
                 <Lock size={10} />
                 Admin
@@ -113,6 +117,11 @@ export default function Home() {
             </span>
           </div>
         )}
+
+        {/* Theme switcher */}
+        <div className="mt-4">
+          <ThemeSwitcher />
+        </div>
       </div>
 
       <div className="px-4 space-y-4">
@@ -120,13 +129,14 @@ export default function Home() {
         {/* ── Season record ─────────────────────────────────── */}
         {completedMatches.length > 0 && (
           <div
-            className="rounded-2xl p-4 border border-white/[0.06]"
-            style={{ background: '#12131c' }}
+            className="rounded-2xl p-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.12em] mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-4"
+               style={{ color: 'var(--text-muted)' }}>
               Sæsonform
             </p>
-            <div className="grid grid-cols-4 divide-x divide-white/[0.06]">
+            <div className="grid grid-cols-4" style={{ borderRight: 'none' }}>
               <RecordItem value={wins}       label="Sejre"    color="text-green-400" />
               <RecordItem value={draws}      label="Uafgjort" color="text-yellow-400" />
               <RecordItem value={losses}     label="Nederlag" color="text-red-400" />
@@ -141,21 +151,24 @@ export default function Home() {
             <SectionLabel>Næste kamp</SectionLabel>
             <button
               onClick={() => navigate(`/kampe/${upcomingMatches[0].id}`)}
-              className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden border border-orange-500/20"
-              style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.12) 0%, #12131c 60%)' }}
+              className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
+              style={{
+                background: `linear-gradient(135deg, rgba(249,115,22,0.12) 0%, var(--bg-card) 60%)`,
+                border: '1px solid rgba(249,115,22,0.20)',
+              }}
             >
               <div
                 className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
                 style={{ background: 'linear-gradient(180deg, #f97316, #fbbf24)' }}
               />
               <div className="pl-3">
-                <p className="text-white font-bold text-base leading-tight">
+                <p className="font-bold text-base leading-tight" style={{ color: 'var(--text-primary)' }}>
                   Spartak vs. {upcomingMatches[0].opponent}
                 </p>
                 <p className="text-orange-400/80 text-sm mt-0.5">
                   {formatDate(upcomingMatches[0].date)} · {upcomingMatches[0].location}
                 </p>
-                <p className="text-slate-600 text-xs mt-2">Tryk for at se kamp →</p>
+                <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>Tryk for at se kamp →</p>
               </div>
             </button>
           </div>
@@ -167,8 +180,8 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-3">
             {/* Top scorer */}
             <div
-              className="rounded-2xl p-4 border border-white/[0.06] flex flex-col gap-3"
-              style={{ background: '#12131c' }}
+              className="rounded-2xl p-4 flex flex-col gap-3"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
@@ -177,13 +190,16 @@ export default function Home() {
                 ⚽
               </div>
               <div className="min-w-0">
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5"
+                   style={{ color: 'var(--text-muted)' }}>
                   Topscorer
                 </p>
-                <p className="text-white font-semibold text-sm truncate leading-tight">
+                <p className="font-semibold text-sm truncate leading-tight"
+                   style={{ color: 'var(--text-primary)' }}>
                   {topScorer ? topScorer.player.name.split(' ')[0] : '—'}
                 </p>
-                <p className="text-slate-600 text-[10px] truncate leading-tight">
+                <p className="text-[10px] truncate leading-tight"
+                   style={{ color: 'var(--text-faint)' }}>
                   {topScorer ? topScorer.player.name.split(' ').slice(1).join(' ') : ''}
                 </p>
               </div>
@@ -192,14 +208,14 @@ export default function Home() {
                 style={{ textShadow: '0 0 16px rgba(249,115,22,0.35)' }}
               >
                 {topScorer?.goals ?? 0}
-                <span className="text-[11px] text-slate-600 font-semibold ml-1">mål</span>
+                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>mål</span>
               </p>
             </div>
 
             {/* Top assister */}
             <div
-              className="rounded-2xl p-4 border border-white/[0.06] flex flex-col gap-3"
-              style={{ background: '#12131c' }}
+              className="rounded-2xl p-4 flex flex-col gap-3"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
@@ -208,13 +224,16 @@ export default function Home() {
                 🎯
               </div>
               <div className="min-w-0">
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5"
+                   style={{ color: 'var(--text-muted)' }}>
                   Flest assists
                 </p>
-                <p className="text-white font-semibold text-sm truncate leading-tight">
+                <p className="font-semibold text-sm truncate leading-tight"
+                   style={{ color: 'var(--text-primary)' }}>
                   {topAssister ? topAssister.player.name.split(' ')[0] : '—'}
                 </p>
-                <p className="text-slate-600 text-[10px] truncate leading-tight">
+                <p className="text-[10px] truncate leading-tight"
+                   style={{ color: 'var(--text-faint)' }}>
                   {topAssister ? topAssister.player.name.split(' ').slice(1).join(' ') : ''}
                 </p>
               </div>
@@ -223,7 +242,7 @@ export default function Home() {
                 style={{ textShadow: '0 0 16px rgba(99,102,241,0.35)' }}
               >
                 {topAssister?.assists ?? 0}
-                <span className="text-[11px] text-slate-600 font-semibold ml-1">ast</span>
+                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>ast</span>
               </p>
             </div>
           </div>
@@ -249,16 +268,22 @@ export default function Home() {
                   <button
                     key={match.id}
                     onClick={() => navigate(`/kampe/${match.id}`)}
-                    className="w-full rounded-xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform text-left border border-white/[0.05]"
-                    style={{ background: '#12131c' }}
+                    className="w-full rounded-xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform text-left"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-faint)' }}
                   >
                     <div className={`w-1.5 h-8 rounded-full shrink-0 ${won ? 'bg-green-400' : draw ? 'bg-yellow-400' : 'bg-red-400'}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-semibold truncate">vs. {match.opponent}</p>
-                      <p className="text-slate-500 text-xs mt-0.5">{formatDate(match.date)}</p>
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                        vs. {match.opponent}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                        {formatDate(match.date)}
+                      </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-white font-bold text-sm">{match.scoreUs}–{match.scoreThem}</p>
+                      <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                        {match.scoreUs}–{match.scoreThem}
+                      </p>
                       <p className={`text-[10px] font-semibold ${won ? 'text-green-400' : draw ? 'text-yellow-400' : 'text-red-400'}`}>
                         {won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
                       </p>
@@ -272,10 +297,9 @@ export default function Home() {
 
         {/* ── League table (collapsible) ─────────────────────── */}
         <div
-          className="rounded-2xl border border-white/[0.06] overflow-hidden"
-          style={{ background: '#12131c' }}
+          className="rounded-2xl overflow-hidden"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
-          {/* Accordion header – always visible */}
           <button
             onClick={() => setTableOpen((v) => !v)}
             className="w-full flex items-center justify-between px-4 py-3.5 active:opacity-75 transition-opacity"
@@ -283,22 +307,23 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <span className="text-base">🏆</span>
               <div className="text-left">
-                <p className="text-white text-sm font-semibold leading-tight">Stilling</p>
-                <p className="text-slate-600 text-[10px] mt-0.5">
+                <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                  Stilling
+                </p>
+                <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
                   Spartak · #{spartakPos} af {totalTeams} hold
                 </p>
               </div>
             </div>
             <ChevronDown
               size={16}
-              className="text-slate-500 transition-transform duration-200"
-              style={{ transform: tableOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              className="transition-transform duration-200"
+              style={{ color: 'var(--text-muted)', transform: tableOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
             />
           </button>
 
-          {/* Expandable table */}
           {tableOpen && (
-            <div className="border-t border-white/[0.06]">
+            <div style={{ borderTop: '1px solid var(--border)' }}>
               <LeagueTable rows={LEAGUE_TABLE} leagueName={LEAGUE_NAME} />
             </div>
           )}
@@ -321,8 +346,12 @@ export default function Home() {
           )}
           <button
             onClick={() => navigate('/statistik')}
-            className={`flex flex-col items-center justify-center gap-2 rounded-2xl py-5 font-semibold text-sm active:scale-[0.97] transition-transform text-white border border-white/[0.06] ${isAdmin ? '' : 'col-span-2'}`}
-            style={{ background: '#12131c' }}
+            className={`flex flex-col items-center justify-center gap-2 rounded-2xl py-5 font-semibold text-sm active:scale-[0.97] transition-transform ${isAdmin ? '' : 'col-span-2'}`}
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
           >
             <span className="text-xl">📊</span>
             Statistik
@@ -331,9 +360,9 @@ export default function Home() {
 
         {/* ── Empty state ───────────────────────────────────── */}
         {completedMatches.length === 0 && upcomingMatches.length === 0 && (
-          <div className="text-center py-12 text-slate-600 mt-2">
+          <div className="text-center py-12 mt-2" style={{ color: 'var(--text-faint)' }}>
             <p className="text-3xl mb-3">🏟️</p>
-            <p className="font-semibold text-slate-400">Ingen kampe endnu</p>
+            <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Ingen kampe endnu</p>
             <p className="text-sm mt-1">Opret din første kamp herover</p>
           </div>
         )}
@@ -345,7 +374,8 @@ export default function Home() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.12em] mb-3">
+    <p className="text-[11px] font-bold uppercase tracking-[0.12em] mb-3"
+       style={{ color: 'var(--text-muted)' }}>
       {children}
     </p>
   )
@@ -355,7 +385,7 @@ function RecordItem({ value, label, color }: { value: number; label: string; col
   return (
     <div className="text-center px-2">
       <p className={`text-2xl font-black leading-none mb-1 ${color}`}>{value}</p>
-      <p className="text-slate-600 text-[10px] font-medium">{label}</p>
+      <p className="text-[10px] font-medium" style={{ color: 'var(--text-faint)' }}>{label}</p>
     </div>
   )
 }

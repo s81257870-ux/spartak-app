@@ -33,7 +33,7 @@ export default function Stats() {
     .map((p) => ({ player: p, stats: getPlayerStats(p.id) }))
     .sort((a, b) => b.stats[sortBy] - a.stats[sortBy])
 
-  const topScorerFixed = [...allStats].sort((a, b) => b.stats.goals - a.stats.goals)[0]
+  const topScorerFixed  = [...allStats].sort((a, b) => b.stats.goals   - a.stats.goals)[0]
   const topAssistsFixed = [...allStats].sort((a, b) => b.stats.assists - a.stats.assists)[0]
 
   return (
@@ -41,7 +41,6 @@ export default function Stats() {
 
       {/* ── Hero header ───────────────────────────────────── */}
       <div className="relative px-4 pt-10 pb-7 overflow-hidden">
-        {/* Ambient orange glow */}
         <div
           className="absolute -top-8 left-1/2 -translate-x-1/2 w-72 h-40 rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(ellipse, rgba(249,115,22,0.12) 0%, transparent 70%)' }}
@@ -53,10 +52,11 @@ export default function Stats() {
               Sæson 2025
             </span>
           </div>
-          <h1 className="text-[2rem] font-black text-white tracking-tight leading-none mb-1.5">
+          <h1 className="text-[2rem] font-black tracking-tight leading-none mb-1.5"
+              style={{ color: 'var(--text-primary)' }}>
             Statistik
           </h1>
-          <p className="text-slate-500 text-sm">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             {completedMatches.length === 0
               ? 'Ingen afsluttede kampe endnu'
               : `${completedMatches.length} kamp${completedMatches.length !== 1 ? 'e' : ''} · ${winRate}% sejrsrate`}
@@ -107,12 +107,21 @@ export default function Stats() {
               <button
                 key={key}
                 onClick={() => setSortBy(key)}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border ${
+                className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap active:scale-95"
+                style={
                   sortBy === key
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-400 text-black border-transparent'
-                    : 'bg-white/5 text-slate-400 border-white/[0.06] active:bg-white/10'
-                }`}
-                style={sortBy === key ? { boxShadow: '0 4px 16px rgba(249,115,22,0.30)' } : {}}
+                    ? {
+                        background: 'linear-gradient(90deg, #f97316, #fbbf24)',
+                        color: '#000',
+                        border: '1px solid transparent',
+                        boxShadow: '0 4px 16px rgba(249,115,22,0.30)',
+                      }
+                    : {
+                        background: 'var(--bg-raised)',
+                        color: 'var(--text-secondary)',
+                        border: '1px solid var(--border)',
+                      }
+                }
               >
                 {label}
               </button>
@@ -121,60 +130,73 @@ export default function Stats() {
 
           {/* Table card */}
           <div
-            className="rounded-2xl overflow-hidden border border-white/[0.06]"
-            style={{ background: '#12131c' }}
+            className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
             {/* Column headers */}
-            <div className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-2.5 border-b border-white/[0.06]">
-              <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">
+            <div
+              className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-2.5"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
+              <span className="text-[10px] font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--text-faint)' }}>
                 Spiller
               </span>
               {(['Mål', 'Ast', 'Kmp', '🟡', '🔴'] as const).map((h, i) => (
-                <span key={i} className="w-8 text-center text-[10px] text-slate-600 font-semibold uppercase tracking-wider">
+                <span key={i} className="w-8 text-center text-[10px] font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--text-faint)' }}>
                   {h}
                 </span>
               ))}
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-white/[0.04]">
+            <div>
               {allStats.map(({ player, stats }, i) => {
                 const isFirst = i === 0
                 return (
                   <div
                     key={player.id}
                     className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-3.5 items-center"
-                    style={isFirst ? { background: 'rgba(249,115,22,0.04)' } : undefined}
+                    style={{
+                      background:  isFirst ? 'rgba(249,115,22,0.04)' : undefined,
+                      borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
+                    }}
                   >
                     {/* Player identity */}
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className={`text-[11px] w-4 shrink-0 font-bold tabular-nums ${isFirst ? 'text-orange-400' : 'text-slate-700'}`}>
+                      <span className={`text-[11px] w-4 shrink-0 font-bold tabular-nums ${isFirst ? 'text-orange-400' : ''}`}
+                            style={isFirst ? {} : { color: 'var(--text-dimmer)' }}>
                         {i + 1}
                       </span>
                       <PlayerAvatar name={player.name} size="sm" />
-                      <span className={`text-sm truncate ${isFirst ? 'text-white font-semibold' : 'text-slate-300'}`}>
+                      <span className="text-sm truncate font-medium"
+                            style={{ color: isFirst ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                         {displayName(player, players)}
                       </span>
                     </div>
 
                     {/* Goals */}
                     <span className={`w-8 text-center font-bold text-sm tabular-nums ${
-                      sortBy === 'goals' ? 'text-orange-400' : 'text-slate-300'
-                    }`}>
+                      sortBy === 'goals' ? 'text-orange-400' : ''
+                    }`}
+                    style={sortBy !== 'goals' ? { color: 'var(--text-secondary)' } : {}}>
                       {stats.goals}
                     </span>
 
                     {/* Assists */}
                     <span className={`w-8 text-center font-bold text-sm tabular-nums ${
-                      sortBy === 'assists' ? 'text-orange-400' : 'text-slate-400'
-                    }`}>
+                      sortBy === 'assists' ? 'text-orange-400' : ''
+                    }`}
+                    style={sortBy !== 'assists' ? { color: 'var(--text-muted)' } : {}}>
                       {stats.assists}
                     </span>
 
                     {/* Matches played */}
                     <span className={`w-8 text-center font-bold text-sm tabular-nums ${
-                      sortBy === 'matchesPlayed' ? 'text-orange-400' : 'text-slate-500'
-                    }`}>
+                      sortBy === 'matchesPlayed' ? 'text-orange-400' : ''
+                    }`}
+                    style={sortBy !== 'matchesPlayed' ? { color: 'var(--text-muted)' } : {}}>
                       {stats.matchesPlayed}
                     </span>
 
@@ -184,8 +206,9 @@ export default function Stats() {
                         ? 'text-yellow-400'
                         : stats.yellowCards > 0
                           ? 'text-yellow-500/60'
-                          : 'text-slate-700'
-                    }`}>
+                          : ''
+                    }`}
+                    style={sortBy !== 'yellowCards' && stats.yellowCards === 0 ? { color: 'var(--text-dimmer)' } : {}}>
                       {stats.yellowCards || '–'}
                     </span>
 
@@ -195,8 +218,9 @@ export default function Stats() {
                         ? 'text-red-400'
                         : stats.redCards > 0
                           ? 'text-red-500/60'
-                          : 'text-slate-700'
-                    }`}>
+                          : ''
+                    }`}
+                    style={sortBy !== 'redCards' && stats.redCards === 0 ? { color: 'var(--text-dimmer)' } : {}}>
                       {stats.redCards || '–'}
                     </span>
                   </div>
@@ -215,17 +239,15 @@ export default function Stats() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.12em] mb-3">
+    <p className="text-[11px] font-bold uppercase tracking-[0.12em] mb-3"
+       style={{ color: 'var(--text-muted)' }}>
       {children}
     </p>
   )
 }
 
 function SummaryCard({
-  icon,
-  label,
-  value,
-  accent,
+  icon, label, value, accent,
 }: {
   icon: React.ReactNode
   label: string
@@ -234,37 +256,35 @@ function SummaryCard({
 }) {
   return (
     <div
-      className="rounded-2xl p-4 border border-white/[0.06] flex flex-col"
-      style={{ background: '#12131c' }}
+      className="rounded-2xl p-4 flex flex-col"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
       <div
         className={`w-7 h-7 rounded-xl flex items-center justify-center mb-3 ${
-          accent ? 'bg-orange-500/15 text-orange-400' : 'bg-white/8 text-slate-400'
+          accent ? 'text-orange-400' : ''
         }`}
-        style={accent ? {} : { background: 'rgba(255,255,255,0.06)' }}
+        style={{
+          background: accent ? 'rgba(249,115,22,0.12)' : 'var(--bg-raised)',
+          color: accent ? undefined : 'var(--text-secondary)',
+        }}
       >
         {icon}
       </div>
       <p
-        className={`text-2xl font-black leading-none mb-1 ${
-          accent ? 'text-orange-400' : 'text-white'
-        }`}
-        style={accent ? { textShadow: '0 0 20px rgba(249,115,22,0.4)' } : {}}
+        className={`text-2xl font-black leading-none mb-1 ${accent ? 'text-orange-400' : ''}`}
+        style={accent
+          ? { textShadow: '0 0 20px rgba(249,115,22,0.4)' }
+          : { color: 'var(--text-primary)' }}
       >
         {value}
       </p>
-      <p className="text-slate-500 text-xs font-medium">{label}</p>
+      <p className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{label}</p>
     </div>
   )
 }
 
 function TopCard({
-  title,
-  emoji,
-  player,
-  value,
-  unit,
-  players,
+  title, emoji, player, value, unit, players,
 }: {
   title: string
   emoji: string
@@ -275,17 +295,19 @@ function TopCard({
 }) {
   return (
     <div
-      className="rounded-2xl p-4 border border-white/[0.06] flex flex-col justify-between min-h-[110px]"
-      style={{ background: 'linear-gradient(135deg, #15162080 0%, #12131c 100%)' }}
+      className="rounded-2xl p-4 flex flex-col justify-between min-h-[110px]"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
       <div className="flex items-center justify-between mb-3">
-        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider leading-tight">
+        <p className="text-[10px] font-bold uppercase tracking-wider leading-tight"
+           style={{ color: 'var(--text-muted)' }}>
           {title}
         </p>
         <span className="text-base leading-none">{emoji}</span>
       </div>
       <div>
-        <p className="text-white font-bold text-sm leading-tight truncate mb-0.5">
+        <p className="font-bold text-sm leading-tight truncate mb-0.5"
+           style={{ color: 'var(--text-primary)' }}>
           {player ? displayName(player, players) : '—'}
         </p>
         <div className="flex items-baseline gap-1">
@@ -295,7 +317,7 @@ function TopCard({
           >
             {value}
           </span>
-          <span className="text-slate-500 text-xs">{unit}</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{unit}</span>
         </div>
       </div>
     </div>

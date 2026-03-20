@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { usePlayerStore } from './store/playerStore'
 import { useMatchStore } from './store/matchStore'
+import { useThemeStore } from './store/themeStore'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import Players from './pages/Players'
@@ -15,10 +16,16 @@ import Stats from './pages/Stats'
 function AppContent() {
   const initPlayers = usePlayerStore((s) => s.init)
   const initMatches = useMatchStore((s) => s.init)
+  const initTheme   = useThemeStore((s) => s.init)
 
   useEffect(() => {
     Promise.all([initPlayers(), initMatches()]).catch(console.error)
   }, [initPlayers, initMatches])
+
+  useEffect(() => {
+    const cleanup = initTheme()
+    return cleanup
+  }, [initTheme])
 
   return (
     <Routes>

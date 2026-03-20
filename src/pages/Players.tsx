@@ -35,7 +35,8 @@ export default function Players() {
                 Truppen
               </span>
             </div>
-            <h1 className="text-[2rem] font-black text-white tracking-tight leading-none">
+            <h1 className="text-[2rem] font-black tracking-tight leading-none"
+                style={{ color: 'var(--text-primary)' }}>
               Spillere
             </h1>
           </div>
@@ -58,19 +59,24 @@ export default function Players() {
 
         {/* ── Search ────────────────────────────────────────── */}
         <div className="relative">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                  style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder="Søg spiller..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-white/[0.06] rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-orange-500/40 transition-colors"
-            style={{ background: '#12131c' }}
+            className="w-full rounded-xl pl-9 pr-4 py-3 text-sm focus:outline-none focus:border-orange-500/40 transition-colors placeholder-slate-500"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
           />
         </div>
 
         {/* ── Count ─────────────────────────────────────────── */}
-        <p className="text-slate-600 text-xs font-medium px-0.5">
+        <p className="text-xs font-medium px-0.5" style={{ color: 'var(--text-faint)' }}>
           {filtered.length} {filtered.length === 1 ? 'spiller' : 'spillere'}
         </p>
 
@@ -82,29 +88,34 @@ export default function Players() {
               <button
                 key={player.id}
                 onClick={() => navigate(`/spillere/${player.id}`)}
-                className="w-full rounded-2xl p-4 flex items-center gap-3.5 active:scale-[0.98] transition-transform text-left border border-white/[0.05]"
-                style={{ background: '#12131c' }}
+                className="w-full rounded-2xl p-4 flex items-center gap-3.5 active:scale-[0.98] transition-transform text-left"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-faint)' }}
               >
                 <PlayerAvatar name={player.name} size="md" />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="font-semibold text-white text-sm">{player.name}</span>
+                    <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+                      {player.name}
+                    </span>
                     <PositionBadge position={player.position} short />
                   </div>
                   <div className="flex gap-3 text-xs">
-                    <span className="text-slate-500">{stats.matchesPlayed} kampe</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{stats.matchesPlayed} kampe</span>
                     <span
                       className="font-semibold text-orange-400"
                       style={stats.goals > 0 ? { textShadow: '0 0 10px rgba(249,115,22,0.4)' } : {}}
                     >
                       {stats.goals} mål
                     </span>
-                    <span className="text-slate-400 font-medium">{stats.assists} ast</span>
+                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>
+                      {stats.assists} ast
+                    </span>
                   </div>
                 </div>
 
-                <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="shrink-0 text-slate-700">
+                <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="shrink-0"
+                     style={{ color: 'var(--text-dimmer)' }}>
                   <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
@@ -114,9 +125,9 @@ export default function Players() {
 
         {/* ── Empty state ───────────────────────────────────── */}
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-slate-600">
+          <div className="text-center py-16" style={{ color: 'var(--text-faint)' }}>
             <p className="text-3xl mb-3">👤</p>
-            <p className="text-slate-400 font-medium">Ingen spillere fundet</p>
+            <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>Ingen spillere fundet</p>
           </div>
         )}
 

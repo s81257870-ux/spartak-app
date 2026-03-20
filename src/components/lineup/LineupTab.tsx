@@ -106,8 +106,9 @@ function PitchSlot({
       ) : (
         <div
           className={`w-9 h-9 rounded-full border-2 border-dashed flex items-center justify-center transition-colors ${
-            isOver ? 'border-yellow-400 bg-yellow-900/30' : 'border-white/25 bg-white/5'
+            isOver ? 'border-yellow-400 bg-yellow-900/30' : 'border-white/25'
           }`}
+          style={!isOver ? { background: 'var(--bg-input)' } : undefined}
         >
           <span className="text-white/40 text-[8px] font-bold">{shortLabel}</span>
         </div>
@@ -132,8 +133,9 @@ function BenchZone({
     <div
       ref={setNodeRef}
       className={`rounded-2xl px-3 py-2 min-h-[54px] transition-colors ${
-        isOver ? 'bg-blue-900/30 border border-blue-500/40' : 'bg-[#1a1d27]'
+        isOver ? 'bg-blue-900/30 border border-blue-500/40' : ''
       }`}
+      style={!isOver ? { background: 'var(--bg-raised)', border: '1px solid var(--border)' } : undefined}
     >
       <p className="text-slate-400 text-[10px] uppercase tracking-wide mb-1.5 font-semibold">
         Bænk ({players.length})
@@ -254,7 +256,8 @@ export default function LineupTab({ matchId }: Props) {
           <select
             value={currentFormationId}
             onChange={(e) => handleFormationClick(e.target.value)}
-            className="w-full appearance-none bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3 pr-10 text-sm font-semibold focus:outline-none focus:border-orange-500/50"
+            className="w-full appearance-none rounded-xl px-4 py-3 pr-10 text-sm font-semibold focus:outline-none"
+            style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-input)', color: 'var(--text-primary)' }}
           >
             {FORMATION_CATEGORIES.map(({ id: cat, emoji }) => (
               <optgroup key={cat} label={`${emoji} ${cat}`}>
@@ -272,7 +275,8 @@ export default function LineupTab({ matchId }: Props) {
           />
         </div>
       ) : (
-        <div className="mb-3 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#1a1d27] border border-white/[0.06]">
+        <div className="mb-3 flex items-center gap-2 px-4 py-3 rounded-xl"
+             style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}>
           <span className="text-white font-semibold text-sm flex-1">{formation.name}</span>
           <span className="text-slate-500 text-xs">{formation.description}</span>
         </div>
@@ -293,7 +297,8 @@ export default function LineupTab({ matchId }: Props) {
             </button>
             <button
               onClick={() => setConfirmFormation(null)}
-              className="flex-1 bg-[#1a1d27] text-slate-300 rounded-xl py-2 font-bold text-sm border border-white/10"
+              className="flex-1 rounded-xl py-2 font-bold text-sm"
+              style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--border-input)' }}
             >
               Annuller
             </button>
@@ -375,7 +380,7 @@ export default function LineupTab({ matchId }: Props) {
       </div>
 
       {/* ── Collapsible position legend ────────────────────────── */}
-      <details className="bg-[#1a1d27] rounded-2xl overflow-hidden">
+      <details className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}>
         <summary className="px-4 py-3 text-slate-400 text-[10px] uppercase tracking-wide font-semibold cursor-pointer list-none flex justify-between items-center">
           Startopstilling — {formation.name}
           <span className="text-slate-600">▾</span>

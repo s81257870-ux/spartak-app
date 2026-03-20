@@ -11,8 +11,12 @@ const tabs = [
 export default function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] safe-bottom"
-      style={{ background: '#0e0f17' }}
+      className="fixed bottom-0 left-0 right-0 z-50 safe-bottom"
+      style={{
+        background: 'var(--bg-nav)',
+        borderTop: '1px solid var(--border)',
+        boxShadow: '0 -4px 20px var(--shadow-nav)',
+      }}
     >
       <div className="flex">
         {tabs.map(({ to, label, Icon }) => (
@@ -22,9 +26,10 @@ export default function BottomNav() {
             end={to === '/'}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors relative ${
-                isActive ? 'text-orange-400' : 'text-slate-600 active:text-slate-400'
+                isActive ? 'text-orange-400' : 'active:text-slate-400'
               }`
             }
+            style={({ isActive }) => ({ color: isActive ? undefined : 'var(--text-faint)' })}
           >
             {({ isActive }) => (
               <>

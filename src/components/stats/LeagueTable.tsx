@@ -5,19 +5,18 @@ interface Props {
   leagueName?: string
 }
 
-/** Dashed separator drawn after this position (promotion playoff cutoff) */
 const PLAYOFF_CUT = 2
 
 export default function LeagueTable({ rows, leagueName }: Props) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.06] overflow-hidden"
-      style={{ background: '#12131c' }}
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
-      {/* League name header */}
       {leagueName && (
-        <div className="px-4 pt-3.5 pb-2.5 border-b border-white/[0.06]">
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.12em] leading-tight">
+        <div className="px-4 pt-3.5 pb-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] leading-tight"
+             style={{ color: 'var(--text-muted)' }}>
             {leagueName}
           </p>
         </div>
@@ -25,21 +24,24 @@ export default function LeagueTable({ rows, leagueName }: Props) {
 
       {/* Column headers */}
       <div
-        className="grid items-center px-4 py-2 border-b border-white/[0.06]"
-        style={{ gridTemplateColumns: '28px 1fr 32px 32px 32px 36px' }}
+        className="grid items-center px-4 py-2"
+        style={{
+          gridTemplateColumns: '28px 1fr 32px 32px 32px 36px',
+          borderBottom: '1px solid var(--border)',
+        }}
       >
-        <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">#</span>
-        <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">Hold</span>
-        <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider text-center">K</span>
-        <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider text-center">V</span>
-        <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider text-center">T</span>
-        <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider text-center">Pts</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>#</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>Hold</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-center" style={{ color: 'var(--text-faint)' }}>K</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-center" style={{ color: 'var(--text-faint)' }}>V</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-center" style={{ color: 'var(--text-faint)' }}>T</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-center" style={{ color: 'var(--text-faint)' }}>Pts</span>
       </div>
 
       {/* Rows */}
       <div>
         {rows.map((row, index) => {
-          const isSpartak = !!row.isSpartak
+          const isSpartak   = !!row.isSpartak
           const showDivider = row.position === PLAYOFF_CUT
 
           return (
@@ -49,20 +51,20 @@ export default function LeagueTable({ rows, leagueName }: Props) {
                 style={{
                   gridTemplateColumns: '28px 1fr 32px 32px 32px 36px',
                   background: isSpartak ? 'rgba(249,115,22,0.06)' : undefined,
-                  borderTop: index > 0 ? '1px solid rgba(255,255,255,0.04)' : undefined,
+                  borderTop: index > 0 ? '1px solid var(--border-faint)' : undefined,
                 }}
               >
                 {/* Position */}
-                <span
-                  className="text-[11px] font-bold tabular-nums"
-                  style={{ color: isSpartak ? '#fb923c' : '#475569' }}
-                >
+                <span className="text-[11px] font-bold tabular-nums"
+                      style={{ color: isSpartak ? '#fb923c' : 'var(--text-faint)' }}>
                   {row.position}
                 </span>
 
                 {/* Team name */}
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className={`text-sm truncate ${isSpartak ? 'text-white font-semibold' : 'text-slate-300'}`}>
+                  <span className="text-sm truncate"
+                        style={{ color: isSpartak ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                 fontWeight: isSpartak ? 600 : 400 }}>
                     {row.team}
                   </span>
                   {isSpartak && (
@@ -73,24 +75,23 @@ export default function LeagueTable({ rows, leagueName }: Props) {
                 </div>
 
                 {/* Played */}
-                <span className="text-sm text-slate-500 tabular-nums text-center">{row.played}</span>
-
+                <span className="text-sm tabular-nums text-center" style={{ color: 'var(--text-muted)' }}>{row.played}</span>
                 {/* Won */}
-                <span className="text-sm text-slate-500 tabular-nums text-center">{row.won}</span>
-
+                <span className="text-sm tabular-nums text-center" style={{ color: 'var(--text-muted)' }}>{row.won}</span>
                 {/* Lost */}
-                <span className="text-sm text-slate-500 tabular-nums text-center">{row.lost}</span>
+                <span className="text-sm tabular-nums text-center" style={{ color: 'var(--text-muted)' }}>{row.lost}</span>
 
                 {/* Points */}
                 <span
-                  className={`text-sm font-bold tabular-nums text-center ${isSpartak ? 'text-orange-400' : 'text-slate-300'}`}
-                  style={isSpartak ? { textShadow: '0 0 12px rgba(249,115,22,0.4)' } : {}}
+                  className={`text-sm font-bold tabular-nums text-center ${isSpartak ? 'text-orange-400' : ''}`}
+                  style={isSpartak
+                    ? { textShadow: '0 0 12px rgba(249,115,22,0.4)' }
+                    : { color: 'var(--text-secondary)' }}
                 >
                   {row.points}
                 </span>
               </div>
 
-              {/* Dashed playoff cutoff line */}
               {showDivider && (
                 <div className="mx-4 border-t border-dashed border-orange-500/30" />
               )}
@@ -100,10 +101,10 @@ export default function LeagueTable({ rows, leagueName }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-3 px-4 py-2.5 border-t border-white/[0.04]">
+      <div className="flex items-center gap-3 px-4 py-2.5" style={{ borderTop: '1px solid var(--border-faint)' }}>
         <div className="flex items-center gap-1.5">
           <div className="w-4 border-t border-dashed border-orange-400/50" />
-          <span className="text-[10px] text-slate-600">Slutspil</span>
+          <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>Slutspil</span>
         </div>
       </div>
     </div>

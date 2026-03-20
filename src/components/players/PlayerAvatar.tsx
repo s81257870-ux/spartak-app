@@ -29,7 +29,9 @@ const sizes = {
 export default function PlayerAvatar({ name, size = 'md', className = '' }: Props) {
   return (
     <div
-      className={`${sizes[size]} ${colorFor(name)} rounded-full flex items-center justify-center font-bold text-white shrink-0 ${className}`}
+      className={`${sizes[size]} ${colorFor(name)} rounded-full flex items-center justify-center font-bold shrink-0 ${className}`}
+      // Always white text — avatar sits on a saturated colored bg in both themes
+      style={{ color: 'white' }}
     >
       {initials(name)}
     </div>

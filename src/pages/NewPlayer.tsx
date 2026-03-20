@@ -8,10 +8,16 @@ export default function NewPlayer() {
   const navigate  = useNavigate()
   const addPlayer = usePlayerStore((s) => s.addPlayer)
 
-  const [name, setName]       = useState('')
+  const [name, setName]         = useState('')
   const [position, setPosition] = useState<Position>('CM')
-  const [number, setNumber]   = useState('')
-  const [saving, setSaving]   = useState(false)
+  const [number, setNumber]     = useState('')
+  const [saving, setSaving]     = useState(false)
+
+  const inputStyle = {
+    background: 'var(--bg-raised)',
+    border: '1px solid var(--border-input)',
+    color: 'var(--text-primary)',
+  }
 
   const submit = async () => {
     if (!name.trim() || saving) return
@@ -34,12 +40,15 @@ export default function NewPlayer() {
         <button onClick={() => navigate(-1)} className="text-orange-400 active:opacity-70">
           <ArrowLeft size={22} />
         </button>
-        <h1 className="text-xl font-bold text-white">Ny spiller</h1>
+        <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Ny spiller</h1>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Navn *</label>
+          <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                 style={{ color: 'var(--text-secondary)' }}>
+            Navn *
+          </label>
           <input
             type="text"
             value={name}
@@ -47,16 +56,21 @@ export default function NewPlayer() {
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Fulde navn"
             autoFocus
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            style={inputStyle}
           />
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Position</label>
+          <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                 style={{ color: 'var(--text-secondary)' }}>
+            Position
+          </label>
           <select
             value={position}
             onChange={(e) => setPosition(e.target.value as Position)}
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+            className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+            style={inputStyle}
           >
             {Object.entries(POSITION_LABELS).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
@@ -65,13 +79,17 @@ export default function NewPlayer() {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Trøjenummer (valgfri)</label>
+          <label className="text-xs uppercase tracking-wider mb-1.5 block"
+                 style={{ color: 'var(--text-secondary)' }}>
+            Trøjenummer (valgfri)
+          </label>
           <input
             type="number"
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             placeholder="f.eks. 9"
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            className="w-full rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40 placeholder-slate-500"
+            style={inputStyle}
           />
         </div>
 

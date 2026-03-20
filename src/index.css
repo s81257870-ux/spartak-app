@@ -81,6 +81,27 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   Next-match card responsive sizing tokens
+   — Mobile defaults; desktop overrides at md (768 px)
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --nm-pitch-w:   130px;  /* mini pitch width                */
+  --nm-pitch-rh:   42px;  /* row height inside pitch         */
+  --nm-dot:        18px;  /* player dot diameter             */
+  --nm-pitch-pad:   4px;  /* inner grid padding inside pitch */
+  --nm-gap:        16px;  /* gap between info and pitch cols */
+}
+@media (min-width: 768px) {
+  :root {
+    --nm-pitch-w:   176px;
+    --nm-pitch-rh:   56px;
+    --nm-dot:        24px;
+    --nm-pitch-pad:   6px;
+    --nm-gap:        24px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    Base
    ═══════════════════════════════════════════════════════════════════ */
 * {

@@ -152,7 +152,7 @@ export default function Home() {
             <SectionLabel>Næste kamp</SectionLabel>
             <button
               onClick={() => navigate(`/kampe/${upcomingMatches[0].id}`)}
-              className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
+              className="w-full rounded-2xl p-4 md:p-6 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
               style={{
                 background: `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 60%)`,
                 border: '1px solid var(--accent-card-border)',

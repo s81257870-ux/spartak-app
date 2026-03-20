@@ -168,7 +168,12 @@ export default function Home() {
                 <p className="text-orange-400/80 text-sm mt-0.5">
                   {formatDate(upcomingMatches[0].date)} · {upcomingMatches[0].location}
                 </p>
-                <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>Tryk for at se kamp →</p>
+                <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                  {upcomingMatches[0].attendance.length === 1
+                    ? '1 spiller tilmeldt'
+                    : `${upcomingMatches[0].attendance.length} spillere tilmeldt`}
+                </p>
+                <p className="text-xs mt-1.5" style={{ color: 'var(--text-faint)' }}>Tryk for at se kamp →</p>
               </div>
             </button>
           </div>

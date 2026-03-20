@@ -38,7 +38,7 @@ function formatMatchDate(iso: string): string {
 
 // SVG viewBox uses fixed mobile coordinates; preserveAspectRatio="none" handles scaling.
 const SVG_W  = 130
-const SVG_RH = 42   // matches --nm-pitch-rh mobile value (for viewBox arithmetic only)
+const SVG_RH = 50   // matches --nm-pitch-rh mobile value (for viewBox arithmetic only)
 
 export default function NextMatchLineup({ match, allPlayers }: Props) {
   const formation     = getFormation(match.formation)
@@ -182,18 +182,29 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                     className="flex items-center justify-center"
                   >
                     {player && (
-                      /* Filled slot: orange-rimmed dot, no label at this scale */
-                      <div
-                        style={{
-                          width:  'var(--nm-dot)',
-                          height: 'var(--nm-dot)',
-                          borderRadius: '50%',
-                          flexShrink: 0,
-                          background: 'linear-gradient(135deg, #2d6a43, #1a4228)',
-                          border: '1.5px solid rgba(249,115,22,0.82)',
-                          boxShadow: '0 0 6px rgba(249,115,22,0.22)',
-                        }}
-                      />
+                      /* Filled slot: dot + readable last-name label below */
+                      <div className="flex flex-col items-center gap-0.5">
+                        <div
+                          style={{
+                            width:  'var(--nm-dot)',
+                            height: 'var(--nm-dot)',
+                            borderRadius: '50%',
+                            flexShrink: 0,
+                            background: 'linear-gradient(135deg, #2d6a43, #1a4228)',
+                            border: '1.5px solid rgba(249,115,22,0.82)',
+                            boxShadow: '0 0 6px rgba(249,115,22,0.22)',
+                          }}
+                        />
+                        <span
+                          className="text-[8px] md:text-[10px] font-semibold leading-none text-center truncate block"
+                          style={{
+                            color: 'rgba(255,255,255,0.92)',
+                            maxWidth: 'calc(var(--nm-pitch-w) / 3 - 2px)',
+                          }}
+                        >
+                          {chipLabel(player, allPlayers)}
+                        </span>
+                      </div>
                     )}
                     {/* Empty slot: render nothing — no dashed placeholder */}
                   </div>

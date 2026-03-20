@@ -85,7 +85,7 @@ function mapMatch(row: DbMatch, slots: DbLineupSlot[], events: DbEvent[]): Match
   return {
     id: row.id,
     opponent: row.opponent,
-    date: row.match_date?.split('T')[0] ?? row.match_date,
+    date: row.match_date ?? '',
     location: row.location,
     scoreUs: row.score_us ?? 0,
     scoreThem: row.score_them ?? 0,

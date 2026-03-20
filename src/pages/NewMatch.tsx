@@ -12,6 +12,7 @@ export default function NewMatch() {
 
   const [opponent,    setOpponent]    = useState('')
   const [date,        setDate]        = useState(today)
+  const [time,        setTime]        = useState('')
   const [location,    setLocation]    = useState('')
   const [scoreUs,     setScoreUs]     = useState('0')
   const [scoreThem,   setScoreThem]   = useState('0')
@@ -24,7 +25,7 @@ export default function NewMatch() {
     try {
       const id = await addMatch({
         opponent:  opponent.trim(),
-        date,
+        date: time ? `${date}T${time}` : date,
         location:  location.trim() || 'Ukendt sted',
         scoreUs:   parseInt(scoreUs)   || 0,
         scoreThem: parseInt(scoreThem) || 0,
@@ -58,14 +59,25 @@ export default function NewMatch() {
           />
         </div>
 
-        <div>
-          <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Dato</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
-          />
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Dato</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+            />
+          </div>
+          <div className="w-32">
+            <label className="text-xs text-slate-400 uppercase tracking-wider mb-1.5 block">Tidspunkt</label>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full bg-[#1a1d27] border border-white/10 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-500/40"
+            />
+          </div>
         </div>
 
         <div>

@@ -3,13 +3,31 @@ import { Plus, MapPin } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
 
-const formatDate = (iso: string) => {
-  const d = new Date(iso)
-  return d.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })
+/** Extracts HH:MM from '2026-04-07T20:30' — returns '' if no time present. */
+const extractTime = (iso: string): string => {
+  const t = iso.split('T')[1]
+  return t ? t.slice(0, 5) : ''
 }
 
-const formatShortDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
+/**
+ * Upcoming list:  "Tirs. 07-04-2026 · 20:30"
+ * Completed list: "Tirs. 07-04-2026 · 20:30"
+ * Both fall back to date-only if no time is stored.
+ */
+const formatListDate = (iso: string): string => {
+  const [datePart] = iso.split('T')
+  const [y, m, d] = datePart.split('-')
+  const dateObj = new Date(Number(y), Number(m) - 1, Number(d))
+  const weekday = dateObj.toLocaleDateString('da-DK', { weekday: 'short' })
+  const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+  const time = extractTime(iso)
+  const base = `${weekdayCap} ${d}-${m}-${y}`
+  return time ? `${base} · ${time}` : base
+}
+
+// Legacy alias used for completed match meta line (same format)
+const formatDate = formatListDate
+const formatShortDate = formatListDate
 
 export default function Matches() {
   const navigate = useNavigate()

@@ -12,8 +12,26 @@ import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 
 type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' })
+/** Extracts HH:MM from an ISO string like '2026-04-07T20:30' — returns '' if no time present. */
+const extractTime = (iso: string): string => {
+  const t = iso.split('T')[1]
+  return t ? t.slice(0, 5) : ''
+}
+
+/**
+ * "Tirsdag 7. april · 20:30"  (with time)
+ * "Tirsdag 7. april"          (date-only)
+ */
+const formatDate = (iso: string): string => {
+  const [datePart] = iso.split('T')
+  const [y, m, d] = datePart.split('-').map(Number)
+  const dateObj = new Date(y, m - 1, d)
+  const weekday = dateObj.toLocaleDateString('da-DK', { weekday: 'long' })
+  const dayMonth = dateObj.toLocaleDateString('da-DK', { day: 'numeric', month: 'long' })
+  const cap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+  const time = extractTime(iso)
+  return time ? `${cap} ${dayMonth} · ${time}` : `${cap} ${dayMonth}`
+}
 
 export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()

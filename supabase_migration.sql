@@ -78,3 +78,10 @@ ALTER TABLE events ALTER COLUMN player_id DROP NOT NULL;
 
 -- 8. Add signed_up column to matches (array of player UUIDs)
 ALTER TABLE matches ADD COLUMN IF NOT EXISTS signed_up uuid[] NOT NULL DEFAULT '{}';
+
+-- ============================================================
+-- Migration 4 — Startopstilling (starting 7 from attendance)
+-- ============================================================
+
+-- 9. Track which signed-up players are in the starting lineup
+ALTER TABLE matches ADD COLUMN IF NOT EXISTS starters uuid[] NOT NULL DEFAULT '{}';

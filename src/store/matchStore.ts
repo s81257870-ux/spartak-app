@@ -14,6 +14,8 @@ import {
   recalculateMatchScore,
   signUpForMatch,
   cancelSignUpForMatch,
+  addStarterForMatch,
+  removeStarterForMatch,
 } from '../lib/supabaseService'
 
 // ── helper: seed matches to Supabase if table is empty ────────────────────────
@@ -48,7 +50,7 @@ interface MatchStore {
   init: () => Promise<void>
 
   // CRUD
-  addMatch: (match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'formation' | 'isCompleted' | 'attendance'>) => Promise<string>
+  addMatch: (match: Omit<Match, 'id' | 'events' | 'lineup' | 'bench' | 'formation' | 'isCompleted' | 'attendance' | 'starters'>) => Promise<string>
   updateMatch: (id: string, updates: Partial<Omit<Match, 'id'>>) => void
   deleteMatch: (id: string) => void
   getMatch: (id: string) => Match | undefined
@@ -74,6 +76,10 @@ interface MatchStore {
   // Attendance
   signUp: (matchId: string, playerId: string) => void
   cancelSignUp: (matchId: string, playerId: string) => void
+
+  // Startopstilling (up to 7 from attendance)
+  addStarter: (matchId: string, playerId: string) => void
+  removeStarter: (matchId: string, playerId: string) => void
 
   // Realtime callbacks (called by useRealtimeMatch hook)
   setMatchEvents: (matchId: string, events: MatchEvent[]) => void
@@ -342,13 +348,52 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
     const match = get().matches.find((m) => m.id === matchId)
     if (!match) return
     const updated = match.attendance.filter((id) => id !== playerId)
+    // Also remove from starters if present (keep starters consistent with attendance)
+    const updatedStarters = (match.starters ?? []).filter((id) => id !== playerId)
     set((s) => ({
       matches: s.matches.map((m) =>
-        m.id === matchId ? { ...m, attendance: updated } : m
+        m.id === matchId ? { ...m, attendance: updated, starters: updatedStarters } : m
       ),
     }))
     cancelSignUpForMatch(matchId, playerId, match.attendance).catch((err) =>
       console.error('[MatchStore] Cancel sign up failed:', err)
+    )
+    if ((match.starters ?? []).includes(playerId)) {
+      removeStarterForMatch(matchId, playerId, match.starters ?? []).catch((err) =>
+        console.error('[MatchStore] Remove starter on cancel failed:', err)
+      )
+    }
+  },
+
+  // ── Startopstilling ───────────────────────────────────────────────────────
+  addStarter: (matchId, playerId) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    if (!match) return
+    const starters = match.starters ?? []
+    if (starters.includes(playerId) || starters.length >= 7) return
+    const updated = [...starters, playerId]
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, starters: updated } : m
+      ),
+    }))
+    addStarterForMatch(matchId, playerId, starters).catch((err) =>
+      console.error('[MatchStore] Add starter failed:', err)
+    )
+  },
+
+  removeStarter: (matchId, playerId) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    if (!match) return
+    const starters = match.starters ?? []
+    const updated = starters.filter((id) => id !== playerId)
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId ? { ...m, starters: updated } : m
+      ),
+    }))
+    removeStarterForMatch(matchId, playerId, starters).catch((err) =>
+      console.error('[MatchStore] Remove starter failed:', err)
     )
   },
 

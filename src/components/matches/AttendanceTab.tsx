@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { UserCheck, X } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
-import { displayName } from '../../utils/playerName'
 
 interface Props {
   matchId: string
@@ -19,7 +18,13 @@ export default function AttendanceTab({ matchId }: Props) {
   if (!match) return null
 
   const attendance = match.attendance ?? []
-  const signedUpPlayers = players.filter((p) => attendance.includes(p.id))
+
+  // Map each attendance ID to a player object (or null if not found)
+  const signedUpEntries = attendance.map((id) => ({
+    id,
+    player: players.find((p) => p.id === id) ?? null,
+  }))
+
   const isAlreadySignedUp = selectedId !== '' && attendance.includes(selectedId)
 
   const handleSignUp = () => {
@@ -47,7 +52,7 @@ export default function AttendanceTab({ matchId }: Props) {
               const alreadyIn = attendance.includes(p.id)
               return (
                 <option key={p.id} value={p.id} disabled={alreadyIn}>
-                  {displayName(p, players)}{alreadyIn ? ' ✓' : ''}
+                  {p.name}{alreadyIn ? ' ✓' : ''}
                 </option>
               )
             })}
@@ -83,11 +88,11 @@ export default function AttendanceTab({ matchId }: Props) {
           <UserCheck size={14} className="text-orange-400" />
           <h3 className="text-white font-bold text-sm">
             Tilmeldte spillere
-            <span className="text-slate-500 font-normal ml-1.5">({signedUpPlayers.length})</span>
+            <span className="text-slate-500 font-normal ml-1.5">({signedUpEntries.length})</span>
           </h3>
         </div>
 
-        {signedUpPlayers.length === 0 ? (
+        {signedUpEntries.length === 0 ? (
           <div className="text-center py-8 text-slate-500 bg-[#1a1d27] rounded-2xl">
             <UserCheck size={28} className="mx-auto mb-2 opacity-20" />
             <p className="text-sm">Ingen tilmeldinger endnu</p>
@@ -98,39 +103,43 @@ export default function AttendanceTab({ matchId }: Props) {
             <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider px-1 mb-1">
               Bænken
             </p>
-            {signedUpPlayers.map((player) => (
-              <div
-                key={player.id}
-                className="flex items-center gap-3 bg-[#1a1d27] rounded-2xl px-4 py-3"
-              >
-                {/* Avatar */}
+            {signedUpEntries.map(({ id, player }) => {
+              const fullName = player?.name ?? 'Ukendt spiller'
+              const initial = player?.name.split(' ')[0][0].toUpperCase() ?? '?'
+              return (
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-black text-white border border-orange-500/30"
-                  style={{ background: 'rgba(249,115,22,0.15)' }}
+                  key={id}
+                  className="flex items-center gap-3 bg-[#1a1d27] rounded-2xl px-4 py-3"
                 >
-                  {player.name.split(' ').pop()?.slice(0, 2).toUpperCase()}
+                  {/* Avatar — first letter of first name */}
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-black text-white border border-orange-500/30"
+                    style={{ background: 'rgba(249,115,22,0.15)' }}
+                  >
+                    {initial}
+                  </div>
+
+                  {/* Full name */}
+                  <span className="flex-1 text-white text-sm font-medium">
+                    {fullName}
+                  </span>
+
+                  {/* Placement badge */}
+                  <span className="text-slate-500 text-xs bg-slate-800 rounded-full px-2 py-0.5 shrink-0">
+                    Bænk
+                  </span>
+
+                  {/* Cancel button */}
+                  <button
+                    onClick={() => cancelSignUp(matchId, id)}
+                    className="text-slate-600 active:text-red-400 transition-colors p-1 shrink-0"
+                    aria-label="Afmeld"
+                  >
+                    <X size={15} />
+                  </button>
                 </div>
-
-                {/* Name */}
-                <span className="flex-1 text-white text-sm font-medium truncate">
-                  {displayName(player, players)}
-                </span>
-
-                {/* Placement badge */}
-                <span className="text-slate-500 text-xs bg-slate-800 rounded-full px-2 py-0.5 shrink-0">
-                  Bænk
-                </span>
-
-                {/* Cancel button */}
-                <button
-                  onClick={() => cancelSignUp(matchId, player.id)}
-                  className="text-slate-600 active:text-red-400 transition-colors p-1 shrink-0"
-                  aria-label="Afmeld"
-                >
-                  <X size={15} />
-                </button>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

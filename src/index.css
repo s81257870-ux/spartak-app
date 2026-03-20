@@ -18,10 +18,21 @@
 
   /* text */
   --text-primary:    #f1f5f9;
-  --text-secondary:  #94a3b8;   /* slate-400 */
-  --text-muted:      #64748b;   /* slate-500 */
-  --text-faint:      #475569;   /* slate-600 */
-  --text-dimmer:     #334155;   /* slate-700 */
+  --text-secondary:  #94a3b8;
+  --text-muted:      #64748b;
+  --text-faint:      #475569;
+  --text-dimmer:     #334155;
+
+  /* accent-tinted card surfaces
+     (upcoming match cards, featured card highlights) */
+  --accent-card-tint:   rgba(249, 115, 22, 0.08);
+  --accent-card-border: rgba(249, 115, 22, 0.20);
+
+  /* theme toggle active pill */
+  --toggle-active-bg:     linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  --toggle-active-color:  #000000;
+  --toggle-active-shadow: rgba(249, 115, 22, 0.28);
+  --toggle-track-bg:      rgba(0, 0, 0, 0.30);
 
   /* misc */
   --shadow-modal: rgba(0, 0, 0, 0.60);
@@ -32,28 +43,41 @@
    Theme tokens — light mode (warm premium palette)
    ═══════════════════════════════════════════════════════════════════ */
 :root.light {
-  /* surfaces — warm off-white / cream, not plain white */
-  --bg-app:      #f0ebe3;
-  --bg-card:     #faf6f0;
-  --bg-raised:   #ffffff;
-  --bg-input:    #ede8e0;
-  --bg-nav:      #fdf9f4;
+  /* surfaces — warm off-white / beige hierarchy
+     Each level is progressively lighter/warmer, never clinical white */
+  --bg-app:      #ece7de;   /* warm sand — page canvas                */
+  --bg-card:     #f7f2eb;   /* warm cream — primary cards             */
+  --bg-raised:   #fdfaf5;   /* warm off-white — elevated surfaces     */
+  --bg-input:    #e8e2d8;   /* warm grey-beige — input fields         */
+  --bg-nav:      #f9f4ed;   /* warm cream — bottom nav                */
 
   /* borders — dark/transparent instead of white/transparent */
-  --border:        rgba(0, 0, 0, 0.07);
-  --border-faint:  rgba(0, 0, 0, 0.04);
-  --border-input:  rgba(0, 0, 0, 0.10);
+  --border:        rgba(0, 0, 0, 0.08);
+  --border-faint:  rgba(0, 0, 0, 0.05);
+  --border-input:  rgba(0, 0, 0, 0.12);
 
-  /* text — dark navy hierarchy on warm backgrounds */
-  --text-primary:    #1a1c2e;
-  --text-secondary:  #64748b;   /* slate-500 — readable on warm light bg */
-  --text-muted:      #94a3b8;   /* slate-400 */
-  --text-faint:      #b0b8c8;
-  --text-dimmer:     #cbd5e1;
+  /* text — dark navy hierarchy.
+     Primary is deep navy (not black), secondary is warm slate. */
+  --text-primary:    #1a1c2e;   /* deep navy                          */
+  --text-secondary:  #4a5568;   /* warm charcoal slate                */
+  --text-muted:      #7a8699;   /* muted warm grey                    */
+  --text-faint:      #a0aab8;   /* faint label grey                   */
+  --text-dimmer:     #c0c9d4;   /* barely-there divider text          */
+
+  /* accent-tinted surfaces — navy tint instead of orange in light mode
+     Upcoming match cards get a subtle navy warmth, not orange heaviness */
+  --accent-card-tint:   rgba(26, 28, 70, 0.04);
+  --accent-card-border: rgba(26, 28, 70, 0.10);
+
+  /* toggle active pill = deep navy in light mode (orange → navy inversion) */
+  --toggle-active-bg:     #1a1c2e;
+  --toggle-active-color:  #ffffff;
+  --toggle-active-shadow: rgba(26, 28, 46, 0.20);
+  --toggle-track-bg:      rgba(0, 0, 0, 0.06);
 
   /* misc */
-  --shadow-modal: rgba(0, 0, 0, 0.30);
-  --shadow-nav:   rgba(0, 0, 0, 0.08);
+  --shadow-modal: rgba(0, 0, 0, 0.25);
+  --shadow-nav:   rgba(0, 0, 0, 0.07);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -79,7 +103,6 @@ body {
   flex-direction: column;
 }
 
-/* Safe area for mobile notch / home bar */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -91,8 +114,8 @@ body {
 
 /* ── text ──────────────────────────────────────────────────────── */
 /* `text-white` on headings / content flips to dark navy in light mode.
-   Exception: elements with explicit colored backgrounds (player avatars,
-   badges) use style={{ color: 'white' }} directly and are unaffected. */
+   Exception: elements using style={{ color: 'white' }} directly
+   (player avatars, crest, toggle pills) are unaffected. */
 .light .text-white {
   color: var(--text-primary);
 }
@@ -101,15 +124,15 @@ body {
 }
 
 /* ── borders (white/opacity → black/opacity) ─────────────────────── */
-.light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.07); }
+.light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.08); }
 .light .border-white\/\[0\.05\]   { border-color: rgba(0,0,0,0.05); }
 .light .border-white\/\[0\.04\]   { border-color: rgba(0,0,0,0.04); }
-.light .border-white\/10          { border-color: rgba(0,0,0,0.10); }
+.light .border-white\/10          { border-color: rgba(0,0,0,0.12); }
 .light .border-white\/\[0\.08\]   { border-color: rgba(0,0,0,0.08); }
 
 /* ── dividers ────────────────────────────────────────────────────── */
-.light .divide-white\/\[0\.04\] > * + * { border-color: rgba(0,0,0,0.04); }
-.light .divide-white\/\[0\.06\] > * + * { border-color: rgba(0,0,0,0.06); }
+.light .divide-white\/\[0\.04\] > * + * { border-color: rgba(0,0,0,0.05); }
+.light .divide-white\/\[0\.06\] > * + * { border-color: rgba(0,0,0,0.07); }
 
 /* ── transparent white backgrounds ──────────────────────────────── */
 .light .bg-white\/5  { background-color: rgba(0,0,0,0.04); }
@@ -117,27 +140,26 @@ body {
 .light .bg-white\/10 { background-color: rgba(0,0,0,0.06); }
 
 /* ── event-type buttons (dark tints → light tints on warm bg) ─── */
-.light .bg-green-900\/50  { background-color: rgba(22, 163, 74, 0.10); }
-.light .bg-red-900\/40    { background-color: rgba(220, 38, 38, 0.10); }
-.light .bg-red-900\/30    { background-color: rgba(220, 38, 38, 0.08); }
-.light .bg-yellow-900\/40 { background-color: rgba(202, 138, 4, 0.10); }
+.light .bg-green-900\/50  { background-color: rgba(22, 163, 74, 0.09); }
+.light .bg-red-900\/40    { background-color: rgba(220, 38, 38, 0.09); }
+.light .bg-red-900\/30    { background-color: rgba(220, 38, 38, 0.07); }
+.light .bg-yellow-900\/40 { background-color: rgba(202, 138, 4, 0.09); }
 
-/* ── cancel button in forms ──────────────────────────────────────── */
+/* ── cancel / secondary buttons ──────────────────────────────────── */
 .light .bg-slate-700 {
   background-color: var(--bg-input);
   color: var(--text-primary);
 }
 
+/* ── placeholder text ───────────────────────────────────────────── */
+.light .placeholder-slate-500::placeholder { color: #9aa3af; }
+.light .placeholder-slate-600::placeholder { color: #9aa3af; }
 
-/* placeholder text in light mode */
-.light .placeholder-slate-500::placeholder { color: #94a3b8; }
-.light .placeholder-slate-600::placeholder { color: #94a3b8; }
-
-/* select element option backgrounds */
+/* ── select option backgrounds ──────────────────────────────────── */
 .light select option {
   background: var(--bg-raised);
   color: var(--text-primary);
 }
 
-/* pitch slot empty circle in light mode — keep dashed ring visible */
+/* ── pitch slot empty circle ────────────────────────────────────── */
 .light .border-white\/25 { border-color: rgba(0,0,0,0.18); }

@@ -100,15 +100,19 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {match.location}
           </p>
 
-          {/* Signed-up count */}
-          <p
-            className="text-xs md:text-sm mt-2.5 md:mt-3"
-            style={{ color: 'var(--text-faint)' }}
+          {/* Signed-up count — pill badge */}
+          <span
+            className="inline-flex items-center mt-2.5 md:mt-3 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
+            style={{
+              background: 'rgba(74,222,128,0.12)',
+              color: '#4ade80',
+              border: '1px solid rgba(74,222,128,0.20)',
+            }}
           >
             {match.attendance.length === 1
               ? '1 spiller tilmeldt'
               : `${match.attendance.length} spillere tilmeldt`}
-          </p>
+          </span>
 
         </div>
 

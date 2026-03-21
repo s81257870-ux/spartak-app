@@ -4,8 +4,18 @@ import { useFineStore } from '../store/fineStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import NewFineModal from '../components/boedekasse/NewFineModal'
+import { FINE_TYPES, CATEGORY_LABELS, type FineType } from '../data/fineTypes'
 
-type Tab = 'spillere' | 'historik'
+type Tab = 'spillere' | 'historik' | 'regler'
+
+const CATEGORIES: FineType['category'][] = ['kamp', 'glemte', 'special']
+
+// Human-readable suffix per fine type for the rules list
+const AMOUNT_SUFFIX: Partial<Record<string, string>> = {
+  'stoevler':  ' pr. stk.',
+  'stroemper': ' pr. stk.',
+  'pr-maal':   ' pr. mand',
+}
 
 function formatDanishDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number)
@@ -166,7 +176,7 @@ export default function Boedekasse() {
           className="flex rounded-xl p-1 gap-1"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
-          {(['spillere', 'historik'] as Tab[]).map((t) => (
+          {(['spillere', 'historik', 'regler'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -181,7 +191,7 @@ export default function Boedekasse() {
                   : { color: 'var(--text-muted)' }
               }
             >
-              {t === 'spillere' ? 'Spillere' : 'Historik'}
+              {t === 'spillere' ? 'Spillere' : t === 'historik' ? 'Historik' : 'Regler'}
             </button>
           ))}
         </div>
@@ -354,6 +364,59 @@ export default function Boedekasse() {
                 )
               })
             )}
+          </div>
+        )}
+
+        {/* ── Regler tab ──────────────────────────────────────────── */}
+        {tab === 'regler' && (
+          <div className="space-y-3 pb-2">
+            {CATEGORIES.map((cat) => {
+              const types = FINE_TYPES.filter((t) => t.category === cat)
+              return (
+                <div
+                  key={cat}
+                  className="rounded-2xl overflow-hidden"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                >
+                  {/* Category header */}
+                  <div
+                    className="px-4 py-2.5"
+                    style={{ borderBottom: '1px solid var(--border-faint)' }}
+                  >
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em]"
+                       style={{ color: 'var(--text-muted)' }}>
+                      {CATEGORY_LABELS[cat]}
+                    </p>
+                  </div>
+
+                  {/* Fine rows */}
+                  {types.map((ft, i) => (
+                    <div
+                      key={ft.id}
+                      className="flex items-center justify-between px-4 py-3"
+                      style={{
+                        borderTop: i === 0 ? 'none' : '1px solid var(--border-faint)',
+                      }}
+                    >
+                      <p className="text-sm pr-4" style={{ color: 'var(--text-primary)' }}>
+                        {ft.label}
+                      </p>
+                      <p
+                        className="text-sm font-bold shrink-0"
+                        style={{ color: '#f97316' }}
+                      >
+                        {ft.amount} kr
+                        {AMOUNT_SUFFIX[ft.id] && (
+                          <span className="text-[11px] font-normal" style={{ color: 'var(--text-faint)' }}>
+                            {AMOUNT_SUFFIX[ft.id]}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
           </div>
         )}
 

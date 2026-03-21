@@ -90,3 +90,15 @@ export interface PlayerStats {
   yellowCards: number
   redCards: number
 }
+
+export interface Fine {
+  id: string
+  playerId: string
+  fineTypeId: string   // key from FINE_TYPES
+  label: string        // snapshot of label at creation time
+  amount: number
+  date: string         // 'YYYY-MM-DD'
+  note?: string
+  paid: boolean
+  matchId?: string     // optional linked match
+}

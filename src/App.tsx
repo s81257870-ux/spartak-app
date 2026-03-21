@@ -12,6 +12,7 @@ import Matches from './pages/Matches'
 import NewMatch from './pages/NewMatch'
 import MatchDetail from './pages/MatchDetail'
 import Stats from './pages/Stats'
+import Boedekasse from './pages/Boedekasse'
 
 function AppContent() {
   const initPlayers = usePlayerStore((s) => s.init)
@@ -38,6 +39,7 @@ function AppContent() {
         <Route path="/kampe/ny"      element={<NewMatch />} />
         <Route path="/kampe/:id"     element={<MatchDetail />} />
         <Route path="/statistik"     element={<Stats />} />
+        <Route path="/boedekasse"    element={<Boedekasse />} />
       </Route>
     </Routes>
   )

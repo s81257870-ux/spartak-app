@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Users, Calendar, BarChart2 } from 'lucide-react'
+import { Home, Users, Calendar, BarChart2, Banknote } from 'lucide-react'
 
 const tabs = [
-  { to: '/',          label: 'Hjem',      Icon: Home      },
-  { to: '/spillere',  label: 'Spillere',  Icon: Users     },
-  { to: '/kampe',     label: 'Kampe',     Icon: Calendar  },
-  { to: '/statistik', label: 'Statistik', Icon: BarChart2 },
+  { to: '/',           label: 'Hjem',      Icon: Home      },
+  { to: '/spillere',   label: 'Spillere',  Icon: Users     },
+  { to: '/kampe',      label: 'Kampe',     Icon: Calendar  },
+  { to: '/statistik',  label: 'Statistik', Icon: BarChart2 },
+  { to: '/boedekasse', label: 'Bøder',     Icon: Banknote  },
 ]
 
 export default function BottomNav() {

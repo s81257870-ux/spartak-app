@@ -24,6 +24,7 @@ export const FINE_TYPES: FineType[] = [
   { id: 'stroemper',       label: 'Strømper',                         amount: 10,  category: 'glemte'  },
   { id: 'shorts',          label: 'Shorts',                           amount: 25,  category: 'glemte'  },
   { id: 'troeje',          label: 'Trøje',                            amount: 50,  category: 'glemte'  },
+  { id: 'ankelsokker',    label: 'Ankelsokker (kriminelt outfit)',    amount: 100, category: 'glemte'  },
 
   // ── Special ─────────────────────────────────────────────────────────
   // Selecting this creates one fine per signed-up player based on goals × 5 kr.

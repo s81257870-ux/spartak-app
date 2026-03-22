@@ -28,6 +28,7 @@ export default function Home() {
   const completedMatches = matches.filter((m) => m.isCompleted)
   const upcomingMatches  = matches.filter((m) => !m.isCompleted)
   const recentMatches    = completedMatches.slice(0, 3)
+  const formMatches      = completedMatches.slice(0, 5)
 
   const wins       = completedMatches.filter((m) => m.scoreUs > m.scoreThem).length
   const draws      = completedMatches.filter((m) => m.scoreUs === m.scoreThem).length
@@ -166,6 +167,47 @@ export default function Home() {
                 <NextMatchLineup match={upcomingMatches[0]} allPlayers={players} />
               </div>
             </button>
+          </div>
+        )}
+
+        {/* ── Form strip ────────────────────────────────────── */}
+        {formMatches.length > 0 && (
+          <div
+            className="rounded-2xl px-4 py-3.5 flex items-center gap-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] shrink-0"
+               style={{ color: 'var(--text-muted)' }}>
+              Form
+            </p>
+            <div className="flex items-center gap-2">
+              {formMatches.map((m) => {
+                const won  = m.scoreUs > m.scoreThem
+                const draw = m.scoreUs === m.scoreThem
+                return (
+                  <div
+                    key={m.id}
+                    title={won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
+                    className="w-6 h-6 rounded-full shrink-0"
+                    style={{
+                      background: won
+                        ? 'rgba(74,222,128,0.20)'
+                        : draw
+                        ? 'rgba(250,204,21,0.20)'
+                        : 'rgba(248,113,113,0.20)',
+                      border: `1.5px solid ${won ? '#4ade80' : draw ? '#facc15' : '#f87171'}`,
+                      boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(248,113,113,0.18)'}`,
+                    }}
+                  />
+                )
+              })}
+            </div>
+            <p className="text-[10px] ml-auto shrink-0"
+               style={{ color: 'var(--text-faint)' }}>
+              {formMatches.length === 1
+                ? 'sidste kamp'
+                : `sidste ${formMatches.length}`}
+            </p>
           </div>
         )}
 

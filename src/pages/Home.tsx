@@ -9,6 +9,7 @@ import { LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
 import LoginModal from '../components/auth/LoginModal'
 import ThemeSwitcher from '../components/ThemeSwitcher'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
+import TrainingCard   from '../components/training/TrainingCard'
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -169,6 +170,12 @@ export default function Home() {
             </button>
           </div>
         )}
+
+        {/* ── Next training ─────────────────────────────────── */}
+        <div>
+          <SectionLabel>Næste træning</SectionLabel>
+          <TrainingCard />
+        </div>
 
         {/* ── Form strip ────────────────────────────────────── */}
         <div

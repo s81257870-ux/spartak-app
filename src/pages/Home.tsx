@@ -179,40 +179,38 @@ export default function Home() {
              style={{ color: 'var(--text-muted)' }}>
             Form
           </p>
-          {formMatches.length === 0 ? (
-            <p className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
-              Ingen kampe endnu
-            </p>
-          ) : (
-            <>
-              <div className="flex items-center gap-2">
-                {formMatches.map((m) => {
-                  const won  = m.scoreUs > m.scoreThem
-                  const draw = m.scoreUs === m.scoreThem
-                  return (
-                    <div
-                      key={m.id}
-                      title={won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
-                      className="w-6 h-6 rounded-full shrink-0"
-                      style={{
-                        background: won
-                          ? 'rgba(74,222,128,0.20)'
-                          : draw
-                          ? 'rgba(250,204,21,0.20)'
-                          : 'rgba(248,113,113,0.20)',
-                        border: `1.5px solid ${won ? '#4ade80' : draw ? '#facc15' : '#f87171'}`,
-                        boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(248,113,113,0.18)'}`,
-                      }}
-                    />
-                  )
-                })}
-              </div>
-              <p className="text-[10px] ml-auto shrink-0"
-                 style={{ color: 'var(--text-faint)' }}>
-                {formMatches.length === 1 ? 'sidste kamp' : `sidste ${formMatches.length}`}
-              </p>
-            </>
-          )}
+          <div className="flex items-center gap-2">
+            {Array.from({ length: 5 }, (_, i) => {
+              const m    = formMatches[i]
+              const won  = m && m.scoreUs > m.scoreThem
+              const draw = m && m.scoreUs === m.scoreThem
+              return m ? (
+                <div
+                  key={m.id}
+                  title={won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
+                  className="w-6 h-6 rounded-full shrink-0"
+                  style={{
+                    background: won ? 'rgba(74,222,128,0.20)' : draw ? 'rgba(250,204,21,0.20)' : 'rgba(248,113,113,0.20)',
+                    border: `1.5px solid ${won ? '#4ade80' : draw ? '#facc15' : '#f87171'}`,
+                    boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(248,113,113,0.18)'}`,
+                  }}
+                />
+              ) : (
+                <div
+                  key={`empty-${i}`}
+                  className="w-6 h-6 rounded-full shrink-0 opacity-25"
+                  style={{ border: '1.5px solid var(--text-faint)', background: 'transparent' }}
+                />
+              )
+            })}
+          </div>
+          <p className="text-[10px] ml-auto shrink-0" style={{ color: 'var(--text-faint)' }}>
+            {formMatches.length === 0
+              ? 'ingen kampe'
+              : formMatches.length === 1
+              ? 'sidste kamp'
+              : `sidste ${formMatches.length}`}
+          </p>
         </div>
 
         {/* ── Top scorer + top assister ─────────────────────── */}

@@ -291,7 +291,8 @@ export default function LineupTab({ matchId }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => { setFormation(matchId, confirmFormation); setConfirmFormation(null) }}
-              className="flex-1 bg-orange-600 text-white rounded-xl py-2 font-bold text-sm"
+              className="flex-1 rounded-xl py-2 font-bold text-sm"
+              style={{ background: 'var(--cta-bg)', color: 'var(--cta-color)' }}
             >
               Ja, skift
             </button>

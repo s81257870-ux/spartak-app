@@ -2,88 +2,89 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    Theme tokens — dark mode (default)
+   Palette: deep navy surfaces · #95C5E9 light-blue accent · cool white text
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  /* surfaces */
-  --bg-app:      #0f1117;
-  --bg-card:     #12131c;
-  --bg-raised:   #1a1d27;
-  --bg-input:    #0c0d14;
-  --bg-nav:      #0e0f17;
+  /* surfaces — deep navy hierarchy */
+  --bg-app:      #0d1423;   /* deep navy — page canvas               */
+  --bg-card:     #111c2e;   /* card navy — primary cards             */
+  --bg-raised:   #192538;   /* raised navy — elevated surfaces       */
+  --bg-input:    #090e1a;   /* dark input                            */
+  --bg-nav:      #0c1422;   /* nav navy — bottom nav                 */
 
-  /* borders */
-  --border:        rgba(255, 255, 255, 0.06);
-  --border-faint:  rgba(255, 255, 255, 0.04);
-  --border-input:  rgba(255, 255, 255, 0.10);
+  /* borders — subtle light-blue tint instead of white */
+  --border:        rgba(149, 197, 233, 0.08);
+  --border-faint:  rgba(149, 197, 233, 0.05);
+  --border-input:  rgba(149, 197, 233, 0.13);
 
-  /* text */
-  --text-primary:    #f1f5f9;
-  --text-secondary:  #94a3b8;
-  --text-muted:      #64748b;
-  --text-faint:      #475569;
-  --text-dimmer:     #334155;
+  /* text — cool off-white hierarchy */
+  --text-primary:    #e8f2f9;   /* cool off-white                    */
+  --text-secondary:  #8fb3cc;   /* muted steel blue                  */
+  --text-muted:      #547090;   /* deeper muted blue-gray            */
+  --text-faint:      #3a5268;   /* faint navy-gray                   */
+  --text-dimmer:     #283c50;   /* barely-there                      */
 
   /* accent-tinted card surfaces */
-  --accent-card-tint:   rgba(249, 115, 22, 0.08);
-  --accent-card-border: rgba(249, 115, 22, 0.20);
+  --accent-card-tint:   rgba(149, 197, 233, 0.06);
+  --accent-card-border: rgba(149, 197, 233, 0.16);
 
   /* theme toggle active pill */
-  --toggle-active-bg:     linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
-  --toggle-active-color:  #000000;
-  --toggle-active-shadow: rgba(249, 115, 22, 0.28);
-  --toggle-track-bg:      rgba(0, 0, 0, 0.30);
+  --toggle-active-bg:     #95C5E9;
+  --toggle-active-color:  #0b1220;
+  --toggle-active-shadow: rgba(149, 197, 233, 0.28);
+  --toggle-track-bg:      rgba(149, 197, 233, 0.10);
 
-  /* ── Brand accent system (dark = orange) ───────────────────────── */
+  /* ── Brand accent system (dark = #95C5E9 light blue) ─────────── */
 
-  /* Primary accent color — used for text highlights, icons */
-  --accent:              #f97316;
+  /* Primary accent — used for text highlights, icons */
+  --accent:              #95C5E9;
 
   /* CTA / admin action buttons */
-  --cta-bg:              linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
-  --cta-color:           #000000;
-  --cta-shadow:          rgba(249, 115, 22, 0.32);
+  --cta-bg:              linear-gradient(135deg, #4c9fd6 0%, #95C5E9 100%);
+  --cta-color:           #0b1220;   /* dark navy for contrast on light-blue bg */
+  --cta-shadow:          rgba(149, 197, 233, 0.30);
 
   /* Left border stripe on upcoming match cards */
-  --accent-stripe:       linear-gradient(180deg, #f97316, #fbbf24);
+  --accent-stripe:       linear-gradient(180deg, #95C5E9, #bdd9ef);
 
   /* Bottom nav active tab */
-  --nav-active-color:     #f97316;
-  --nav-active-indicator: linear-gradient(90deg, #f97316, #fbbf24);
+  --nav-active-color:     #95C5E9;
+  --nav-active-indicator: linear-gradient(90deg, #95C5E9, #bdd9ef);
 
   /* Date/time text in the next-match card */
-  --nm-date-color:       rgba(249, 115, 22, 0.88);
+  --nm-date-color:       rgba(149, 197, 233, 0.90);
 
   /* Player dot on mini pitch */
-  --dot-border:          rgba(249, 115, 22, 0.82);
-  --dot-glow:            rgba(249, 115, 22, 0.22);
+  --dot-border:          rgba(149, 197, 233, 0.85);
+  --dot-glow:            rgba(149, 197, 233, 0.20);
 
   /* Status / "Kommende" / admin badge chips */
-  --badge-accent-bg:     rgba(249, 115, 22, 0.12);
-  --badge-accent-text:   #fb923c;
-  --badge-accent-border: rgba(249, 115, 22, 0.30);
+  --badge-accent-bg:     rgba(149, 197, 233, 0.10);
+  --badge-accent-text:   #95C5E9;
+  --badge-accent-border: rgba(149, 197, 233, 0.26);
 
   /* Hero section decorative radial glow */
-  --hero-glow:           rgba(249, 115, 22, 0.08);
+  --hero-glow:           rgba(149, 197, 233, 0.06);
 
   /* Section header pill-bar + eyebrow label */
-  --section-bar-bg:      linear-gradient(to bottom, #fb923c, #f59e0b);
-  --section-label-color: rgba(251, 146, 60, 0.80);
+  --section-bar-bg:      linear-gradient(to bottom, #95C5E9, #bdd9ef);
+  --section-label-color: rgba(149, 197, 233, 0.80);
 
   /* Icon background in modals / lock */
-  --icon-accent-bg:      rgba(249, 115, 22, 0.12);
+  --icon-accent-bg:      rgba(149, 197, 233, 0.12);
 
   /* Amount / financial highlight (unpaid fines, top scorer) */
-  --amount-color:        #f97316;
-  --amount-avatar-bg:    linear-gradient(135deg, rgba(249,115,22,0.20), rgba(251,191,36,0.15));
+  --amount-color:        #95C5E9;
+  --amount-avatar-bg:    linear-gradient(135deg, rgba(149,197,233,0.18), rgba(189,217,239,0.12));
 
-  /* Bødekasse tab active pill */
-  --tab-active-bg:       linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
-  --tab-active-color:    #000000;
-  --tab-active-shadow:   rgba(249, 115, 22, 0.28);
+  /* Tab / segmented pill active state */
+  --tab-active-bg:       #95C5E9;   /* solid accent — cleaner than gradient on navy */
+  --tab-active-color:    #0b1220;
+  --tab-active-shadow:   rgba(149, 197, 233, 0.28);
 
   /* misc */
-  --shadow-modal: rgba(0, 0, 0, 0.60);
-  --shadow-nav:   rgba(0, 0, 0, 0.50);
+  --shadow-modal: rgba(0, 0, 0, 0.70);
+  --shadow-nav:   rgba(0, 0, 0, 0.55);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -92,12 +93,12 @@
                 #AFC8DC (sky) · #E6E8EB (off-white)
    ═══════════════════════════════════════════════════════════════════ */
 :root.light {
-  /* surfaces — cool steel-blue hierarchy, never warm sand */
-  --bg-app:      #edf1f5;   /* cool blue-gray page canvas             */
-  --bg-card:     #f4f7fa;   /* pale blue-white primary cards          */
-  --bg-raised:   #ffffff;   /* pure white elevated surfaces           */
-  --bg-input:    #e3eaf0;   /* light steel input fields               */
-  --bg-nav:      #f4f7fa;   /* same as card — bottom nav              */
+  /* surfaces — cool steel-blue hierarchy */
+  --bg-app:      #edf1f5;
+  --bg-card:     #f4f7fa;
+  --bg-raised:   #ffffff;
+  --bg-input:    #e3eaf0;
+  --bg-nav:      #f4f7fa;
 
   /* borders */
   --border:        rgba(31, 42, 58, 0.09);
@@ -105,17 +106,17 @@
   --border-input:  rgba(31, 42, 58, 0.13);
 
   /* text — brand navy hierarchy */
-  --text-primary:    #1f2a3a;   /* brand dark navy                    */
-  --text-secondary:  #4a5f72;   /* medium steel blue                  */
-  --text-muted:      #7a92a5;   /* muted steel                        */
-  --text-faint:      #9db0c0;   /* faint steel label                  */
-  --text-dimmer:     #bfcdd7;   /* barely-there divider text          */
+  --text-primary:    #1f2a3a;
+  --text-secondary:  #4a5f72;
+  --text-muted:      #7a92a5;
+  --text-faint:      #9db0c0;
+  --text-dimmer:     #bfcdd7;
 
-  /* accent-tinted card surfaces — brand steel tint, not orange */
+  /* accent-tinted surfaces */
   --accent-card-tint:   rgba(95, 134, 166, 0.06);
   --accent-card-border: rgba(95, 134, 166, 0.16);
 
-  /* toggle active pill = steel blue gradient in light mode */
+  /* toggle active pill */
   --toggle-active-bg:     linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
   --toggle-active-color:  #e6e8eb;
   --toggle-active-shadow: rgba(31, 42, 58, 0.22);
@@ -223,6 +224,16 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   Global: orange/amber Tailwind classes → CSS accent var
+   Works in BOTH themes because --accent flips with the theme.
+   ═══════════════════════════════════════════════════════════════════ */
+.text-orange-400   { color: var(--accent); }
+.text-amber-400    { color: var(--accent); }
+.bg-orange-400     { background-color: var(--accent); }
+.active\:text-orange-400:active { color: var(--accent); }
+.focus\:border-orange-500\/40:focus { border-color: rgba(149,197,233,0.35); }
+
+/* ═══════════════════════════════════════════════════════════════════
    Light-mode overrides for Tailwind utility classes
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -234,25 +245,15 @@ body {
   color: var(--text-secondary);
 }
 
-/* ── orange / amber → brand blue ──────────────────────────────── */
-.light .text-orange-400   { color: var(--accent); }
-.light .text-amber-400    { color: var(--accent); }
-.light .bg-orange-400     { background-color: var(--accent); }
+/* ── light-only: orange variant classes not covered by global ─── */
 .light .bg-orange-600     { background-color: #4a6e8e; }
 .light .bg-orange-900\/30 { background-color: rgba(95,134,166,0.10); }
 .light .border-orange-900\/30 { border-color: rgba(95,134,166,0.18); }
 .light .border-orange-500\/40 { border-color: rgba(95,134,166,0.30); }
 .light .text-orange-200   { color: var(--text-secondary); }
+.light .focus\:border-orange-500\/40:focus { border-color: rgba(95,134,166,0.35); }
 
-/* active: pseudo hover on orange text links */
-.light .active\:text-orange-400:active { color: var(--accent); }
-
-/* focus border on search inputs */
-.light .focus\:border-orange-500\/40:focus {
-  border-color: rgba(95, 134, 166, 0.35);
-}
-
-/* ── borders (white/opacity → dark/opacity) ──────────────────── */
+/* ── borders (white/opacity → dark/opacity in light mode) ────── */
 .light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.08); }
 .light .border-white\/\[0\.05\]   { border-color: rgba(0,0,0,0.05); }
 .light .border-white\/\[0\.04\]   { border-color: rgba(0,0,0,0.04); }

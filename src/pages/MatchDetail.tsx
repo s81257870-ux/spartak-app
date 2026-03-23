@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore'
 import EventsTab from '../components/matches/EventsTab'
 import AttendanceTab from '../components/matches/AttendanceTab'
 import LineupTab from '../components/lineup/LineupTab'
+import ClubCrest from '../components/ClubCrest'
 import { displayName } from '../utils/playerName'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 
@@ -130,29 +131,67 @@ export default function MatchDetail() {
         </h2>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(match.date)}</p>
 
-        {/* ── Score display ──────────────────────────────────── */}
-        <div className="mt-5">
-          <div className="flex items-center justify-center gap-6">
-            <div className="text-center">
-              <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Spartak</p>
-              <p
-                className="text-6xl font-black leading-none"
+        {/* ── Score display — football scoreboard ───────────── */}
+        <div className="mt-6 flex items-center gap-2 px-1">
+
+          {/* Spartak side */}
+          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 64 }}>
+            <ClubCrest size={52} />
+            <p
+              className="text-[11px] font-semibold text-center leading-tight w-full truncate"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Spartak
+            </p>
+          </div>
+
+          {/* Score center */}
+          <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
+            <div className="flex items-center gap-2.5">
+              <span
+                className="text-5xl font-black leading-none tabular-nums"
                 style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}
               >
                 {match.scoreUs}
-              </p>
-            </div>
-            <p className="text-3xl font-bold mt-3" style={{ color: 'var(--text-dimmer)' }}>–</p>
-            <div className="text-center">
-              <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>{match.opponent}</p>
-              <p className="text-6xl font-black leading-none" style={{ color: 'var(--text-primary)' }}>
+              </span>
+              <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
+              <span
+                className="text-5xl font-black leading-none tabular-nums"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {match.scoreThem}
-              </p>
+              </span>
             </div>
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
+              {match.isCompleted ? 'Afsluttet' : 'Opdateres automatisk'}
+            </p>
           </div>
-          <p className="text-xs text-center mt-3" style={{ color: 'var(--text-faint)' }}>
-            {match.isCompleted ? 'Afsluttet' : 'Scoren opdateres automatisk fra mål'}
-          </p>
+
+          {/* Opponent side */}
+          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 64 }}>
+            {/* Generic opponent badge — initial in a circle */}
+            <div
+              className="flex items-center justify-center shrink-0 select-none"
+              style={{
+                width:        52,
+                height:       52,
+                borderRadius: '50%',
+                background:   'var(--bg-raised)',
+                border:       '1.5px solid var(--border-input)',
+              }}
+            >
+              <span className="text-xl font-black" style={{ color: 'var(--text-muted)' }}>
+                {match.opponent.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <p
+              className="text-[11px] font-semibold text-center leading-tight w-full truncate"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {match.opponent}
+            </p>
+          </div>
+
         </div>
 
         {/* ── Man of the match ──────────────────────────────── */}

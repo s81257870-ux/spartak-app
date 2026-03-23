@@ -1,16 +1,18 @@
 /**
  * ClubCrest — renders the Spartak Ciervo badge.
  *
- * Asset: drop your logo PNG at   public/spartak-logo.png
- * (root-relative path, no import needed — just copy the file there)
+ * Asset path: public/spartak-logo.png  →  served at  /spartak-logo.png
+ * To swap the logo: replace public/spartak-logo.png — no code change needed.
  *
- * If the file is missing or fails to load, a navy/light-blue "SC"
- * monogram fallback is shown automatically.
+ * Design:
+ *   The fallback (navy "SC" circle) is always rendered as the base layer.
+ *   The <img> is stacked on top via absolute positioning.
+ *   • If the image loads  → it covers the fallback (visible).
+ *   • If the image errors → it is hidden via onError, fallback shows through.
  *
- * To swap the logo later: replace public/spartak-logo.png — done.
+ * This avoids React state entirely, so HMR / Fast Refresh never causes
+ * a stale "failed" flag to block the real image from appearing.
  */
-
-import { useState } from 'react'
 
 interface Props {
   /** Pixel size for both width and height. Default 48. */
@@ -19,50 +21,49 @@ interface Props {
 }
 
 export default function ClubCrest({ size = 48, className = '' }: Props) {
-  const [failed, setFailed] = useState(false)
-
-  if (failed) {
-    return (
+  return (
+    <div
+      className={`relative shrink-0 ${className}`}
+      style={{ width: size, height: size }}
+    >
+      {/* ── Fallback: always rendered underneath ──────────────────── */}
       <div
-        className={`rounded-full flex items-center justify-center shrink-0 select-none ${className}`}
+        className="absolute inset-0 rounded-full flex items-center justify-center select-none"
         style={{
-          width:  size,
-          height: size,
           background: 'linear-gradient(135deg, #152035 0%, #1e3050 100%)',
-          border: '2px solid rgba(149,197,233,0.35)',
-          boxShadow: '0 0 10px rgba(149,197,233,0.12)',
+          border:     '2px solid rgba(149,197,233,0.35)',
+          boxShadow:  '0 0 10px rgba(149,197,233,0.12)',
         }}
       >
         <span
           style={{
-            fontSize:   Math.round(size * 0.32),
-            fontWeight: 900,
+            fontSize:      Math.round(size * 0.32),
+            fontWeight:    900,
             letterSpacing: '0.04em',
-            color: '#95C5E9',
-            lineHeight: 1,
+            color:         '#95C5E9',
+            lineHeight:    1,
           }}
         >
           SC
         </span>
       </div>
-    )
-  }
 
-  return (
-    <img
-      src="/spartak-logo.png"
-      alt="Spartak Ciervo"
-      width={size}
-      height={size}
-      onError={() => setFailed(true)}
-      className={`object-contain shrink-0 ${className}`}
-      style={{
-        width:        size,
-        height:       size,
-        borderRadius: '50%',
-        /* subtle drop shadow so the badge reads on any bg */
-        filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.45))',
-      }}
-    />
+      {/* ── Logo: covers fallback when it loads successfully ──────── */}
+      <img
+        src="/spartak-logo.png"
+        alt="Spartak Ciervo"
+        className="absolute inset-0 object-contain"
+        style={{
+          width:        size,
+          height:       size,
+          borderRadius: '50%',
+          filter:       'drop-shadow(0 2px 6px rgba(0,0,0,0.45))',
+        }}
+        onError={(e) => {
+          // Hide the broken img so the fallback layer shows through.
+          e.currentTarget.style.display = 'none'
+        }}
+      />
+    </div>
   )
 }

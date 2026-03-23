@@ -103,10 +103,11 @@ export default function Boedekasse() {
           {isAdmin && (
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl font-bold text-sm active:scale-95 transition-transform text-black"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl font-bold text-sm active:scale-95 transition-transform"
               style={{
-                background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-                boxShadow:  '0 4px 16px rgba(249,115,22,0.30)',
+                background: 'var(--cta-bg)',
+                color: 'var(--cta-color)',
+                boxShadow:  '0 4px 16px var(--cta-shadow)',
               }}
             >
               <Plus size={16} strokeWidth={2.5} />
@@ -130,7 +131,7 @@ export default function Boedekasse() {
           <div className="grid grid-cols-3 gap-2">
             {/* Total unpaid */}
             <div className="text-center">
-              <p className="text-2xl font-black leading-none mb-1 text-orange-400">
+              <p className="text-2xl font-black leading-none mb-1" style={{ color: 'var(--amount-color)' }}>
                 {totalUnpaid}
                 <span className="text-sm font-semibold"> kr</span>
               </p>
@@ -184,9 +185,9 @@ export default function Boedekasse() {
               style={
                 tab === t
                   ? {
-                      background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-                      color: '#000',
-                      boxShadow: '0 2px 8px rgba(249,115,22,0.28)',
+                      background: 'var(--tab-active-bg)',
+                      color: 'var(--tab-active-color)',
+                      boxShadow: '0 2px 8px var(--tab-active-shadow)',
                     }
                   : { color: 'var(--text-muted)' }
               }
@@ -216,10 +217,8 @@ export default function Boedekasse() {
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold"
                     style={{
-                      background: total > 0
-                        ? 'linear-gradient(135deg, rgba(249,115,22,0.20), rgba(251,191,36,0.15))'
-                        : 'var(--bg-raised)',
-                      color: total > 0 ? '#f97316' : 'var(--text-muted)',
+                      background: total > 0 ? 'var(--amount-avatar-bg)' : 'var(--bg-raised)',
+                      color: total > 0 ? 'var(--amount-color)' : 'var(--text-muted)',
                     }}
                   >
                     {player!.name.charAt(0)}
@@ -244,7 +243,7 @@ export default function Boedekasse() {
                   <div className="text-right shrink-0">
                     <p
                       className="font-black text-base leading-none"
-                      style={{ color: total > 0 ? '#f97316' : '#4ade80' }}
+                      style={{ color: total > 0 ? 'var(--amount-color)' : '#4ade80' }}
                     >
                       {total > 0 ? `${total} kr` : '0 kr'}
                     </p>
@@ -290,7 +289,7 @@ export default function Boedekasse() {
                       {/* Paid indicator strip */}
                       <div
                         className="w-1 self-stretch rounded-full shrink-0 mt-0.5"
-                        style={{ background: fine.paid ? '#4ade80' : '#f97316' }}
+                        style={{ background: fine.paid ? '#4ade80' : 'var(--amount-color)' }}
                       />
 
                       {/* Content */}
@@ -311,7 +310,7 @@ export default function Boedekasse() {
                           </div>
                           <p
                             className="font-black text-base shrink-0 leading-none"
-                            style={{ color: fine.paid ? 'var(--text-faint)' : '#f97316' }}
+                            style={{ color: fine.paid ? 'var(--text-faint)' : 'var(--amount-color)' }}
                           >
                             {fine.amount} kr
                           </p>
@@ -403,7 +402,7 @@ export default function Boedekasse() {
                       </p>
                       <p
                         className="text-sm font-bold shrink-0"
-                        style={{ color: '#f97316' }}
+                        style={{ color: 'var(--amount-color)' }}
                       >
                         {ft.amount} kr
                         {AMOUNT_SUFFIX[ft.id] && (

@@ -56,7 +56,7 @@ export default function LeagueTable({ rows, leagueName }: Props) {
               >
                 {/* Position */}
                 <span className="text-[11px] font-bold tabular-nums"
-                      style={{ color: isSpartak ? '#fb923c' : 'var(--text-faint)' }}>
+                      style={{ color: isSpartak ? 'var(--accent)' : 'var(--text-faint)' }}>
                   {row.position}
                 </span>
 
@@ -68,7 +68,8 @@ export default function LeagueTable({ rows, leagueName }: Props) {
                     {row.team}
                   </span>
                   {isSpartak && (
-                    <span className="shrink-0 text-[9px] font-bold text-orange-400/70 border border-orange-400/30 rounded px-1 py-0.5 leading-none">
+                    <span className="shrink-0 text-[9px] font-bold rounded px-1 py-0.5 leading-none"
+                          style={{ color: 'var(--accent)', border: '1px solid var(--badge-accent-border)' }}>
                       OS
                     </span>
                   )}
@@ -85,7 +86,7 @@ export default function LeagueTable({ rows, leagueName }: Props) {
                 <span
                   className={`text-sm font-bold tabular-nums text-center ${isSpartak ? 'text-orange-400' : ''}`}
                   style={isSpartak
-                    ? { textShadow: '0 0 12px rgba(249,115,22,0.4)' }
+                    ? { textShadow: '0 0 12px var(--dot-glow)' }
                     : { color: 'var(--text-secondary)' }}
                 >
                   {row.points}

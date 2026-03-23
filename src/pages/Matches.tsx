@@ -42,13 +42,14 @@ export default function Matches() {
       <div className="relative px-4 pt-10 pb-6 overflow-hidden">
         <div
           className="absolute -top-6 left-1/2 -translate-x-1/2 w-72 h-36 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, rgba(249,115,22,0.08) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse, var(--hero-glow) 0%, transparent 70%)' }}
         />
         <div className="flex items-end justify-between relative">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-1 h-4 rounded-full bg-gradient-to-b from-orange-400 to-amber-500" />
-              <span className="text-orange-400/70 text-[10px] font-bold uppercase tracking-[0.15em]">
+              <div className="w-1 h-4 rounded-full" style={{ background: 'var(--section-bar-bg)' }} />
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em]"
+                    style={{ color: 'var(--section-label-color)' }}>
                 Kampprogram
               </span>
             </div>
@@ -60,10 +61,11 @@ export default function Matches() {
           {isAdmin && (
             <button
               onClick={() => navigate('/kampe/ny')}
-              className="w-11 h-11 rounded-2xl flex items-center justify-center active:scale-95 transition-transform text-black shrink-0"
+              className="w-11 h-11 rounded-2xl flex items-center justify-center active:scale-95 transition-transform shrink-0"
               style={{
-                background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-                boxShadow: '0 6px 20px rgba(249,115,22,0.35)',
+                background: 'var(--cta-bg)',
+                color: 'var(--cta-color)',
+                boxShadow: '0 6px 20px var(--cta-shadow)',
               }}
             >
               <Plus size={20} strokeWidth={2.5} />
@@ -100,7 +102,7 @@ export default function Matches() {
                 >
                   <div
                     className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
-                    style={{ background: 'linear-gradient(180deg, #f97316, #fbbf24)' }}
+                    style={{ background: 'var(--accent-stripe)' }}
                   />
                   <div className="pl-3 flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -116,9 +118,9 @@ export default function Matches() {
                     <span
                       className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
                       style={{
-                        background: 'rgba(249,115,22,0.12)',
-                        color: '#fb923c',
-                        border: '1px solid rgba(249,115,22,0.30)',
+                        background: 'var(--badge-accent-bg)',
+                        color: 'var(--badge-accent-text)',
+                        border: '1px solid var(--badge-accent-border)',
                       }}
                     >
                       Kommende

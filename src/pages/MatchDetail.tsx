@@ -50,7 +50,7 @@ export default function MatchDetail() {
   if (!match) {
     return (
       <div className="p-4">
-        <button onClick={() => navigate(-1)} className="text-orange-400 flex items-center gap-1">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1" style={{ color: 'var(--accent)' }}>
           <ArrowLeft size={18} /> Tilbage
         </button>
         <p className="text-sm mt-4" style={{ color: 'var(--text-secondary)' }}>Kamp ikke fundet</p>
@@ -85,7 +85,8 @@ export default function MatchDetail() {
         <div className="flex items-center justify-between mb-5 relative">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-orange-400 font-medium text-sm active:opacity-70"
+            className="flex items-center gap-1.5 font-medium text-sm active:opacity-70"
+            style={{ color: 'var(--accent)' }}
           >
             <ArrowLeft size={17} strokeWidth={2.5} /> Kampe
           </button>
@@ -94,9 +95,9 @@ export default function MatchDetail() {
               onClick={() => completeMatch(match.id)}
               className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform"
               style={{
-                background: 'rgba(249,115,22,0.12)',
-                color: '#fb923c',
-                border: '1px solid rgba(249,115,22,0.30)',
+                background: 'var(--badge-accent-bg)',
+                color: 'var(--badge-accent-text)',
+                border: '1px solid var(--badge-accent-border)',
               }}
             >
               Afslut kamp
@@ -118,8 +119,9 @@ export default function MatchDetail() {
 
         {/* Title */}
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-1 h-4 rounded-full bg-gradient-to-b from-orange-400 to-amber-500" />
-          <p className="text-orange-400/70 text-[10px] font-bold uppercase tracking-[0.15em]">
+          <div className="w-1 h-4 rounded-full" style={{ background: 'var(--section-bar-bg)' }} />
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em]"
+             style={{ color: 'var(--section-label-color)' }}>
             {match.location}
           </p>
         </div>
@@ -195,9 +197,9 @@ export default function MatchDetail() {
             style={
               tab === t
                 ? {
-                    background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-                    boxShadow: '0 4px 14px rgba(249,115,22,0.28)',
-                    color: '#000',
+                    background: 'var(--tab-active-bg)',
+                    boxShadow: '0 4px 14px var(--tab-active-shadow)',
+                    color: 'var(--tab-active-color)',
                   }
                 : {
                     background: 'var(--bg-card)',

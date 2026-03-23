@@ -43,12 +43,13 @@ export default function Stats() {
       <div className="relative px-4 pt-10 pb-7 overflow-hidden">
         <div
           className="absolute -top-8 left-1/2 -translate-x-1/2 w-72 h-40 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, rgba(249,115,22,0.12) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse, var(--hero-glow) 0%, transparent 70%)' }}
         />
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-4 rounded-full bg-gradient-to-b from-orange-400 to-amber-500" />
-            <span className="text-orange-400/70 text-[10px] font-bold uppercase tracking-[0.15em]">
+            <div className="w-1 h-4 rounded-full" style={{ background: 'var(--section-bar-bg)' }} />
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em]"
+                  style={{ color: 'var(--section-label-color)' }}>
               Sæson 2025
             </span>
           </div>
@@ -111,10 +112,10 @@ export default function Stats() {
                 style={
                   sortBy === key
                     ? {
-                        background: 'linear-gradient(90deg, #f97316, #fbbf24)',
-                        color: '#000',
+                        background: 'var(--tab-active-bg)',
+                        color: 'var(--tab-active-color)',
                         border: '1px solid transparent',
-                        boxShadow: '0 4px 16px rgba(249,115,22,0.30)',
+                        boxShadow: '0 4px 16px var(--tab-active-shadow)',
                       }
                     : {
                         background: 'var(--bg-raised)',

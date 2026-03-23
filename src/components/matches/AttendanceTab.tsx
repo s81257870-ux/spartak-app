@@ -114,10 +114,11 @@ export default function AttendanceTab({ matchId }: Props) {
           ) : (
             <button
               onClick={() => signUp(matchId, myPlayerId)}
-              className="w-full py-3 rounded-xl font-bold text-sm text-black active:scale-[0.98] transition-transform"
+              className="w-full py-3 rounded-xl font-bold text-sm active:scale-[0.98] transition-transform"
               style={{
-                background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-                boxShadow:  '0 4px 14px rgba(249,115,22,0.28)',
+                background: 'var(--cta-bg)',
+                color:      'var(--cta-color)',
+                boxShadow:  '0 4px 14px var(--cta-shadow)',
               }}
             >
               Tilmeld mig
@@ -179,7 +180,7 @@ export default function AttendanceTab({ matchId }: Props) {
                     </div>
                     <span
                       className="text-sm font-medium truncate"
-                      style={{ color: isMe ? '#fb923c' : 'var(--text-primary)' }}
+                      style={{ color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}
                     >
                       {name}
                       {isMe && (

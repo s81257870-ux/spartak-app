@@ -122,7 +122,7 @@ export default function NewMatch() {
             onClick={() => setIsCompleted(!isCompleted)}
             className="w-12 h-6 rounded-full transition-colors relative"
             style={isCompleted
-              ? { background: 'linear-gradient(135deg, #f97316, #fbbf24)' }
+              ? { background: 'var(--cta-bg)' }
               : { background: 'var(--text-dimmer)' }
             }
           >
@@ -166,8 +166,8 @@ export default function NewMatch() {
         <button
           onClick={submit}
           disabled={!opponent.trim() || saving}
-          className="w-full disabled:opacity-40 text-black font-bold py-4 rounded-2xl text-base mt-2 active:scale-[0.98] transition-transform"
-          style={{ background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)' }}
+          className="w-full disabled:opacity-40 font-bold py-4 rounded-2xl text-base mt-2 active:scale-[0.98] transition-transform"
+          style={{ background: 'var(--cta-bg)', color: 'var(--cta-color)', boxShadow: '0 6px 20px var(--cta-shadow)' }}
         >
           {saving ? 'Gemmer…' : 'Opret kamp'}
         </button>

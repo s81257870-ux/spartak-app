@@ -101,7 +101,7 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
           {/* Date · time */}
           <p
             className="text-sm md:text-base mt-0.5 md:mt-1"
-            style={{ color: 'rgba(249,115,22,0.88)' }}
+            style={{ color: 'var(--nm-date-color)' }}
           >
             {formatMatchDate(match.date)}
           </p>
@@ -209,8 +209,8 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                             borderRadius: '50%',
                             flexShrink: 0,
                             background: 'linear-gradient(135deg, #2d6a43, #1a4228)',
-                            border: '1.5px solid rgba(249,115,22,0.82)',
-                            boxShadow: '0 0 6px rgba(249,115,22,0.22)',
+                            border: '1.5px solid var(--dot-border)',
+                            boxShadow: '0 0 6px var(--dot-glow)',
                           }}
                         />
                         <span

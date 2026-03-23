@@ -109,8 +109,8 @@ export default function Home() {
           <div
             className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full border"
             style={{
-              background: 'rgba(249,115,22,0.08)',
-              borderColor: 'rgba(249,115,22,0.25)',
+              background: 'var(--icon-accent-bg)',
+              borderColor: 'var(--badge-accent-border)',
             }}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
@@ -161,7 +161,7 @@ export default function Home() {
             >
               <div
                 className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
-                style={{ background: 'linear-gradient(180deg, #f97316, #fbbf24)' }}
+                style={{ background: 'var(--accent-stripe)' }}
               />
               <div className="pl-3">
                 <NextMatchLineup match={upcomingMatches[0]} allPlayers={players} />
@@ -294,7 +294,8 @@ export default function Home() {
               <SectionLabel>Seneste kampe</SectionLabel>
               <button
                 onClick={() => navigate('/kampe')}
-                className="text-orange-400/70 text-xs flex items-center gap-0.5 active:opacity-70 -mt-1"
+                className="text-xs flex items-center gap-0.5 active:opacity-70 -mt-1"
+                style={{ color: 'var(--accent)' }}
               >
                 Se alle <ChevronRight size={13} />
               </button>
@@ -373,10 +374,11 @@ export default function Home() {
           {isAdmin && (
             <button
               onClick={() => navigate('/kampe/ny')}
-              className="flex flex-col items-center justify-center gap-2 rounded-2xl py-5 font-bold text-sm active:scale-[0.97] transition-transform text-black"
+              className="flex flex-col items-center justify-center gap-2 rounded-2xl py-5 font-bold text-sm active:scale-[0.97] transition-transform"
               style={{
-                background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-                boxShadow: '0 8px 24px rgba(249,115,22,0.30)',
+                background: 'var(--cta-bg)',
+                color: 'var(--cta-color)',
+                boxShadow: '0 8px 24px var(--cta-shadow)',
               }}
             >
               <Plus size={22} strokeWidth={2.5} />

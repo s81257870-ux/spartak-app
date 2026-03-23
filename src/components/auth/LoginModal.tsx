@@ -52,9 +52,9 @@ export default function LoginModal({ onClose }: Props) {
           <div className="flex items-center gap-2.5">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: 'rgba(249,115,22,0.12)' }}
+              style={{ background: 'var(--icon-accent-bg)' }}
             >
-              <Lock size={16} className="text-orange-400" />
+              <Lock size={16} style={{ color: 'var(--accent)' }} />
             </div>
             <div>
               <p className="font-bold text-sm leading-tight" style={{ color: 'var(--text-primary)' }}>Admin login</p>
@@ -124,10 +124,11 @@ export default function LoginModal({ onClose }: Props) {
         <button
           onClick={submit}
           disabled={!username || !password}
-          className="w-full py-3.5 rounded-xl font-bold text-sm text-black disabled:opacity-30 active:scale-[0.98] transition-transform"
+          className="w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-30 active:scale-[0.98] transition-transform"
           style={{
-            background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)',
-            boxShadow: '0 6px 20px rgba(249,115,22,0.28)',
+            background: 'var(--cta-bg)',
+            color: 'var(--cta-color)',
+            boxShadow: '0 6px 20px var(--cta-shadow)',
           }}
         >
           Log ind

@@ -236,7 +236,7 @@ export default function NewFineModal({ onClose }: Props) {
                   &nbsp;·&nbsp;
                   {prMaalPlayers.length} tilmeldte
                   &nbsp;=&nbsp;
-                  <strong style={{ color: '#f97316' }}>{goals * 5 * prMaalPlayers.length} kr total</strong>
+                  <strong style={{ color: 'var(--amount-color)' }}>{goals * 5 * prMaalPlayers.length} kr total</strong>
                 </p>
               )}
             </div>
@@ -249,7 +249,7 @@ export default function NewFineModal({ onClose }: Props) {
               style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
             >
               <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Beløb</span>
-              <span className="text-xl font-black" style={{ color: '#f97316' }}>
+              <span className="text-xl font-black" style={{ color: 'var(--amount-color)' }}>
                 {selectedType.amount} kr
               </span>
             </div>
@@ -288,11 +288,9 @@ export default function NewFineModal({ onClose }: Props) {
             disabled={!canSubmit}
             className="w-full py-3.5 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all"
             style={{
-              background: canSubmit
-                ? 'linear-gradient(135deg, #f97316 0%, #fbbf24 100%)'
-                : 'var(--bg-raised)',
-              color:      canSubmit ? '#000' : 'var(--text-faint)',
-              boxShadow:  canSubmit ? '0 4px 16px rgba(249,115,22,0.28)' : 'none',
+              background: canSubmit ? 'var(--cta-bg)' : 'var(--bg-raised)',
+              color:      canSubmit ? 'var(--cta-color)' : 'var(--text-faint)',
+              boxShadow:  canSubmit ? '0 4px 16px var(--cta-shadow)' : 'none',
               cursor:     canSubmit ? 'pointer' : 'not-allowed',
             }}
           >

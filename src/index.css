@@ -23,8 +23,7 @@
   --text-faint:      #475569;
   --text-dimmer:     #334155;
 
-  /* accent-tinted card surfaces
-     (upcoming match cards, featured card highlights) */
+  /* accent-tinted card surfaces */
   --accent-card-tint:   rgba(249, 115, 22, 0.08);
   --accent-card-border: rgba(249, 115, 22, 0.20);
 
@@ -34,69 +33,146 @@
   --toggle-active-shadow: rgba(249, 115, 22, 0.28);
   --toggle-track-bg:      rgba(0, 0, 0, 0.30);
 
+  /* ── Brand accent system (dark = orange) ───────────────────────── */
+
+  /* Primary accent color — used for text highlights, icons */
+  --accent:              #f97316;
+
+  /* CTA / admin action buttons */
+  --cta-bg:              linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  --cta-color:           #000000;
+  --cta-shadow:          rgba(249, 115, 22, 0.32);
+
+  /* Left border stripe on upcoming match cards */
+  --accent-stripe:       linear-gradient(180deg, #f97316, #fbbf24);
+
+  /* Bottom nav active tab */
+  --nav-active-color:     #f97316;
+  --nav-active-indicator: linear-gradient(90deg, #f97316, #fbbf24);
+
+  /* Date/time text in the next-match card */
+  --nm-date-color:       rgba(249, 115, 22, 0.88);
+
+  /* Player dot on mini pitch */
+  --dot-border:          rgba(249, 115, 22, 0.82);
+  --dot-glow:            rgba(249, 115, 22, 0.22);
+
+  /* Status / "Kommende" / admin badge chips */
+  --badge-accent-bg:     rgba(249, 115, 22, 0.12);
+  --badge-accent-text:   #fb923c;
+  --badge-accent-border: rgba(249, 115, 22, 0.30);
+
+  /* Hero section decorative radial glow */
+  --hero-glow:           rgba(249, 115, 22, 0.08);
+
+  /* Section header pill-bar + eyebrow label */
+  --section-bar-bg:      linear-gradient(to bottom, #fb923c, #f59e0b);
+  --section-label-color: rgba(251, 146, 60, 0.80);
+
+  /* Icon background in modals / lock */
+  --icon-accent-bg:      rgba(249, 115, 22, 0.12);
+
+  /* Amount / financial highlight (unpaid fines, top scorer) */
+  --amount-color:        #f97316;
+  --amount-avatar-bg:    linear-gradient(135deg, rgba(249,115,22,0.20), rgba(251,191,36,0.15));
+
+  /* Bødekasse tab active pill */
+  --tab-active-bg:       linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+  --tab-active-color:    #000000;
+  --tab-active-shadow:   rgba(249, 115, 22, 0.28);
+
   /* misc */
   --shadow-modal: rgba(0, 0, 0, 0.60);
   --shadow-nav:   rgba(0, 0, 0, 0.50);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Theme tokens — light mode (warm premium palette)
+   Theme tokens — light mode (Spartak Ciervo brand palette)
+   Logo colors: #1F2A3A (navy) · #5F86A6 (steel blue) ·
+                #AFC8DC (sky) · #E6E8EB (off-white)
    ═══════════════════════════════════════════════════════════════════ */
 :root.light {
-  /* surfaces — warm off-white / beige hierarchy
-     Each level is progressively lighter/warmer, never clinical white */
-  --bg-app:      #ece7de;   /* warm sand — page canvas                */
-  --bg-card:     #f7f2eb;   /* warm cream — primary cards             */
-  --bg-raised:   #fdfaf5;   /* warm off-white — elevated surfaces     */
-  --bg-input:    #e8e2d8;   /* warm grey-beige — input fields         */
-  --bg-nav:      #f9f4ed;   /* warm cream — bottom nav                */
+  /* surfaces — cool steel-blue hierarchy, never warm sand */
+  --bg-app:      #edf1f5;   /* cool blue-gray page canvas             */
+  --bg-card:     #f4f7fa;   /* pale blue-white primary cards          */
+  --bg-raised:   #ffffff;   /* pure white elevated surfaces           */
+  --bg-input:    #e3eaf0;   /* light steel input fields               */
+  --bg-nav:      #f4f7fa;   /* same as card — bottom nav              */
 
-  /* borders — dark/transparent instead of white/transparent */
-  --border:        rgba(0, 0, 0, 0.08);
-  --border-faint:  rgba(0, 0, 0, 0.05);
-  --border-input:  rgba(0, 0, 0, 0.12);
+  /* borders */
+  --border:        rgba(31, 42, 58, 0.09);
+  --border-faint:  rgba(31, 42, 58, 0.06);
+  --border-input:  rgba(31, 42, 58, 0.13);
 
-  /* text — dark navy hierarchy.
-     Primary is deep navy (not black), secondary is warm slate. */
-  --text-primary:    #1a1c2e;   /* deep navy                          */
-  --text-secondary:  #4a5568;   /* warm charcoal slate                */
-  --text-muted:      #7a8699;   /* muted warm grey                    */
-  --text-faint:      #a0aab8;   /* faint label grey                   */
-  --text-dimmer:     #c0c9d4;   /* barely-there divider text          */
+  /* text — brand navy hierarchy */
+  --text-primary:    #1f2a3a;   /* brand dark navy                    */
+  --text-secondary:  #4a5f72;   /* medium steel blue                  */
+  --text-muted:      #7a92a5;   /* muted steel                        */
+  --text-faint:      #9db0c0;   /* faint steel label                  */
+  --text-dimmer:     #bfcdd7;   /* barely-there divider text          */
 
-  /* accent-tinted surfaces — navy tint instead of orange in light mode
-     Upcoming match cards get a subtle navy warmth, not orange heaviness */
-  --accent-card-tint:   rgba(26, 28, 70, 0.04);
-  --accent-card-border: rgba(26, 28, 70, 0.10);
+  /* accent-tinted card surfaces — brand steel tint, not orange */
+  --accent-card-tint:   rgba(95, 134, 166, 0.06);
+  --accent-card-border: rgba(95, 134, 166, 0.16);
 
-  /* toggle active pill = deep navy in light mode (orange → navy inversion) */
-  --toggle-active-bg:     #1a1c2e;
-  --toggle-active-color:  #ffffff;
-  --toggle-active-shadow: rgba(26, 28, 46, 0.20);
-  --toggle-track-bg:      rgba(0, 0, 0, 0.06);
+  /* toggle active pill = steel blue gradient in light mode */
+  --toggle-active-bg:     linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
+  --toggle-active-color:  #e6e8eb;
+  --toggle-active-shadow: rgba(31, 42, 58, 0.22);
+  --toggle-track-bg:      rgba(31, 42, 58, 0.06);
 
-  /* misc */
+  /* ── Brand accent system (light = steel blue / navy) ─────────── */
+
+  --accent:              #5f86a6;
+
+  --cta-bg:              linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
+  --cta-color:           #e6e8eb;
+  --cta-shadow:          rgba(31, 42, 58, 0.22);
+
+  --accent-stripe:       linear-gradient(180deg, #5f86a6, #afc8dc);
+
+  --nav-active-color:     #1f2a3a;
+  --nav-active-indicator: linear-gradient(90deg, #5f86a6, #afc8dc);
+
+  --nm-date-color:       #4a6e8e;
+
+  --dot-border:          rgba(95, 134, 166, 0.90);
+  --dot-glow:            rgba(95, 134, 166, 0.25);
+
+  --badge-accent-bg:     rgba(95, 134, 166, 0.10);
+  --badge-accent-text:   #5f86a6;
+  --badge-accent-border: rgba(95, 134, 166, 0.22);
+
+  --hero-glow:           rgba(95, 134, 166, 0.08);
+
+  --section-bar-bg:      linear-gradient(to bottom, #5f86a6, #afc8dc);
+  --section-label-color: rgba(95, 134, 166, 0.90);
+
+  --icon-accent-bg:      rgba(95, 134, 166, 0.12);
+
+  --amount-color:        #4a6e8e;
+  --amount-avatar-bg:    linear-gradient(135deg, rgba(95,134,166,0.14), rgba(175,200,220,0.10));
+
+  --tab-active-bg:       linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
+  --tab-active-color:    #e6e8eb;
+  --tab-active-shadow:   rgba(31, 42, 58, 0.18);
+
   --shadow-modal: rgba(0, 0, 0, 0.25);
   --shadow-nav:   rgba(0, 0, 0, 0.07);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    Next-match card responsive sizing tokens
-   — Mobile defaults; desktop overrides at md (768 px)
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --nm-grid-cols: 1fr auto; /* grid split: info | pitch        */
-  --nm-pitch-w:   130px;    /* mini pitch width                */
-  --nm-pitch-rh:   50px;    /* row height inside pitch         */
-  --nm-dot:        18px;    /* player dot diameter             */
-  --nm-pitch-pad:   4px;    /* inner grid padding inside pitch */
-  --nm-gap:        16px;    /* gap between info and pitch cols */
-  /* label max-width: (pitch_w - 2×pad) / 3 - 2px, as a concrete px value.
-     Never use 100% here — it resolves against the span's own containing
-     block (an unsized flex-col), which collapses the label to 1 char. */
-  --nm-label-w:    38px;    /* (130 - 8) / 3 - 2 ≈ 38px       */
+  --nm-grid-cols: 1fr auto;
+  --nm-pitch-w:   130px;
+  --nm-pitch-rh:   50px;
+  --nm-dot:        18px;
+  --nm-pitch-pad:   4px;
+  --nm-gap:        16px;
+  --nm-label-w:    38px;
 }
-/* md: slightly larger pitch, same auto-width column */
 @media (min-width: 768px) {
   :root {
     --nm-pitch-w:   176px;
@@ -104,20 +180,17 @@
     --nm-dot:        24px;
     --nm-pitch-pad:   6px;
     --nm-gap:        24px;
-    --nm-label-w:    53px;  /* (176 - 12) / 3 - 2 ≈ 53px      */
+    --nm-label-w:    53px;
   }
 }
-/* lg: balanced 2-col split — pitch fills its column instead of fixed px width */
 @media (min-width: 1024px) {
   :root {
     --nm-grid-cols: 1.1fr 1fr;
-    --nm-pitch-w:   100%;   /* fills the 1fr right column      */
+    --nm-pitch-w:   100%;
     --nm-pitch-rh:   80px;
     --nm-dot:        28px;
     --nm-pitch-pad:   8px;
     --nm-gap:        28px;
-    /* At lg the pitch column is ~420-600px depending on screen width.
-       Each of the 3 cells is ~135-195px — 120px covers the longest surnames. */
     --nm-label-w:   120px;
   }
 }
@@ -151,13 +224,9 @@ body {
 
 /* ═══════════════════════════════════════════════════════════════════
    Light-mode overrides for Tailwind utility classes
-   These flip the dark-mode utility classes to light-mode equivalents.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── text ──────────────────────────────────────────────────────── */
-/* `text-white` on headings / content flips to dark navy in light mode.
-   Exception: elements using style={{ color: 'white' }} directly
-   (player avatars, crest, toggle pills) are unaffected. */
 .light .text-white {
   color: var(--text-primary);
 }
@@ -165,43 +234,61 @@ body {
   color: var(--text-secondary);
 }
 
-/* ── borders (white/opacity → black/opacity) ─────────────────────── */
+/* ── orange / amber → brand blue ──────────────────────────────── */
+.light .text-orange-400   { color: var(--accent); }
+.light .text-amber-400    { color: var(--accent); }
+.light .bg-orange-400     { background-color: var(--accent); }
+.light .bg-orange-600     { background-color: #4a6e8e; }
+.light .bg-orange-900\/30 { background-color: rgba(95,134,166,0.10); }
+.light .border-orange-900\/30 { border-color: rgba(95,134,166,0.18); }
+.light .border-orange-500\/40 { border-color: rgba(95,134,166,0.30); }
+.light .text-orange-200   { color: var(--text-secondary); }
+
+/* active: pseudo hover on orange text links */
+.light .active\:text-orange-400:active { color: var(--accent); }
+
+/* focus border on search inputs */
+.light .focus\:border-orange-500\/40:focus {
+  border-color: rgba(95, 134, 166, 0.35);
+}
+
+/* ── borders (white/opacity → dark/opacity) ──────────────────── */
 .light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.08); }
 .light .border-white\/\[0\.05\]   { border-color: rgba(0,0,0,0.05); }
 .light .border-white\/\[0\.04\]   { border-color: rgba(0,0,0,0.04); }
 .light .border-white\/10          { border-color: rgba(0,0,0,0.12); }
 .light .border-white\/\[0\.08\]   { border-color: rgba(0,0,0,0.08); }
 
-/* ── dividers ────────────────────────────────────────────────────── */
+/* ── dividers ────────────────────────────────────────────────── */
 .light .divide-white\/\[0\.04\] > * + * { border-color: rgba(0,0,0,0.05); }
 .light .divide-white\/\[0\.06\] > * + * { border-color: rgba(0,0,0,0.07); }
 
-/* ── transparent white backgrounds ──────────────────────────────── */
+/* ── transparent white backgrounds ──────────────────────────── */
 .light .bg-white\/5  { background-color: rgba(0,0,0,0.04); }
 .light .bg-white\/8  { background-color: rgba(0,0,0,0.05); }
 .light .bg-white\/10 { background-color: rgba(0,0,0,0.06); }
 
-/* ── event-type buttons (dark tints → light tints on warm bg) ─── */
+/* ── event-type buttons ──────────────────────────────────────── */
 .light .bg-green-900\/50  { background-color: rgba(22, 163, 74, 0.09); }
 .light .bg-red-900\/40    { background-color: rgba(220, 38, 38, 0.09); }
 .light .bg-red-900\/30    { background-color: rgba(220, 38, 38, 0.07); }
 .light .bg-yellow-900\/40 { background-color: rgba(202, 138, 4, 0.09); }
 
-/* ── cancel / secondary buttons ──────────────────────────────────── */
+/* ── cancel / secondary buttons ─────────────────────────────── */
 .light .bg-slate-700 {
   background-color: var(--bg-input);
   color: var(--text-primary);
 }
 
-/* ── placeholder text ───────────────────────────────────────────── */
+/* ── placeholder text ───────────────────────────────────────── */
 .light .placeholder-slate-500::placeholder { color: #9aa3af; }
 .light .placeholder-slate-600::placeholder { color: #9aa3af; }
 
-/* ── select option backgrounds ──────────────────────────────────── */
+/* ── select option backgrounds ──────────────────────────────── */
 .light select option {
   background: var(--bg-raised);
   color: var(--text-primary);
 }
 
-/* ── pitch slot empty circle ────────────────────────────────────── */
+/* ── pitch slot empty circle ────────────────────────────────── */
 .light .border-white\/25 { border-color: rgba(0,0,0,0.18); }

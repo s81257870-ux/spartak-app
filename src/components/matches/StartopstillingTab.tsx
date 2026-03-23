@@ -184,8 +184,8 @@ export default function StartopstillingTab({ matchId }: Props) {
                       title={startersFull ? 'Max 7 spillere i startopstillingen' : 'Tilføj til startopstillingen'}
                       className="flex items-center gap-1 text-xs rounded-lg px-2.5 py-1.5 transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                       style={{
-                        background: startersFull ? 'rgba(255,255,255,0.05)' : 'rgba(249,115,22,0.15)',
-                        color:      startersFull ? '#64748b' : '#fb923c',
+                        background: startersFull ? 'rgba(255,255,255,0.05)' : 'var(--badge-accent-bg)',
+                        color:      startersFull ? '#64748b' : 'var(--badge-accent-text)',
                       }}
                     >
                       <ArrowUp size={12} />

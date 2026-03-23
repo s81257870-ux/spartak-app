@@ -27,17 +27,17 @@ export default function BottomNav() {
             end={to === '/'}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors relative ${
-                isActive ? 'text-orange-400' : 'active:text-slate-400'
+                isActive ? '' : 'active:text-slate-400'
               }`
             }
-            style={({ isActive }) => ({ color: isActive ? undefined : 'var(--text-faint)' })}
+            style={({ isActive }) => ({ color: isActive ? 'var(--nav-active-color)' : 'var(--text-faint)' })}
           >
             {({ isActive }) => (
               <>
                 {isActive && (
                   <span
                     className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #f97316, #fbbf24)' }}
+                    style={{ background: 'var(--nav-active-indicator)' }}
                   />
                 )}
                 <Icon size={21} strokeWidth={isActive ? 2.2 : 1.8} />

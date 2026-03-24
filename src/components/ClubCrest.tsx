@@ -50,7 +50,7 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
 
       {/* ── Logo: covers fallback when it loads successfully ──────── */}
       <img
-        src="/spartak-logo.png"
+        src={`${import.meta.env.BASE_URL}spartak-logo.png`}
         alt="Spartak Ciervo"
         className="absolute inset-0 object-contain"
         style={{

@@ -57,7 +57,7 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
           width:        size,
           height:       size,
           borderRadius: '50%',
-          filter:       'drop-shadow(0 2px 6px rgba(0,0,0,0.45))',
+          filter:       'drop-shadow(0 3px 8px rgba(0,0,0,0.55)) drop-shadow(0 0 6px rgba(149,197,233,0.18))',
         }}
         onError={(e) => {
           // Hide the broken img so the fallback layer shows through.

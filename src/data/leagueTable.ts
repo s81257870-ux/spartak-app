@@ -11,6 +11,7 @@ export interface LeagueRow {
   isSpartak?: boolean
 }
 
+export const CLUB_NAME   = 'Spartak Ciervo'
 export const LEAGUE_NAME = 'Herre Senior 5 7:7 Forår – Dommerløs, P4'
 
 /**

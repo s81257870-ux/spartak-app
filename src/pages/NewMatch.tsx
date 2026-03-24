@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
+import { CLUB_NAME } from '../data/leagueTable'
 
 export default function NewMatch() {
   const navigate  = useNavigate()
@@ -141,7 +142,7 @@ export default function NewMatch() {
               style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
             >
               <div className="flex-1 text-center">
-                <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>Spartak</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>{CLUB_NAME}</p>
                 <input
                   type="number" min="0" value={scoreUs}
                   onChange={(e) => setScoreUs(e.target.value)}

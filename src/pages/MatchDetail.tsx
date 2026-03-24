@@ -9,6 +9,7 @@ import AttendanceTab from '../components/matches/AttendanceTab'
 import LineupTab from '../components/lineup/LineupTab'
 import ClubCrest from '../components/ClubCrest'
 import { displayName } from '../utils/playerName'
+import { CLUB_NAME } from '../data/leagueTable'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 
 type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
@@ -127,7 +128,7 @@ export default function MatchDetail() {
           </p>
         </div>
         <h2 className="text-xl font-black tracking-tight mb-0.5" style={{ color: 'var(--text-primary)' }}>
-          Spartak vs. {match.opponent}
+          {CLUB_NAME} vs. {match.opponent}
         </h2>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(match.date)}</p>
 
@@ -135,13 +136,13 @@ export default function MatchDetail() {
         <div className="mt-6 flex items-center gap-2 px-1">
 
           {/* Spartak side */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 68 }}>
-            <ClubCrest size={56} />
+          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 80 }}>
+            <ClubCrest size={72} />
             <p
               className="text-[11px] font-semibold text-center leading-tight w-full truncate"
               style={{ color: 'var(--text-secondary)' }}
             >
-              Spartak
+              {CLUB_NAME}
             </p>
           </div>
 

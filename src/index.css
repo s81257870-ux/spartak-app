@@ -224,14 +224,30 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Global: orange/amber Tailwind classes → CSS accent var
+   Global: orange/amber Tailwind classes → brand accent
    Works in BOTH themes because --accent flips with the theme.
+   .light scoped rules below have higher specificity and override
+   the dark-default values where the light palette differs.
    ═══════════════════════════════════════════════════════════════════ */
+
+/* text / bg */
 .text-orange-400   { color: var(--accent); }
 .text-amber-400    { color: var(--accent); }
 .bg-orange-400     { background-color: var(--accent); }
 .active\:text-orange-400:active { color: var(--accent); }
+
+/* used by LineupTab confirmation dialog (dark default) */
+.bg-orange-900\/30  { background-color: rgba(149,197,233,0.06); }
+.text-orange-200    { color: #95C5E9; }
+
+/* non-focus border variants */
+.border-orange-500\/40  { border-color: rgba(149,197,233,0.20); }
+.border-orange-500\/30  { border-color: rgba(149,197,233,0.15); }
+.border-orange-400\/50  { border-color: rgba(149,197,233,0.25); }
+
+/* focus border variants */
 .focus\:border-orange-500\/40:focus { border-color: rgba(149,197,233,0.35); }
+.focus\:border-orange-500\/50:focus { border-color: rgba(149,197,233,0.40); }
 
 /* ═══════════════════════════════════════════════════════════════════
    Light-mode overrides for Tailwind utility classes
@@ -245,13 +261,16 @@ body {
   color: var(--text-secondary);
 }
 
-/* ── light-only: orange variant classes not covered by global ─── */
+/* ── orange variant classes — light palette overrides ─────────── */
 .light .bg-orange-600     { background-color: #4a6e8e; }
 .light .bg-orange-900\/30 { background-color: rgba(95,134,166,0.10); }
 .light .border-orange-900\/30 { border-color: rgba(95,134,166,0.18); }
 .light .border-orange-500\/40 { border-color: rgba(95,134,166,0.30); }
+.light .border-orange-500\/30 { border-color: rgba(95,134,166,0.12); }
+.light .border-orange-400\/50 { border-color: rgba(95,134,166,0.20); }
 .light .text-orange-200   { color: var(--text-secondary); }
 .light .focus\:border-orange-500\/40:focus { border-color: rgba(95,134,166,0.35); }
+.light .focus\:border-orange-500\/50:focus { border-color: rgba(95,134,166,0.40); }
 
 /* ── borders (white/opacity → dark/opacity in light mode) ────── */
 .light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.08); }

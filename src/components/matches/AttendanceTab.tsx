@@ -49,7 +49,7 @@ export default function AttendanceTab({ matchId }: Props) {
               <select
                 value={myPlayerId}
                 onChange={(e) => selectPlayer(e.target.value)}
-                className="w-full appearance-none rounded-xl px-3 py-3 pr-9 focus:outline-none focus:border-orange-500/50"
+                className="w-full appearance-none rounded-xl px-3 py-3 pr-9 focus:outline-none"
                 style={{
                   background: 'var(--bg-input)',
                   border: '1px solid var(--border-input)',
@@ -72,8 +72,8 @@ export default function AttendanceTab({ matchId }: Props) {
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-black"
               style={{
-                background: 'rgba(249,115,22,0.15)',
-                border: '1px solid rgba(249,115,22,0.30)',
+                background: 'rgba(149,197,233,0.13)',
+                border: '1px solid rgba(149,197,233,0.30)',
                 color: 'white',
               }}
             >
@@ -90,7 +90,7 @@ export default function AttendanceTab({ matchId }: Props) {
             </div>
             <button
               onClick={() => setShowPicker(true)}
-              className="text-xs active:text-orange-400 transition-colors shrink-0 underline underline-offset-2"
+              className="text-xs transition-colors shrink-0 underline underline-offset-2 active:opacity-60"
               style={{ color: 'var(--text-muted)' }}
             >
               Skift
@@ -130,7 +130,7 @@ export default function AttendanceTab({ matchId }: Props) {
       {/* ── Tilmeldte spillere ────────────────────────────────────── */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <UserCheck size={14} className="text-orange-400" />
+          <UserCheck size={14} style={{ color: 'var(--accent)' }} />
           <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
             Tilmeldte spillere
             <span className="font-normal ml-1.5" style={{ color: 'var(--text-muted)' }}>
@@ -160,9 +160,9 @@ export default function AttendanceTab({ matchId }: Props) {
                   key={id}
                   className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3"
                   style={{
-                    background: isMe ? 'rgba(249,115,22,0.10)' : 'var(--bg-raised)',
+                    background: isMe ? 'rgba(149,197,233,0.08)' : 'var(--bg-raised)',
                     border:     isMe
-                      ? '1px solid rgba(249,115,22,0.25)'
+                      ? '1px solid rgba(149,197,233,0.22)'
                       : '1px solid var(--border)',
                   }}
                 >
@@ -171,8 +171,8 @@ export default function AttendanceTab({ matchId }: Props) {
                     <div
                       className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-black"
                       style={{
-                        background: isMe ? 'rgba(249,115,22,0.35)' : 'rgba(249,115,22,0.12)',
-                        border:     isMe ? '1.5px solid rgba(249,115,22,0.5)' : '1px solid rgba(249,115,22,0.2)',
+                        background: isMe ? 'rgba(149,197,233,0.22)' : 'rgba(149,197,233,0.10)',
+                        border:     isMe ? '1.5px solid rgba(149,197,233,0.50)' : '1px solid rgba(149,197,233,0.18)',
                         color: 'white',
                       }}
                     >
@@ -185,7 +185,7 @@ export default function AttendanceTab({ matchId }: Props) {
                       {name}
                       {isMe && (
                         <span className="ml-1.5 text-xs font-normal"
-                              style={{ color: 'rgba(249,115,22,0.6)' }}>
+                              style={{ color: 'rgba(149,197,233,0.65)' }}>
                           (dig)
                         </span>
                       )}

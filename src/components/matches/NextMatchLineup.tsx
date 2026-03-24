@@ -22,6 +22,7 @@
 import type { Match, Player, Position } from '../../types'
 import { getFormation } from '../../data/formations'
 import { chipLabel } from '../../utils/playerName'
+import { CLUB_NAME } from '../../data/leagueTable'
 
 interface Props {
   match: Match
@@ -95,7 +96,7 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             className="font-bold text-base md:text-xl leading-snug"
             style={{ color: 'var(--text-primary)' }}
           >
-            Spartak vs. {match.opponent}
+            {CLUB_NAME} vs. {match.opponent}
           </p>
 
           {/* Date · time */}

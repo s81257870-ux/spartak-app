@@ -5,7 +5,7 @@ import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import LeagueTable from '../components/stats/LeagueTable'
-import { LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
+import { LEAGUE_TABLE, LEAGUE_NAME, CLUB_NAME } from '../data/leagueTable'
 import LoginModal from '../components/auth/LoginModal'
 import ThemeSwitcher from '../components/ThemeSwitcher'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
@@ -63,7 +63,7 @@ export default function Home() {
             </p>
             <h1 className="text-[2rem] font-black tracking-tight leading-none"
                 style={{ color: 'var(--text-primary)' }}>
-              Spartak
+              {CLUB_NAME}
             </h1>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
               {players.length} spillere i truppen
@@ -351,7 +351,7 @@ export default function Home() {
                   Stilling
                 </p>
                 <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
-                  Spartak · #{spartakPos} af {totalTeams} hold
+                  {CLUB_NAME} · #{spartakPos} af {totalTeams} hold
                 </p>
               </div>
             </div>

@@ -24,7 +24,7 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
   return (
     <div
       className={`relative shrink-0 ${className}`}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden' }}
     >
       {/* ── Fallback: always rendered underneath ──────────────────── */}
       <div
@@ -54,10 +54,13 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
         alt="Spartak Ciervo"
         className="absolute inset-0 object-contain"
         style={{
-          width:        size,
-          height:       size,
-          borderRadius: '50%',
-          filter:       'drop-shadow(0 3px 8px rgba(0,0,0,0.55)) drop-shadow(0 0 6px rgba(149,197,233,0.18))',
+          width:     size,
+          height:    size,
+          // The PNG is portrait (784×864). object-contain letterboxes it to ~91%
+          // of the container width. scale(1.102) fills the remaining gap so the
+          // badge visually matches the requested pixel size exactly.
+          transform: 'scale(1.2)',
+          filter:    'drop-shadow(0 3px 8px rgba(0,0,0,0.55)) drop-shadow(0 0 6px rgba(149,197,233,0.18))',
         }}
         onError={(e) => {
           // Hide the broken img so the fallback layer shows through.

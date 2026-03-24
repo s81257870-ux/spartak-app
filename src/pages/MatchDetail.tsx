@@ -136,8 +136,8 @@ export default function MatchDetail() {
         <div className="mt-6 flex items-center gap-2 px-1">
 
           {/* Spartak side */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 80 }}>
-            <ClubCrest size={72} />
+          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 88 }}>
+            <ClubCrest size={80} />
             <p
               className="text-[11px] font-semibold text-center leading-tight w-full truncate"
               style={{ color: 'var(--text-secondary)' }}

@@ -1,18 +1,20 @@
 /**
  * ClubCrest — renders the Spartak Ciervo badge.
  *
- * Asset path: public/spartak-logo.png  →  served at  /spartak-logo.png
+ * Asset path: public/spartak-logo.png  →  served at /spartak-logo.png
  * To swap the logo: replace public/spartak-logo.png — no code change needed.
  *
  * Design:
- *   The fallback (navy "SC" circle) is always rendered as the base layer.
- *   The <img> is stacked on top via absolute positioning.
- *   • If the image loads  → it covers the fallback (visible).
- *   • If the image errors → it is hidden via onError, fallback shows through.
+ *   The PNG is a circular badge with transparent background.
+ *   The fallback (navy "SC" circle) is hidden by default and only shown
+ *   if the image fails to load — so no extra circle bleeds through the
+ *   transparent PNG corners when the logo loads successfully.
  *
- * This avoids React state entirely, so HMR / Fast Refresh never causes
- * a stale "failed" flag to block the real image from appearing.
+ *   A useRef (not useState) is used so HMR never causes a stale flag
+ *   that blocks the real image from appearing.
  */
+
+import { useRef } from 'react'
 
 interface Props {
   /** Pixel size for both width and height. Default 48. */
@@ -21,15 +23,19 @@ interface Props {
 }
 
 export default function ClubCrest({ size = 48, className = '' }: Props) {
+  const fallbackRef = useRef<HTMLDivElement>(null)
+
   return (
     <div
       className={`relative shrink-0 ${className}`}
-      style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden' }}
+      style={{ width: size, height: size }}
     >
-      {/* ── Fallback: always rendered underneath ──────────────────── */}
+      {/* ── Fallback: hidden by default, revealed only on image error ── */}
       <div
+        ref={fallbackRef}
         className="absolute inset-0 rounded-full flex items-center justify-center select-none"
         style={{
+          display:    'none',
           background: 'linear-gradient(135deg, #152035 0%, #1e3050 100%)',
           border:     '2px solid rgba(149,197,233,0.35)',
           boxShadow:  '0 0 10px rgba(149,197,233,0.12)',
@@ -48,23 +54,19 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
         </span>
       </div>
 
-      {/* ── Logo: covers fallback when it loads successfully ──────── */}
+      {/* ── Logo: full badge PNG, no external circular clip ─────────── */}
       <img
         src={`${import.meta.env.BASE_URL}spartak-logo.png`}
         alt="Spartak Ciervo"
         className="absolute inset-0 object-contain"
         style={{
-          width:     size,
-          height:    size,
-          // The PNG is portrait (784×864). object-contain letterboxes it to ~91%
-          // of the container width. scale(1.102) fills the remaining gap so the
-          // badge visually matches the requested pixel size exactly.
-          transform: 'scale(1.2)',
-          filter:    'drop-shadow(0 3px 8px rgba(0,0,0,0.55)) drop-shadow(0 0 6px rgba(149,197,233,0.18))',
+          width:  size,
+          height: size,
+          filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.35))',
         }}
         onError={(e) => {
-          // Hide the broken img so the fallback layer shows through.
           e.currentTarget.style.display = 'none'
+          if (fallbackRef.current) fallbackRef.current.style.display = 'flex'
         }}
       />
     </div>

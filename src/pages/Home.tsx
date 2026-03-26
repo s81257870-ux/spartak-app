@@ -425,11 +425,3 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
-function RecordItem({ value, label, color }: { value: number; label: string; color: string }) {
-  return (
-    <div className="text-center px-2">
-      <p className={`text-2xl font-black leading-none mb-1 ${color}`}>{value}</p>
-      <p className="text-[10px] font-medium" style={{ color: 'var(--text-faint)' }}>{label}</p>
-    </div>
-  )
-}

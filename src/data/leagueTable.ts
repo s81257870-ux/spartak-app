@@ -24,7 +24,8 @@ export const LEAGUE_TABLE: LeagueRow[] = [
   { position: 3, team: 'FB 24',                played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
   { position: 4, team: 'FC Ryparken 7',        played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
   { position: 5, team: 'FC Ryparken 8',        played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-  { position: 6, team: 'Olympiakos København', played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-  { position: 7, team: 'Skjold 21',            played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-  { position: 8, team: 'Spartak Ciervo',       played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, isSpartak: true },
+  { position: 6, team: 'Kastrup',              played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
+  { position: 7, team: 'Olympiakos København', played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
+  { position: 8, team: 'Skjold 21',            played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
+  { position: 9, team: 'Spartak Ciervo',       played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, isSpartak: true },
 ]

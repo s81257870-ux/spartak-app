@@ -137,75 +137,102 @@ export default function EventsTab({ matchId }: Props) {
         />
       )}
 
-      {/* Events list */}
+      {/* Timeline / events list */}
       {match.events.length === 0 && !showForm ? (
         <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
           <Goal size={32} className="mx-auto mb-2 opacity-30" />
           <p className="text-sm">Ingen begivenheder registreret</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {match.events.map((event) => {
-            const cfg = EVENT_CONFIG[event.type]
-            const isOpponentGoal = event.type === 'goal' && event.team === 'them'
-            return (
-              <div
-                key={event.id}
-                className="rounded-2xl p-4"
-                style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
-              >
-                {editingId === event.id ? (
-                  <EventForm
-                    form={editForm}
-                    players={players}
-                    onChange={(f) => setEditForm(f)}
-                    onSubmit={saveEdit}
-                    onCancel={() => setEditingId(null)}
-                    submitLabel="Gem"
-                  />
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${isOpponentGoal ? 'bg-red-900/40' : cfg.bgColor} rounded-full flex items-center justify-center shrink-0`}>
-                      <span className="text-lg leading-none">{cfg.emoji}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-semibold text-sm truncate ${isOpponentGoal ? 'text-red-400' : cfg.color}`}>
-                        {isOpponentGoal ? 'Modstandermål' : cfg.label}
-                      </p>
-                      {!isOpponentGoal && (
-                        <p className="text-sm truncate" style={{ color: 'var(--text-primary)' }}>
-                          {getPlayerName(event.scorerId)}
-                        </p>
-                      )}
-                      {event.type === 'goal' && !isOpponentGoal && event.assistId && (
-                        <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                          Assist: {getPlayerName(event.assistId)}
-                        </p>
-                      )}
-                    </div>
-                    {isAdmin && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => startEdit(event)}
-                          className="p-1 active:text-slate-300"
-                          style={{ color: 'var(--text-muted)' }}
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          onClick={() => deleteEvent(matchId, event.id)}
-                          className="p-1 active:text-red-400"
-                          style={{ color: 'var(--text-muted)' }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
+        <div className="relative">
+          {/* Vertical spine — only rendered when 2+ events */}
+          {match.events.length > 1 && (
+            <div
+              className="absolute top-5 bottom-5 w-px pointer-events-none"
+              style={{ left: 19, background: 'var(--border)' }}
+            />
+          )}
+
+          <div className="space-y-3">
+            {match.events.map((event) => {
+              const cfg = EVENT_CONFIG[event.type]
+              const isOpponentGoal = event.type === 'goal' && event.team === 'them'
+
+              const nodeColor   = isOpponentGoal ? '#f87171' : event.type === 'goal' ? '#4ade80' : event.type === 'yellow-card' ? '#facc15' : '#f87171'
+              const nodeBg      = isOpponentGoal ? 'rgba(248,113,113,0.12)' : event.type === 'goal' ? 'rgba(74,222,128,0.10)' : event.type === 'yellow-card' ? 'rgba(250,204,21,0.12)' : 'rgba(248,113,113,0.12)'
+
+              return (
+                <div key={event.id} className="flex gap-3 items-start relative">
+                  {/* Timeline node */}
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 text-lg leading-none"
+                    style={{
+                      background: nodeBg,
+                      border: `1.5px solid ${nodeColor}40`,
+                    }}
+                  >
+                    {cfg.emoji}
+                  </div>
+
+                  {/* Content card */}
+                  <div
+                    className="flex-1 min-w-0 rounded-2xl px-3 py-2.5"
+                    style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
+                  >
+                    {editingId === event.id ? (
+                      <EventForm
+                        form={editForm}
+                        players={players}
+                        onChange={(f) => setEditForm(f)}
+                        onSubmit={saveEdit}
+                        onCancel={() => setEditingId(null)}
+                        submitLabel="Gem"
+                      />
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className="font-semibold text-sm leading-snug"
+                            style={{ color: nodeColor }}
+                          >
+                            {isOpponentGoal ? 'Modstandermål' : cfg.label}
+                          </p>
+                          {!isOpponentGoal && (
+                            <p className="text-sm truncate mt-0.5" style={{ color: 'var(--text-primary)' }}>
+                              {getPlayerName(event.scorerId)}
+                            </p>
+                          )}
+                          {event.type === 'goal' && !isOpponentGoal && event.assistId && (
+                            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                              Assist: {getPlayerName(event.assistId)}
+                            </p>
+                          )}
+                        </div>
+                        {isAdmin && (
+                          <div className="flex gap-1 shrink-0">
+                            <button
+                              onClick={() => startEdit(event)}
+                              className="p-1.5 rounded-lg active:bg-white/5"
+                              style={{ color: 'var(--text-muted)' }}
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              onClick={() => deleteEvent(matchId, event.id)}
+                              className="p-1.5 rounded-lg active:bg-red-500/10"
+                              style={{ color: 'var(--text-muted)' }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            )
-          })}
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
     </div>

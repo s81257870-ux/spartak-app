@@ -25,6 +25,21 @@ function formatDanishDate(iso: string): string {
   })
 }
 
+const RANK_MEDAL = ['🥇', '🥈', '🥉']
+const RANK_STYLE: Record<number, { bg: string; color: string; border: string }> = {
+  1: { bg: 'rgba(234,179,8,0.14)', color: '#eab308', border: 'rgba(234,179,8,0.28)' },
+  2: { bg: 'rgba(148,163,184,0.12)', color: '#94a3b8', border: 'rgba(148,163,184,0.25)' },
+  3: { bg: 'rgba(180,127,80,0.12)', color: '#b07040', border: 'rgba(180,127,80,0.25)' },
+}
+
+function getPersonality(rank: number, total: number, count: number): string | null {
+  if (total === 0) return 'Ren samvittighed'
+  if (rank === 1) return count >= 5 ? 'Seriel lovbryder' : 'Kassemester'
+  if (rank === 2) return 'Vicekassemester'
+  if (rank === 3) return 'Syndebuk'
+  return null
+}
+
 export default function Boedekasse() {
   const fines       = useFineStore((s) => s.fines)
   const togglePaid  = useFineStore((s) => s.togglePaid)
@@ -208,36 +223,56 @@ export default function Boedekasse() {
                 sub="Ingen spillere skylder noget — så langt!"
               />
             ) : (
-              sortedPlayers.map(({ pid, player, total, count, unpaid }) => (
+              sortedPlayers.map(({ pid, player, total, count, unpaid }, index) => {
+                const rank = index + 1
+                const rs = RANK_STYLE[rank]
+                const personality = getPersonality(rank, total, count)
+                return (
                 <div
                   key={pid}
                   className="flex items-center gap-3 rounded-xl px-4 py-3.5"
                   style={{ background: 'var(--bg-card)', border: '1px solid var(--border-faint)' }}
                 >
-                  {/* Avatar */}
+                  {/* Rank badge */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base leading-none"
                     style={{
-                      background: total > 0 ? 'var(--amount-avatar-bg)' : 'var(--bg-raised)',
-                      color: total > 0 ? 'var(--amount-color)' : 'var(--text-muted)',
+                      background: rs?.bg ?? 'var(--bg-raised)',
+                      border: `1px solid ${rs?.border ?? 'var(--border)'}`,
                     }}
                   >
-                    {player!.name.charAt(0)}
+                    {rank <= 3 ? RANK_MEDAL[rank - 1] : (
+                      <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{rank}</span>
+                    )}
                   </div>
 
-                  {/* Name + count */}
+                  {/* Name + personality */}
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>
                       {player!.name}
                     </p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>
-                      {count} {count === 1 ? 'bøde' : 'bøder'}
-                      {unpaid > 0 && (
-                        <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>
-                          · {unpaid} ubetalt{unpaid !== 1 ? 'e' : ''}
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      <p className="text-xs" style={{ color: 'var(--text-faint)' }}>
+                        {count} {count === 1 ? 'bøde' : 'bøder'}
+                        {unpaid > 0 && (
+                          <span className="ml-1" style={{ color: 'var(--text-muted)' }}>
+                            · {unpaid} ubetalt{unpaid !== 1 ? 'e' : ''}
+                          </span>
+                        )}
+                      </p>
+                      {personality && (
+                        <span
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                          style={{
+                            background: total === 0 ? 'rgba(74,222,128,0.10)' : (rs?.bg ?? 'var(--bg-raised)'),
+                            color: total === 0 ? '#4ade80' : (rs?.color ?? 'var(--text-faint)'),
+                            border: `1px solid ${total === 0 ? 'rgba(74,222,128,0.20)' : (rs?.border ?? 'transparent')}`,
+                          }}
+                        >
+                          {personality}
                         </span>
                       )}
-                    </p>
+                    </div>
                   </div>
 
                   {/* Amount */}
@@ -253,7 +288,7 @@ export default function Boedekasse() {
                     </p>
                   </div>
                 </div>
-              ))
+              )})
             )}
 
             {/* Trophy for clean slate */}

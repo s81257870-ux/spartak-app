@@ -1,7 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { Plus, MapPin } from 'lucide-react'
+import { Plus, MapPin, Home, Plane } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
+
+/** Ryparken is our home ground — any other location is away. */
+const HOME_VENUE = 'ryparken'
+const isHomeGame = (location: string | null) => (location ?? '').toLowerCase().includes(HOME_VENUE)
 
 /** Extracts HH:MM from an ISO string like '2026-04-07T20:30' — returns '' if no time present. */
 const extractTime = (iso: string): string => {
@@ -91,7 +95,8 @@ export default function Matches() {
             <SectionLabel>Kommende · {upcoming.length}</SectionLabel>
             <div className="space-y-2.5">
               {upcoming.map((match, idx) => {
-                const isNext = idx === 0
+                const isNext  = idx === 0
+                const home   = isHomeGame(match.location)
                 return (
                 <button
                   key={match.id}
@@ -112,6 +117,19 @@ export default function Matches() {
                   />
                   <div className="pl-3 flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        {/* Home / Away badge */}
+                        <span
+                          className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md shrink-0"
+                          style={home
+                            ? { background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.22)' }
+                            : { background: 'var(--icon-accent-bg)', color: 'var(--accent)', border: '1px solid var(--badge-accent-border)' }
+                          }
+                        >
+                          {home ? <Home size={8} /> : <Plane size={8} />}
+                          {home ? 'Hjemme' : 'Ude'}
+                        </span>
+                      </div>
                       <p
                         className="font-bold text-base truncate"
                         style={{ color: 'var(--text-primary)' }}
@@ -127,10 +145,7 @@ export default function Matches() {
                     {isNext ? (
                       <span
                         className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
-                        style={{
-                          background: 'var(--accent)',
-                          color: '#0b1220',
-                        }}
+                        style={{ background: 'var(--accent)', color: '#0b1220' }}
                       >
                         Næste
                       </span>

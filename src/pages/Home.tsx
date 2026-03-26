@@ -130,22 +130,27 @@ export default function Home() {
 
       <div className="px-4 space-y-4">
 
-        {/* ── Season record ─────────────────────────────────── */}
+        {/* ── Season narrative ──────────────────────────────── */}
         {completedMatches.length > 0 && (
           <div
-            className="rounded-2xl p-4"
+            className="rounded-2xl px-4 py-3.5"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-4"
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-2"
                style={{ color: 'var(--text-muted)' }}>
-              Sæsonform
+              Sæsonen så langt
             </p>
-            <div className="grid grid-cols-4" style={{ borderRight: 'none' }}>
-              <RecordItem value={wins}       label="Sejre"    color="text-green-400" />
-              <RecordItem value={draws}      label="Uafgjort" color="text-yellow-400" />
-              <RecordItem value={losses}     label="Nederlag" color="text-red-400" />
-              <RecordItem value={totalGoals} label="Mål"      color="text-orange-400" />
-            </div>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                {completedMatches.length} {completedMatches.length === 1 ? 'kamp' : 'kampe'}
+              </span>{' '}
+              spillet —{' '}
+              <span className="font-semibold text-green-400">{wins} {wins === 1 ? 'sejr' : 'sejre'}</span>
+              {draws > 0 && <>, <span className="font-semibold text-yellow-400">{draws} uafgjort{draws !== 1 ? 'e' : ''}</span></>}
+              {losses > 0 && <>, <span className="font-semibold text-red-400">{losses} {losses === 1 ? 'nederlag' : 'nederlage'}</span></>}
+              {' og '}
+              <span className="font-semibold" style={{ color: 'var(--accent)' }}>{totalGoals} {totalGoals === 1 ? 'mål' : 'mål'} scored</span>.
+            </p>
           </div>
         )}
 
@@ -181,38 +186,42 @@ export default function Home() {
              style={{ color: 'var(--text-muted)' }}>
             Form
           </p>
-          <div className="flex items-center gap-2">
-            {Array.from({ length: 5 }, (_, i) => {
-              const m    = formMatches[i]
-              const won  = m && m.scoreUs > m.scoreThem
-              const draw = m && m.scoreUs === m.scoreThem
-              return m ? (
-                <div
-                  key={m.id}
-                  title={won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
-                  className="w-6 h-6 rounded-full shrink-0"
-                  style={{
-                    background: won ? 'rgba(74,222,128,0.20)' : draw ? 'rgba(250,204,21,0.20)' : 'rgba(248,113,113,0.20)',
-                    border: `1.5px solid ${won ? '#4ade80' : draw ? '#facc15' : '#f87171'}`,
-                    boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(248,113,113,0.18)'}`,
-                  }}
-                />
-              ) : (
-                <div
-                  key={`empty-${i}`}
-                  className="w-6 h-6 rounded-full shrink-0 opacity-25"
-                  style={{ border: '1.5px solid var(--text-faint)', background: 'transparent' }}
-                />
-              )
-            })}
-          </div>
-          <p className="text-[10px] ml-auto shrink-0" style={{ color: 'var(--text-faint)' }}>
-            {formMatches.length === 0
-              ? 'ingen kampe'
-              : formMatches.length === 1
-              ? 'sidste kamp'
-              : `sidste ${formMatches.length}`}
-          </p>
+          {formMatches.length === 0 ? (
+            <p className="text-xs italic" style={{ color: 'var(--text-faint)' }}>
+              Ingen resultater endnu — sæsonen starter snart
+            </p>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                {Array.from({ length: 5 }, (_, i) => {
+                  const m    = formMatches[i]
+                  const won  = m && m.scoreUs > m.scoreThem
+                  const draw = m && m.scoreUs === m.scoreThem
+                  return m ? (
+                    <div
+                      key={m.id}
+                      title={won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
+                      className="w-6 h-6 rounded-full shrink-0"
+                      style={{
+                        background: won ? 'rgba(74,222,128,0.20)' : draw ? 'rgba(250,204,21,0.20)' : 'rgba(248,113,113,0.20)',
+                        border: `1.5px solid ${won ? '#4ade80' : draw ? '#facc15' : '#f87171'}`,
+                        boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(248,113,113,0.18)'}`,
+                      }}
+                    />
+                  ) : (
+                    <div
+                      key={`empty-${i}`}
+                      className="w-6 h-6 rounded-full shrink-0 opacity-20"
+                      style={{ border: '1.5px solid var(--text-faint)', background: 'transparent' }}
+                    />
+                  )
+                })}
+              </div>
+              <p className="text-[10px] ml-auto shrink-0" style={{ color: 'var(--text-faint)' }}>
+                {formMatches.length === 1 ? 'sidste kamp' : `sidste ${formMatches.length}`}
+              </p>
+            </>
+          )}
         </div>
 
         {/* ── Top scorer + top assister ─────────────────────── */}

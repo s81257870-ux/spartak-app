@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search } from 'lucide-react'
 import { usePlayerStore } from '../store/playerStore'
@@ -13,6 +13,47 @@ export default function Players() {
   const getPlayerStats = useMatchStore((s) => s.getPlayerStats)
   const isAdmin     = useAuthStore((s) => s.isAdmin)
   const [search, setSearch] = useState('')
+
+  const matches = useMatchStore((s) => s.matches)
+
+  // Completed matches sorted oldest→newest for streak calculation
+  const completedByDate = useMemo(
+    () => [...matches.filter((m) => m.isCompleted)].sort((a, b) => a.date.localeCompare(b.date)),
+    [matches]
+  )
+
+  /** Goals in consecutive completed matches ending at the most recent. */
+  const goalStreak = (playerId: string): number => {
+    let n = 0
+    for (let i = completedByDate.length - 1; i >= 0; i--) {
+      const m = completedByDate[i]
+      const scored = m.events.some(
+        (e) => e.type === 'goal' && e.team !== 'them' && e.scorerId === playerId
+      )
+      if (scored) n++
+      else break
+    }
+    return n
+  }
+
+  /** Attended consecutive completed matches ending at the most recent. */
+  const attendanceStreak = (playerId: string): number => {
+    let n = 0
+    for (let i = completedByDate.length - 1; i >= 0; i--) {
+      const m = completedByDate[i]
+      const attended =
+        m.attendance.includes(playerId) ||
+        Object.values(m.lineup).includes(playerId) ||
+        m.bench.includes(playerId)
+      if (attended) n++
+      else break
+    }
+    return n
+  }
+
+  /** Times the player won Man of the Match. */
+  const motmCount = (playerId: string): number =>
+    completedByDate.filter((m) => m.manOfTheMatch === playerId).length
 
   const filtered = players.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -86,6 +127,10 @@ export default function Players() {
         <div className="space-y-2">
           {filtered.map((player) => {
             const stats = getPlayerStats(player.id)
+            const gStreak   = goalStreak(player.id)
+            const aStreak   = attendanceStreak(player.id)
+            const motm      = motmCount(player.id)
+            const hasBadges = gStreak >= 2 || aStreak >= 4 || motm > 0
             return (
               <button
                 key={player.id}
@@ -117,6 +162,46 @@ export default function Players() {
                       {stats.assists} ast
                     </span>
                   </div>
+                  {hasBadges && (
+                    <div className="flex gap-1.5 flex-wrap mt-1.5">
+                      {gStreak >= 2 && (
+                        <span
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            background: 'rgba(249,115,22,0.12)',
+                            color: '#f97316',
+                            border: '1px solid rgba(249,115,22,0.22)',
+                          }}
+                        >
+                          🔥 {gStreak} i træk
+                        </span>
+                      )}
+                      {aStreak >= 4 && (
+                        <span
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            background: 'var(--icon-accent-bg)',
+                            color: 'var(--accent)',
+                            border: '1px solid var(--badge-accent-border)',
+                          }}
+                        >
+                          📅 {aStreak} mødt op
+                        </span>
+                      )}
+                      {motm > 0 && (
+                        <span
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            background: 'rgba(234,179,8,0.11)',
+                            color: '#eab308',
+                            border: '1px solid rgba(234,179,8,0.22)',
+                          }}
+                        >
+                          ⭐ MOTM ×{motm}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="shrink-0"

@@ -11,6 +11,7 @@ import ClubCrest from '../components/ClubCrest'
 import { displayName } from '../utils/playerName'
 import { CLUB_NAME } from '../data/leagueTable'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
+import type { Match, Player } from '../types'
 
 type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
 
@@ -153,14 +154,14 @@ export default function MatchDetail() {
               <>
                 <div className="flex items-center gap-2.5">
                   <span
-                    className="text-5xl font-black leading-none tabular-nums"
+                    className="font-display text-6xl leading-none tabular-nums"
                     style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}
                   >
                     {match.scoreUs}
                   </span>
                   <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
                   <span
-                    className="text-5xl font-black leading-none tabular-nums"
+                    className="font-display text-6xl leading-none tabular-nums"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {match.scoreThem}
@@ -173,7 +174,7 @@ export default function MatchDetail() {
               <>
                 {extractTime(match.date) ? (
                   <span
-                    className="text-4xl font-black leading-none tabular-nums tracking-tight"
+                    className="font-display text-5xl leading-none tabular-nums"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {extractTime(match.date)}
@@ -247,6 +248,11 @@ export default function MatchDetail() {
         </div>
       </div>
 
+      {/* ── Community voting ──────────────────────────────────── */}
+      {match.isCompleted && (
+        <MotmVoting matchId={match.id} match={match} players={players} />
+      )}
+
       {/* ── Tabs ──────────────────────────────────────────────── */}
       <div className="flex px-4 mt-4 gap-2">
         {(['tilmelding', 'begivenheder', 'opstilling'] as Tab[]).map((t) => (
@@ -278,6 +284,140 @@ export default function MatchDetail() {
         {tab === 'tilmelding'   && <AttendanceTab matchId={match.id} />}
         {tab === 'begivenheder' && <EventsTab matchId={match.id} />}
         {tab === 'opstilling'   && <LineupTab matchId={match.id} />}
+      </div>
+    </div>
+  )
+}
+
+/** Community Man of the Match voting — stored in localStorage per match. */
+function MotmVoting({ matchId, match, players }: {
+  matchId: string
+  match: Match
+  players: Player[]
+}) {
+  const STORAGE_KEY = `motm_votes_${matchId}`
+
+  const loadVotes = (): Record<string, string> => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') } catch { return {} }
+  }
+
+  const [votes, setVotes] = useState<Record<string, string>>(loadVotes)
+  const myId = localStorage.getItem('spartak_player_id') ?? ''
+
+  const myVote      = votes[myId] ?? ''
+  const hasVoted    = !!myVote
+  const eligible    = players.filter((p) =>
+    match.attendance.includes(p.id) ||
+    Object.values(match.lineup).includes(p.id) ||
+    match.starters.includes(p.id)
+  )
+
+  const vote = (nomineeId: string) => {
+    if (!myId) return
+    const updated = { ...votes, [myId]: nomineeId }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    setVotes(updated)
+  }
+
+  // Tally
+  const tally = eligible.map((p) => ({
+    player: p,
+    count: Object.values(votes).filter((v) => v === p.id).length,
+  })).sort((a, b) => b.count - a.count)
+
+  const maxVotes = tally[0]?.count ?? 0
+
+  if (eligible.length === 0) return null
+
+  return (
+    <div
+      className="mx-4 mb-4 rounded-2xl overflow-hidden"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center gap-2 px-4 py-3"
+        style={{ borderBottom: '1px solid var(--border-faint)' }}
+      >
+        <Star size={13} className="text-yellow-400 shrink-0" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em]"
+           style={{ color: 'var(--text-muted)' }}>
+          Stem på kampens spiller
+        </p>
+        <span
+          className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+          style={{
+            background: 'var(--icon-accent-bg)',
+            color: 'var(--accent)',
+            border: '1px solid var(--badge-accent-border)',
+          }}
+        >
+          {Object.keys(votes).length} {Object.keys(votes).length === 1 ? 'stemme' : 'stemmer'}
+        </span>
+      </div>
+
+      <div className="px-4 py-3">
+        {!hasVoted ? (
+          /* ── Voting chips ── */
+          <div className="flex flex-wrap gap-2">
+            {eligible.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => vote(p.id)}
+                disabled={!myId}
+                className="px-3 py-1.5 rounded-full text-xs font-semibold active:scale-95 transition-transform disabled:opacity-40"
+                style={{
+                  background: 'var(--bg-raised)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                }}
+              >
+                {p.name.split(' ')[0]}
+              </button>
+            ))}
+            {!myId && (
+              <p className="text-[10px] w-full mt-1 italic" style={{ color: 'var(--text-faint)' }}>
+                Tilmeld dig en kamp for at stemme
+              </p>
+            )}
+          </div>
+        ) : (
+          /* ── Results bars ── */
+          <div className="space-y-2">
+            {tally.map(({ player, count }) => {
+              const isWinner = count === maxVotes && count > 0
+              const pct = maxVotes > 0 ? (count / maxVotes) * 100 : 0
+              const isMyVote = myVote === player.id
+              return (
+                <div key={player.id}>
+                  <div className="flex items-center justify-between mb-0.5 gap-2">
+                    <span
+                      className="text-xs font-semibold truncate"
+                      style={{ color: isWinner ? '#eab308' : 'var(--text-primary)' }}
+                    >
+                      {isWinner && '⭐ '}{player.name.split(' ')[0]}
+                      {isMyVote && (
+                        <span className="ml-1 text-[9px]" style={{ color: 'var(--text-faint)' }}>(din stemme)</span>
+                      )}
+                    </span>
+                    <span className="text-[10px] shrink-0" style={{ color: 'var(--text-faint)' }}>
+                      {count} {count === 1 ? 'stemme' : 'stemmer'}
+                    </span>
+                  </div>
+                  <div className="rounded-full overflow-hidden h-1.5" style={{ background: 'var(--bg-raised)' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${pct}%`,
+                        background: isWinner ? '#eab308' : 'var(--accent)',
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

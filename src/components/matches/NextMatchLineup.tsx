@@ -19,10 +19,13 @@
  *   bench    : match.attendance − starters
  */
 
+import { useState, useEffect, useMemo } from 'react'
+import { Clock } from 'lucide-react'
 import type { Match, Player, Position } from '../../types'
 import { getFormation } from '../../data/formations'
 import { chipLabel } from '../../utils/playerName'
 import { CLUB_NAME } from '../../data/leagueTable'
+import { useMatchStore } from '../../store/matchStore'
 
 interface Props {
   match: Match
@@ -51,11 +54,38 @@ function formatMatchDate(iso: string): string {
   return time ? `${weekday} ${dayMonth} · ${time}` : `${weekday} ${dayMonth}`
 }
 
+/** Live countdown to match kickoff. Updates every minute. */
+function useCountdown(isoDate: string): string {
+  const [label, setLabel] = useState('')
+  useEffect(() => {
+    const calc = () => {
+      const [datePart, timePart = '00:00'] = isoDate.split('T')
+      const [y, m, d] = datePart.split('-').map(Number)
+      const [h, min] = (timePart).split(':').map(Number)
+      const target = new Date(y, m - 1, d, h || 0, min || 0)
+      const diff = target.getTime() - Date.now()
+      if (diff <= 0) { setLabel(''); return }
+      const days  = Math.floor(diff / 86_400_000)
+      const hours = Math.floor((diff % 86_400_000) / 3_600_000)
+      const mins  = Math.floor((diff % 3_600_000) / 60_000)
+      if (days > 1)       setLabel(`Om ${days} dage`)
+      else if (days === 1) setLabel(`Om 1 dag`)
+      else if (hours > 0)  setLabel(`Om ${hours}t ${mins}m`)
+      else                 setLabel(`Om ${mins} min`)
+    }
+    calc()
+    const id = setInterval(calc, 60_000)
+    return () => clearInterval(id)
+  }, [isoDate])
+  return label
+}
+
 // SVG viewBox uses fixed mobile coordinates; preserveAspectRatio="none" handles scaling.
 const SVG_W  = 130
 const SVG_RH = 50   // matches --nm-pitch-rh mobile value (for viewBox arithmetic only)
 
 export default function NextMatchLineup({ match, allPlayers }: Props) {
+  const countdown     = useCountdown(match.date)
   const formation     = getFormation(match.formation)
   const attendanceIds = new Set(match.attendance ?? [])
 
@@ -75,6 +105,27 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
   const maxRow         = Math.max(...formation.slots.map((s) => s.row))
   const svgH           = maxRow * SVG_RH                         // viewBox height (mobile coords)
   const hasSomeStarter = starterIds.size > 0
+
+  const allMatches = useMatchStore((s) => s.matches)
+  const completedMatches = useMemo(() => allMatches.filter((m) => m.isCompleted), [allMatches])
+
+  /** Attendance rate: fraction of completed matches this player was part of (attendance/lineup/bench). */
+  const reliabilityFor = (pid: string): number => {
+    if (completedMatches.length === 0) return 1
+    const attended = completedMatches.filter(
+      (m) =>
+        m.attendance.includes(pid) ||
+        Object.values(m.lineup).includes(pid) ||
+        m.bench.includes(pid)
+    ).length
+    return attended / completedMatches.length
+  }
+
+  const reliabilityColor = (rate: number): string =>
+    rate >= 0.75 ? '#4ade80' : rate >= 0.5 ? '#facc15' : '#f97316'
+
+  const reliabilityLabel = (rate: number): string =>
+    rate >= 0.75 ? 'Trofast' : rate >= 0.5 ? 'Nogenlunde' : 'Usikker'
 
   return (
     <>
@@ -115,19 +166,34 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {match.location}
           </p>
 
-          {/* Signed-up count — pill badge */}
-          <span
-            className="inline-flex items-center mt-2.5 md:mt-3 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{
-              background: 'rgba(74,222,128,0.12)',
-              color: '#4ade80',
-              border: '1px solid rgba(74,222,128,0.20)',
-            }}
-          >
-            {match.attendance.length === 1
-              ? '1 spiller tilmeldt'
-              : `${match.attendance.length} spillere tilmeldt`}
-          </span>
+          {/* Badges row: attendance + countdown */}
+          <div className="flex flex-wrap items-center gap-2 mt-2.5 md:mt-3">
+            <span
+              className="inline-flex items-center text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: 'rgba(74,222,128,0.12)',
+                color: '#4ade80',
+                border: '1px solid rgba(74,222,128,0.20)',
+              }}
+            >
+              {match.attendance.length === 1
+                ? '1 spiller tilmeldt'
+                : `${match.attendance.length} spillere tilmeldt`}
+            </span>
+            {countdown && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{
+                  background: 'var(--icon-accent-bg)',
+                  color: 'var(--accent)',
+                  border: '1px solid var(--badge-accent-border)',
+                }}
+              >
+                <Clock size={9} />
+                {countdown}
+              </span>
+            )}
+          </div>
 
         </div>
 
@@ -235,6 +301,42 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             </span>
           ))}
         </p>
+      )}
+
+      {/* ── Attendance heat-map ───────────────────────────── */}
+      {match.attendance.length > 0 && completedMatches.length > 0 && (
+        <div className="mt-2.5 md:mt-3 pt-2.5 md:pt-3" style={{ borderTop: '1px solid var(--border-faint)' }}>
+          <p className="text-[9px] font-bold uppercase tracking-[0.12em] mb-1.5" style={{ color: 'var(--text-dimmer)' }}>
+            Fremmøde
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {match.attendance.map((pid) => {
+              const p = allPlayers.find((pl) => pl.id === pid)
+              if (!p) return null
+              const rate  = reliabilityFor(pid)
+              const color = reliabilityColor(rate)
+              const pct   = Math.round(rate * 100)
+              return (
+                <span
+                  key={pid}
+                  title={`${reliabilityLabel(rate)} — ${pct}% fremmøde`}
+                  className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+                  style={{
+                    background: `${color}14`,
+                    border: `1px solid ${color}30`,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: color }}
+                  />
+                  {p.name.split(' ')[0]}
+                </span>
+              )
+            })}
+          </div>
+        </div>
       )}
 
       {/* ── Tap hint ──────────────────────────────────────────────────── */}

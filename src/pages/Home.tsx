@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronRight, ChevronDown, Lock, LogOut } from 'lucide-react'
+import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, BarChart2, Calendar } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -9,6 +9,7 @@ import { LEAGUE_TABLE, LEAGUE_NAME, CLUB_NAME } from '../data/leagueTable'
 import LoginModal from '../components/auth/LoginModal'
 import ThemeSwitcher from '../components/ThemeSwitcher'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
+import ClubCrest from '../components/ClubCrest'
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -53,9 +54,11 @@ export default function Home() {
       <div className="relative px-4 pt-10 pb-7 overflow-hidden">
         <div
           className="absolute -top-6 right-0 w-56 h-40 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, rgba(239,68,68,0.08) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse, var(--hero-glow) 0%, transparent 70%)' }}
         />
-        <div className="flex items-center justify-between relative">
+
+        {/* ── Header row ─────────────────────────────────────── */}
+        <div className="flex items-start justify-between relative">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1"
                style={{ color: 'var(--text-muted)' }}>
@@ -68,25 +71,33 @@ export default function Home() {
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
               {players.length} spillere i truppen
             </p>
+
+            {/* Admin badge — only shown when logged in */}
+            {isAdmin && (
+              <div
+                className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full border"
+                style={{
+                  background: 'var(--icon-accent-bg)',
+                  borderColor: 'var(--badge-accent-border)',
+                }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
+                <span className="text-[10px] font-bold uppercase tracking-wider"
+                      style={{ color: 'var(--accent)' }}>
+                  Admin aktiv
+                </span>
+              </div>
+            )}
           </div>
 
-          <div className="flex flex-col items-center gap-2">
-            {/* Club crest — always white text on red bg */}
-            <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-              style={{
-                background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-                boxShadow: '0 8px 24px rgba(220,38,38,0.30)',
-              }}
-            >
-              <span style={{ color: 'white' }} className="font-black text-2xl leading-none">S</span>
-            </div>
-            {/* Auth button */}
+          {/* Right column: crest + auth */}
+          <div className="flex flex-col items-end gap-2 shrink-0 ml-3">
+            <ClubCrest size={52} />
             {isAdmin ? (
               <button
                 onClick={logout}
-                className="flex items-center gap-1 text-[10px] active:text-orange-400 transition-colors"
-                style={{ color: 'var(--text-muted)' }}
+                className="flex items-center gap-1 text-[10px] transition-opacity active:opacity-60"
+                style={{ color: 'var(--text-faint)' }}
               >
                 <LogOut size={10} />
                 Log ud
@@ -94,7 +105,7 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => setShowLogin(true)}
-                className="flex items-center gap-1 text-[10px] active:text-orange-400 transition-colors"
+                className="flex items-center gap-1 text-[10px] transition-opacity active:opacity-60"
                 style={{ color: 'var(--text-faint)' }}
               >
                 <Lock size={10} />
@@ -104,24 +115,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Admin badge */}
-        {isAdmin && (
-          <div
-            className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full border"
-            style={{
-              background: 'var(--icon-accent-bg)',
-              borderColor: 'var(--badge-accent-border)',
-            }}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-            <span className="text-orange-400 text-[10px] font-bold uppercase tracking-wider">
-              Admin-tilstand aktiv
-            </span>
-          </div>
-        )}
-
         {/* Theme switcher */}
-        <div className="mt-4">
+        <div className="mt-5">
           <ThemeSwitcher />
         </div>
       </div>
@@ -223,10 +218,10 @@ export default function Home() {
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
-                style={{ background: 'rgba(249,115,22,0.12)' }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: 'var(--icon-accent-bg)', color: 'var(--accent)' }}
               >
-                ⚽
+                <Flame size={16} />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5"
@@ -243,8 +238,8 @@ export default function Home() {
                 </p>
               </div>
               <p
-                className="text-3xl font-black text-orange-400 leading-none"
-                style={{ textShadow: '0 0 16px rgba(249,115,22,0.35)' }}
+                className="text-3xl font-black leading-none"
+                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.35)' }}
               >
                 {topScorer?.goals ?? 0}
                 <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>mål</span>
@@ -257,10 +252,10 @@ export default function Home() {
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0"
-                style={{ background: 'rgba(99,102,241,0.12)' }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: 'var(--icon-accent-bg)', color: 'var(--accent)' }}
               >
-                🎯
+                <Share2 size={16} />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5"
@@ -277,8 +272,8 @@ export default function Home() {
                 </p>
               </div>
               <p
-                className="text-3xl font-black text-indigo-400 leading-none"
-                style={{ textShadow: '0 0 16px rgba(99,102,241,0.35)' }}
+                className="text-3xl font-black leading-none"
+                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.35)' }}
               >
                 {topAssister?.assists ?? 0}
                 <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>ast</span>
@@ -345,7 +340,10 @@ export default function Home() {
             className="w-full flex items-center justify-between px-4 py-3.5 active:opacity-75 transition-opacity"
           >
             <div className="flex items-center gap-3">
-              <span className="text-base">🏆</span>
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                   style={{ background: 'var(--icon-accent-bg)', color: 'var(--accent)' }}>
+                <Trophy size={14} />
+              </div>
               <div className="text-left">
                 <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
                   Stilling
@@ -394,7 +392,7 @@ export default function Home() {
               color: 'var(--text-primary)',
             }}
           >
-            <span className="text-xl">📊</span>
+            <BarChart2 size={20} style={{ color: 'var(--text-secondary)' }} />
             Statistik
           </button>
         </div>
@@ -402,7 +400,10 @@ export default function Home() {
         {/* ── Empty state ───────────────────────────────────── */}
         {completedMatches.length === 0 && upcomingMatches.length === 0 && (
           <div className="text-center py-12 mt-2" style={{ color: 'var(--text-faint)' }}>
-            <p className="text-3xl mb-3">🏟️</p>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                 style={{ background: 'var(--bg-raised)', color: 'var(--text-faint)' }}>
+              <Calendar size={28} />
+            </div>
             <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Ingen kampe endnu</p>
             <p className="text-sm mt-1">Opret din første kamp herover</p>
           </div>

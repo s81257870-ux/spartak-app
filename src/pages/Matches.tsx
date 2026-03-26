@@ -90,23 +90,32 @@ export default function Matches() {
           <section>
             <SectionLabel>Kommende · {upcoming.length}</SectionLabel>
             <div className="space-y-2.5">
-              {upcoming.map((match) => (
+              {upcoming.map((match, idx) => {
+                const isNext = idx === 0
+                return (
                 <button
                   key={match.id}
                   onClick={() => navigate(`/kampe/${match.id}`)}
                   className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
                   style={{
-                    background: `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 70%)`,
-                    border: '1px solid var(--accent-card-border)',
+                    background: isNext
+                      ? `linear-gradient(135deg, rgba(149,197,233,0.10) 0%, var(--bg-card) 65%)`
+                      : `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 70%)`,
+                    border: isNext
+                      ? '1px solid rgba(149,197,233,0.28)'
+                      : '1px solid var(--accent-card-border)',
                   }}
                 >
                   <div
                     className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
-                    style={{ background: 'var(--accent-stripe)' }}
+                    style={{ background: isNext ? 'var(--accent)' : 'var(--accent-stripe)' }}
                   />
                   <div className="pl-3 flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-base truncate" style={{ color: 'var(--text-primary)' }}>
+                      <p
+                        className="font-bold text-base truncate"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         vs. {match.opponent}
                       </p>
                       <p className="text-xs mt-0.5 flex items-center gap-1"
@@ -115,19 +124,32 @@ export default function Matches() {
                         {match.location} · {formatShortDate(match.date)}
                       </p>
                     </div>
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
-                      style={{
-                        background: 'var(--badge-accent-bg)',
-                        color: 'var(--badge-accent-text)',
-                        border: '1px solid var(--badge-accent-border)',
-                      }}
-                    >
-                      Kommende
-                    </span>
+                    {isNext ? (
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
+                        style={{
+                          background: 'var(--accent)',
+                          color: '#0b1220',
+                        }}
+                      >
+                        Næste
+                      </span>
+                    ) : (
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
+                        style={{
+                          background: 'var(--badge-accent-bg)',
+                          color: 'var(--badge-accent-text)',
+                          border: '1px solid var(--badge-accent-border)',
+                        }}
+                      >
+                        Kommende
+                      </span>
+                    )}
                   </div>
                 </button>
-              ))}
+                )
+              })}
             </div>
           </section>
         )}

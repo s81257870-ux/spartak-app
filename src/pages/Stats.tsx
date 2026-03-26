@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
-import { Trophy, Target, Users } from 'lucide-react'
+import { Trophy, Target, Users, Flame, Share2 } from 'lucide-react'
 import { displayName } from '../utils/playerName'
 import type { Player } from '../types'
 
@@ -12,8 +12,8 @@ const SORT_TABS: { key: SortKey; label: string }[] = [
   { key: 'goals',         label: 'Mål'      },
   { key: 'assists',       label: 'Assists'   },
   { key: 'matchesPlayed', label: 'Kampe'     },
-  { key: 'yellowCards',   label: '🟡 Gule'  },
-  { key: 'redCards',      label: '🔴 Røde'  },
+  { key: 'yellowCards',   label: 'Gule'     },
+  { key: 'redCards',      label: 'Røde'     },
 ]
 
 export default function Stats() {
@@ -80,7 +80,7 @@ export default function Stats() {
           <div className="grid grid-cols-2 gap-3">
             <TopCard
               title="Topscorer"
-              emoji="⚽"
+              icon={<Flame size={14} />}
               player={topScorerFixed?.player}
               value={topScorerFixed?.stats.goals ?? 0}
               unit="mål"
@@ -88,7 +88,7 @@ export default function Stats() {
             />
             <TopCard
               title="Flest assists"
-              emoji="🎯"
+              icon={<Share2 size={14} />}
               player={topAssistsFixed?.player}
               value={topAssistsFixed?.stats.assists ?? 0}
               unit="ast"
@@ -160,7 +160,7 @@ export default function Stats() {
                     key={player.id}
                     className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-3.5 items-center"
                     style={{
-                      background:  isFirst ? 'rgba(249,115,22,0.04)' : undefined,
+                      background:  isFirst ? 'rgba(149,197,233,0.04)' : undefined,
                       borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
                     }}
                   >
@@ -265,7 +265,7 @@ function SummaryCard({
           accent ? 'text-orange-400' : ''
         }`}
         style={{
-          background: accent ? 'rgba(249,115,22,0.12)' : 'var(--bg-raised)',
+          background: accent ? 'rgba(149,197,233,0.12)' : 'var(--bg-raised)',
           color: accent ? undefined : 'var(--text-secondary)',
         }}
       >
@@ -274,7 +274,7 @@ function SummaryCard({
       <p
         className={`text-2xl font-black leading-none mb-1 ${accent ? 'text-orange-400' : ''}`}
         style={accent
-          ? { textShadow: '0 0 20px rgba(249,115,22,0.4)' }
+          ? { color: 'var(--accent)', textShadow: '0 0 20px rgba(149,197,233,0.30)' }
           : { color: 'var(--text-primary)' }}
       >
         {value}
@@ -285,10 +285,10 @@ function SummaryCard({
 }
 
 function TopCard({
-  title, emoji, player, value, unit, players,
+  title, icon, player, value, unit, players,
 }: {
   title: string
-  emoji: string
+  icon: React.ReactNode
   player: Player | undefined
   value: number
   unit: string
@@ -304,7 +304,12 @@ function TopCard({
            style={{ color: 'var(--text-muted)' }}>
           {title}
         </p>
-        <span className="text-base leading-none">{emoji}</span>
+        <span
+          className="w-6 h-6 rounded-lg flex items-center justify-center"
+          style={{ background: 'var(--icon-accent-bg)', color: 'var(--accent)' }}
+        >
+          {icon}
+        </span>
       </div>
       <div>
         <p className="font-bold text-sm leading-tight truncate mb-0.5"
@@ -313,8 +318,8 @@ function TopCard({
         </p>
         <div className="flex items-baseline gap-1">
           <span
-            className="text-2xl font-black text-orange-400 leading-none"
-            style={{ textShadow: '0 0 16px rgba(249,115,22,0.35)' }}
+            className="text-2xl font-black leading-none"
+            style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.30)' }}
           >
             {value}
           </span>

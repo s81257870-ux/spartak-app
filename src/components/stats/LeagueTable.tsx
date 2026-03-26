@@ -50,7 +50,7 @@ export default function LeagueTable({ rows, leagueName }: Props) {
                 className="grid items-center px-4 py-3"
                 style={{
                   gridTemplateColumns: '28px 1fr 32px 32px 32px 36px',
-                  background: isSpartak ? 'rgba(249,115,22,0.06)' : undefined,
+                  background: isSpartak ? 'rgba(149,197,233,0.06)' : undefined,
                   borderTop: index > 0 ? '1px solid var(--border-faint)' : undefined,
                 }}
               >

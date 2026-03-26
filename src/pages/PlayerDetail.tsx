@@ -22,7 +22,7 @@ export default function PlayerDetail() {
   if (!player) {
     return (
       <div className="p-4">
-        <button onClick={() => navigate(-1)} className="text-green-400 mb-4 flex items-center gap-1">
+        <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1" style={{ color: 'var(--accent)' }}>
           <ArrowLeft size={18} /> Tilbage
         </button>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Spiller ikke fundet</p>
@@ -60,7 +60,8 @@ export default function PlayerDetail() {
       <div className="flex items-center justify-between mb-5">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-green-400 font-medium text-sm active:opacity-70"
+          className="flex items-center gap-1 font-medium text-sm active:opacity-70"
+          style={{ color: 'var(--accent)' }}
         >
           <ArrowLeft size={18} /> Spillere
         </button>
@@ -83,7 +84,8 @@ export default function PlayerDetail() {
             </button>
             <button
               onClick={save}
-              className="bg-green-500 text-black p-2 rounded-xl active:scale-95 transition-transform"
+              className="p-2 rounded-xl active:scale-95 transition-transform"
+              style={{ background: 'var(--accent)', color: '#0b1220' }}
             >
               <Check size={18} strokeWidth={2.5} />
             </button>
@@ -98,7 +100,7 @@ export default function PlayerDetail() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="text-xl font-bold rounded-xl px-3 py-2 text-center w-full max-w-xs focus:outline-none focus:border-green-500/50"
+            className="text-xl font-bold rounded-xl px-3 py-2 text-center w-full max-w-xs focus:outline-none"
             style={inputStyle}
           />
         ) : (

@@ -78,11 +78,11 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
 
   return (
     <>
-      {/* ── Split grid: left = info | right = mini pitch ───────────── */}
+      {/* ── Split grid: left = info | right = mini pitch (only when lineup exists) ── */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'var(--nm-grid-cols)',
+          gridTemplateColumns: hasSomeStarter ? 'var(--nm-grid-cols)' : '1fr',
           gap: 'var(--nm-gap)',
           alignItems: 'start',
         }}
@@ -131,58 +131,45 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
 
         </div>
 
-        {/* ── RIGHT: mini pitch ──────────────────────────────────────── */}
-        <div
-          className="relative rounded-xl overflow-hidden shrink-0"
-          style={{
-            width:  'var(--nm-pitch-w)',
-            /* calc() with a CSS <length> × <number> is valid CSS */
-            height: `calc(var(--nm-pitch-rh) * ${maxRow})`,
-            background: 'linear-gradient(180deg, #1e4a2e 0%, #15341d 45%, #15341d 55%, #1e4a2e 100%)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
-          }}
-        >
-          {/* Pitch markings — fixed viewBox, scaled via preserveAspectRatio="none" */}
-          <svg
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            viewBox={`0 0 ${SVG_W} ${svgH}`}
-            preserveAspectRatio="none"
+        {/* ── RIGHT: mini pitch — only rendered when lineup exists ──── */}
+        {hasSomeStarter && (
+          <div
+            className="relative rounded-xl overflow-hidden shrink-0"
+            style={{
+              width:  'var(--nm-pitch-w)',
+              height: `calc(var(--nm-pitch-rh) * ${maxRow})`,
+              background: 'linear-gradient(180deg, #1e4a2e 0%, #15341d 45%, #15341d 55%, #1e4a2e 100%)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+            }}
           >
-            <rect
-              x="3" y="3" width={SVG_W - 6} height={svgH - 6} rx="2"
-              fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1"
-            />
-            <line
-              x1="3" y1={svgH / 2} x2={SVG_W - 3} y2={svgH / 2}
-              stroke="white" strokeOpacity="0.12" strokeWidth="0.75"
-            />
-            {Array.from({ length: maxRow }, (_, i) => (
+            {/* Pitch markings */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox={`0 0 ${SVG_W} ${svgH}`}
+              preserveAspectRatio="none"
+            >
               <rect
-                key={i}
-                x="3"
-                y={3 + i * ((svgH - 6) / maxRow)}
-                width={SVG_W - 6}
-                height={(svgH - 6) / maxRow}
-                fill="white"
-                fillOpacity={i % 2 === 0 ? 0.035 : 0}
+                x="3" y="3" width={SVG_W - 6} height={svgH - 6} rx="2"
+                fill="none" stroke="white" strokeOpacity="0.18" strokeWidth="1"
               />
-            ))}
-          </svg>
+              <line
+                x1="3" y1={svgH / 2} x2={SVG_W - 3} y2={svgH / 2}
+                stroke="white" strokeOpacity="0.12" strokeWidth="0.75"
+              />
+              {Array.from({ length: maxRow }, (_, i) => (
+                <rect
+                  key={i}
+                  x="3"
+                  y={3 + i * ((svgH - 6) / maxRow)}
+                  width={SVG_W - 6}
+                  height={(svgH - 6) / maxRow}
+                  fill="white"
+                  fillOpacity={i % 2 === 0 ? 0.035 : 0}
+                />
+              ))}
+            </svg>
 
-          {/* Empty state */}
-          {!hasSomeStarter && (
-            <div className="absolute inset-0 flex items-center justify-center px-3">
-              <p
-                className="text-[9px] md:text-[11px] text-center leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.28)' }}
-              >
-                Ingen opstilling endnu
-              </p>
-            </div>
-          )}
-
-          {/* Player dots */}
-          {hasSomeStarter && (
+            {/* Player dots */}
             <div
               className="absolute inset-0"
               style={{
@@ -201,7 +188,6 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                     className="flex items-center justify-center"
                   >
                     {player && (
-                      /* Filled slot: dot + readable last-name label below */
                       <div className="flex flex-col items-center gap-0.5">
                         <div
                           style={{
@@ -218,9 +204,6 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                           className="text-[8px] md:text-[10px] lg:text-[12px] font-semibold leading-none text-center truncate block"
                           style={{
                             color: 'rgba(255,255,255,0.92)',
-                            /* Concrete px value per breakpoint — never a % here.
-                               Using 100% would resolve against the unsized flex-col
-                               ancestor and collapse the label to ~1 char. */
                             maxWidth: 'var(--nm-label-w)',
                           }}
                         >
@@ -228,13 +211,12 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                         </span>
                       </div>
                     )}
-                    {/* Empty slot: render nothing — no dashed placeholder */}
                   </div>
                 )
               })}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ── Bench ─────────────────────────────────────────────────────── */}

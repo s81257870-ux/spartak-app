@@ -148,24 +148,44 @@ export default function MatchDetail() {
 
           {/* Score center */}
           <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
-            <div className="flex items-center gap-2.5">
-              <span
-                className="text-5xl font-black leading-none tabular-nums"
-                style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}
-              >
-                {match.scoreUs}
-              </span>
-              <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
-              <span
-                className="text-5xl font-black leading-none tabular-nums"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                {match.scoreThem}
-              </span>
-            </div>
-            <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
-              {match.isCompleted ? 'Afsluttet' : 'Opdateres automatisk'}
-            </p>
+            {match.isCompleted ? (
+              /* ── Completed: show actual score ── */
+              <>
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="text-5xl font-black leading-none tabular-nums"
+                    style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}
+                  >
+                    {match.scoreUs}
+                  </span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
+                  <span
+                    className="text-5xl font-black leading-none tabular-nums"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {match.scoreThem}
+                  </span>
+                </div>
+                <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>Afsluttet</p>
+              </>
+            ) : (
+              /* ── Upcoming: show kickoff time ── */
+              <>
+                {extractTime(match.date) ? (
+                  <span
+                    className="text-4xl font-black leading-none tabular-nums tracking-tight"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {extractTime(match.date)}
+                  </span>
+                ) : (
+                  <span className="text-3xl font-black leading-none" style={{ color: 'var(--text-dimmer)' }}>–</span>
+                )}
+                <p className="text-[10px] mt-1 uppercase tracking-widest font-semibold" style={{ color: 'var(--text-faint)' }}>
+                  Kampstart
+                </p>
+              </>
+            )}
           </div>
 
           {/* Opponent side */}

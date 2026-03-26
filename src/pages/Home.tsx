@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, BarChart2, Calendar } from 'lucide-react'
+import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, BarChart2, Calendar, Sun, Moon } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import LeagueTable from '../components/stats/LeagueTable'
 import { LEAGUE_TABLE, LEAGUE_NAME, CLUB_NAME } from '../data/leagueTable'
 import LoginModal from '../components/auth/LoginModal'
-import ThemeSwitcher from '../components/ThemeSwitcher'
+import { useThemeStore } from '../store/themeStore'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
 import ClubCrest from '../components/ClubCrest'
 
@@ -22,6 +22,7 @@ export default function Home() {
 
   const isAdmin  = useAuthStore((s) => s.isAdmin)
   const logout   = useAuthStore((s) => s.logout)
+  const { preference, setPreference } = useThemeStore()
 
   const [tableOpen, setTableOpen]   = useState(false)
   const [showLogin, setShowLogin]   = useState(false)
@@ -90,34 +91,40 @@ export default function Home() {
             )}
           </div>
 
-          {/* Right column: crest + auth */}
+          {/* Right column: crest + auth + theme toggle */}
           <div className="flex flex-col items-end gap-2 shrink-0 ml-3">
             <ClubCrest size={52} />
-            {isAdmin ? (
+            <div className="flex items-center gap-2">
+              {/* Theme toggle — compact icon-only */}
               <button
-                onClick={logout}
-                className="flex items-center gap-1 text-[10px] transition-opacity active:opacity-60"
-                style={{ color: 'var(--text-faint)' }}
+                onClick={() => setPreference(preference === 'dark' ? 'light' : 'dark')}
+                className="flex items-center justify-center w-6 h-6 rounded-full active:scale-90 transition-transform"
+                style={{ background: 'var(--bg-raised)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+                aria-label="Skift tema"
               >
-                <LogOut size={10} />
-                Log ud
+                {preference === 'dark' ? <Sun size={11} /> : <Moon size={11} />}
               </button>
-            ) : (
-              <button
-                onClick={() => setShowLogin(true)}
-                className="flex items-center gap-1 text-[10px] transition-opacity active:opacity-60"
-                style={{ color: 'var(--text-faint)' }}
-              >
-                <Lock size={10} />
-                Admin
-              </button>
-            )}
+              {isAdmin ? (
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-1 text-[10px] transition-opacity active:opacity-60"
+                  style={{ color: 'var(--text-faint)' }}
+                >
+                  <LogOut size={10} />
+                  Log ud
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center gap-1 text-[10px] transition-opacity active:opacity-60"
+                  style={{ color: 'var(--text-faint)' }}
+                >
+                  <Lock size={10} />
+                  Admin
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-
-        {/* Theme switcher */}
-        <div className="mt-5">
-          <ThemeSwitcher />
         </div>
       </div>
 

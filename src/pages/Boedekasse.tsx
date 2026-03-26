@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Plus, CheckCircle2, Circle, Trash2, Trophy } from 'lucide-react'
+import { Plus, CheckCircle2, Circle, Trash2, Trophy, History } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useFineStore } from '../store/fineStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -202,7 +203,7 @@ export default function Boedekasse() {
           <div className="space-y-2">
             {sortedPlayers.length === 0 ? (
               <EmptyState
-                icon="🏆"
+                icon={<Trophy size={32} style={{ color: 'var(--accent)' }} />}
                 title="Ingen bøder endnu"
                 sub="Ingen spillere skylder noget — så langt!"
               />
@@ -272,7 +273,7 @@ export default function Boedekasse() {
           <div className="space-y-2">
             {sortedFines.length === 0 ? (
               <EmptyState
-                icon="📋"
+                icon={<History size={32} style={{ color: 'var(--accent)' }} />}
                 title="Ingen bøder"
                 sub="Bøder du opretter vises her."
               />
@@ -424,10 +425,10 @@ export default function Boedekasse() {
   )
 }
 
-function EmptyState({ icon, title, sub }: { icon: string; title: string; sub: string }) {
+function EmptyState({ icon, title, sub }: { icon: ReactNode; title: string; sub: string }) {
   return (
     <div className="text-center py-12 mt-2" style={{ color: 'var(--text-faint)' }}>
-      <p className="text-3xl mb-3">{icon}</p>
+      <div className="flex justify-center mb-3">{icon}</div>
       <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{title}</p>
       <p className="text-sm mt-1">{sub}</p>
     </div>

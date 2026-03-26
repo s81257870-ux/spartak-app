@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { UserCheck, CheckCircle2, ChevronDown } from 'lucide-react'
+import { UserCheck, CheckCircle2 } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
 
@@ -43,28 +43,31 @@ export default function AttendanceTab({ matchId }: Props) {
 
         {/* Player identity */}
         {showPicker ? (
-          <div className="space-y-2">
-            <label className="text-xs block" style={{ color: 'var(--text-secondary)' }}>Vælg dit navn</label>
-            <div className="relative">
-              <select
-                value={myPlayerId}
-                onChange={(e) => selectPlayer(e.target.value)}
-                className="w-full appearance-none rounded-xl px-3 py-3 pr-9 focus:outline-none"
-                style={{
-                  background: 'var(--bg-input)',
-                  border: '1px solid var(--border-input)',
-                  color: 'var(--text-primary)',
-                }}
-              >
-                <option value="">Vælg dit navn...</option>
-                {players.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}{attendance.includes(p.id) ? ' ✓' : ''}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                           style={{ color: 'var(--text-muted)' }} />
+          <div className="space-y-3">
+            <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>
+              Hvem er du?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {players.map((p) => {
+                const alreadyIn = attendance.includes(p.id)
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => selectPlayer(p.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold active:scale-95 transition-transform"
+                    style={{
+                      background: alreadyIn ? 'rgba(74,222,128,0.10)' : 'var(--bg-input)',
+                      border: alreadyIn
+                        ? '1px solid rgba(74,222,128,0.25)'
+                        : '1px solid var(--border-input)',
+                      color: alreadyIn ? '#4ade80' : 'var(--text-primary)',
+                    }}
+                  >
+                    {alreadyIn && <CheckCircle2 size={11} />}
+                    {p.name.split(' ')[0]}
+                  </button>
+                )
+              })}
             </div>
           </div>
         ) : (

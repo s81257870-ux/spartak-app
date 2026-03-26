@@ -105,8 +105,11 @@ export default function Players() {
                   <div className="flex gap-3 text-xs">
                     <span style={{ color: 'var(--text-muted)' }}>{stats.matchesPlayed} kampe</span>
                     <span
-                      className="font-semibold text-orange-400"
-                      style={stats.goals > 0 ? { textShadow: '0 0 10px rgba(249,115,22,0.4)' } : {}}
+                      className="font-semibold"
+                      style={{
+                        color: stats.goals > 0 ? 'var(--accent)' : 'var(--text-muted)',
+                        textShadow: stats.goals > 0 ? '0 0 10px rgba(149,197,233,0.30)' : 'none',
+                      }}
                     >
                       {stats.goals} mål
                     </span>

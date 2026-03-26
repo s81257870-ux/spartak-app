@@ -180,7 +180,7 @@ function StatCard({ label, value, color }: { label: string; value: number; color
       style={{ background: 'var(--bg-raised)', border: '1px solid var(--border)' }}
     >
       <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>{label}</p>
-      <p className="text-3xl font-bold" style={{ color }}>{value}</p>
+      <p className="font-display text-4xl leading-none" style={{ color }}>{value}</p>
     </div>
   )
 }

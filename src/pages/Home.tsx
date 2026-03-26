@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, BarChart2, Calendar, Sun, Moon } from 'lucide-react'
+import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, Calendar, Sun, Moon } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -245,11 +245,11 @@ export default function Home() {
                 </p>
               </div>
               <p
-                className="text-3xl font-black leading-none"
+                className="font-display text-4xl leading-none"
                 style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.35)' }}
               >
                 {topScorer?.goals ?? 0}
-                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>mål</span>
+                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)', fontFamily: 'inherit' }}>mål</span>
               </p>
             </div>
 
@@ -279,11 +279,11 @@ export default function Home() {
                 </p>
               </div>
               <p
-                className="text-3xl font-black leading-none"
+                className="font-display text-4xl leading-none"
                 style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.35)' }}
               >
                 {topAssister?.assists ?? 0}
-                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>ast</span>
+                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)', fontFamily: 'inherit' }}>ast</span>
               </p>
             </div>
           </div>
@@ -374,35 +374,21 @@ export default function Home() {
           )}
         </div>
 
-        {/* ── Quick actions ─────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          {isAdmin && (
-            <button
-              onClick={() => navigate('/kampe/ny')}
-              className="flex flex-col items-center justify-center gap-2 rounded-2xl py-5 font-bold text-sm active:scale-[0.97] transition-transform"
-              style={{
-                background: 'var(--cta-bg)',
-                color: 'var(--cta-color)',
-                boxShadow: '0 8px 24px var(--cta-shadow)',
-              }}
-            >
-              <Plus size={22} strokeWidth={2.5} />
-              Ny kamp
-            </button>
-          )}
+        {/* ── Quick actions — admin only ─────────────────────── */}
+        {isAdmin && (
           <button
-            onClick={() => navigate('/statistik')}
-            className={`flex flex-col items-center justify-center gap-2 rounded-2xl py-5 font-semibold text-sm active:scale-[0.97] transition-transform ${isAdmin ? '' : 'col-span-2'}`}
+            onClick={() => navigate('/kampe/ny')}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl py-4 font-bold text-sm active:scale-[0.97] transition-transform"
             style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-primary)',
+              background: 'var(--cta-bg)',
+              color: 'var(--cta-color)',
+              boxShadow: '0 8px 24px var(--cta-shadow)',
             }}
           >
-            <BarChart2 size={20} style={{ color: 'var(--text-secondary)' }} />
-            Statistik
+            <Plus size={20} strokeWidth={2.5} />
+            Opret ny kamp
           </button>
-        </div>
+        )}
 
         {/* ── Empty state ───────────────────────────────────── */}
         {completedMatches.length === 0 && upcomingMatches.length === 0 && (

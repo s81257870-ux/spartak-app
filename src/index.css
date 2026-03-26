@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* ── Display font — used for scores, stats, large numbers ─────────── */
+.font-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    Theme tokens — dark mode (default)
    Palette: deep navy surfaces · #95C5E9 light-blue accent · cool white text

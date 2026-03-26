@@ -166,8 +166,8 @@ export default function Stats() {
                   >
                     {/* Player identity */}
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className={`text-[11px] w-4 shrink-0 font-bold tabular-nums ${isFirst ? 'text-orange-400' : ''}`}
-                            style={isFirst ? {} : { color: 'var(--text-dimmer)' }}>
+                      <span className="text-[11px] w-4 shrink-0 font-bold tabular-nums"
+                            style={{ color: isFirst ? 'var(--accent)' : 'var(--text-dimmer)' }}>
                         {i + 1}
                       </span>
                       <PlayerAvatar name={player.name} size="sm" />
@@ -178,26 +178,20 @@ export default function Stats() {
                     </div>
 
                     {/* Goals */}
-                    <span className={`w-8 text-center font-bold text-sm tabular-nums ${
-                      sortBy === 'goals' ? 'text-orange-400' : ''
-                    }`}
-                    style={sortBy !== 'goals' ? { color: 'var(--text-secondary)' } : {}}>
+                    <span className="w-8 text-center font-bold text-sm tabular-nums"
+                    style={{ color: sortBy === 'goals' ? 'var(--accent)' : 'var(--text-secondary)' }}>
                       {stats.goals}
                     </span>
 
                     {/* Assists */}
-                    <span className={`w-8 text-center font-bold text-sm tabular-nums ${
-                      sortBy === 'assists' ? 'text-orange-400' : ''
-                    }`}
-                    style={sortBy !== 'assists' ? { color: 'var(--text-muted)' } : {}}>
+                    <span className="w-8 text-center font-bold text-sm tabular-nums"
+                    style={{ color: sortBy === 'assists' ? 'var(--accent)' : 'var(--text-muted)' }}>
                       {stats.assists}
                     </span>
 
                     {/* Matches played */}
-                    <span className={`w-8 text-center font-bold text-sm tabular-nums ${
-                      sortBy === 'matchesPlayed' ? 'text-orange-400' : ''
-                    }`}
-                    style={sortBy !== 'matchesPlayed' ? { color: 'var(--text-muted)' } : {}}>
+                    <span className="w-8 text-center font-bold text-sm tabular-nums"
+                    style={{ color: sortBy === 'matchesPlayed' ? 'var(--accent)' : 'var(--text-muted)' }}>
                       {stats.matchesPlayed}
                     </span>
 
@@ -261,18 +255,16 @@ function SummaryCard({
       style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
       <div
-        className={`w-7 h-7 rounded-xl flex items-center justify-center mb-3 ${
-          accent ? 'text-orange-400' : ''
-        }`}
+        className="w-7 h-7 rounded-xl flex items-center justify-center mb-3"
         style={{
-          background: accent ? 'rgba(149,197,233,0.12)' : 'var(--bg-raised)',
-          color: accent ? undefined : 'var(--text-secondary)',
+          background: accent ? 'var(--icon-accent-bg)' : 'var(--bg-raised)',
+          color: accent ? 'var(--accent)' : 'var(--text-secondary)',
         }}
       >
         {icon}
       </div>
       <p
-        className={`text-2xl font-black leading-none mb-1 ${accent ? 'text-orange-400' : ''}`}
+        className="font-display text-3xl leading-none mb-1"
         style={accent
           ? { color: 'var(--accent)', textShadow: '0 0 20px rgba(149,197,233,0.30)' }
           : { color: 'var(--text-primary)' }}
@@ -318,7 +310,7 @@ function TopCard({
         </p>
         <div className="flex items-baseline gap-1">
           <span
-            className="text-2xl font-black leading-none"
+            className="font-display text-3xl leading-none"
             style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.30)' }}
           >
             {value}

@@ -19,7 +19,7 @@ export const SEED_MATCHES: Match[] = [
   {
     id: 'sm2',
     opponent: 'Oversidder',
-    date: '2026-04-19',
+    date: '2026-04-19T18:00',
     location: 'Udebane',
     scoreUs: 0,
     scoreThem: 0,
@@ -34,8 +34,8 @@ export const SEED_MATCHES: Match[] = [
   {
     id: 'sm3',
     opponent: 'Skjold 21',
-    date: '2026-04-20',
-    location: 'Ryparken Idrætsanlæg',
+    date: '2026-04-20T19:45',
+    location: 'Udebane (Ryparken)',
     scoreUs: 0,
     scoreThem: 0,
     events: [],
@@ -48,8 +48,8 @@ export const SEED_MATCHES: Match[] = [
   },
   {
     id: 'sm4',
-    opponent: 'Oversidder',
-    date: '2026-04-21',
+    opponent: 'Kastrup',
+    date: '2026-04-21T20:30',
     location: 'Ryparken Idrætsanlæg',
     scoreUs: 0,
     scoreThem: 0,
@@ -94,8 +94,8 @@ export const SEED_MATCHES: Match[] = [
   {
     id: 'sm7',
     opponent: 'FC Ryparken 8',
-    date: '2026-05-23',
-    location: 'Ryparken Idrætsanlæg',
+    date: '2026-05-23T16:45',
+    location: 'Udebane (Ryparken)',
     scoreUs: 0,
     scoreThem: 0,
     events: [],

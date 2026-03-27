@@ -99,7 +99,7 @@ export default function Boedekasse() {
 
   // ── Render ───────────────────────────────────────────────────────────
   return (
-    <div className="pb-8">
+    <div className="pb-8" style={{ minHeight: '100svh' }}>
 
       {showModal && <NewFineModal onClose={() => setShowModal(false)} />}
 

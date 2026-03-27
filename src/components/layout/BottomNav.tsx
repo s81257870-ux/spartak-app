@@ -12,7 +12,7 @@ const tabs = [
 export default function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 safe-bottom"
+      className="shrink-0 safe-bottom"
       style={{
         background: 'var(--bg-nav)',
         borderTop: '1px solid var(--border)',

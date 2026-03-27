@@ -3,8 +3,8 @@ import BottomNav from './BottomNav'
 
 export default function Layout() {
   return (
-    <div className="flex flex-col min-h-svh" style={{ background: 'var(--bg-app)' }}>
-      <main className="flex-1 overflow-y-auto pb-24">
+    <div className="flex flex-col" style={{ height: '100svh', background: 'var(--bg-app)' }}>
+      <main className="flex-1 overflow-y-auto pb-6">
         <Outlet />
       </main>
       <BottomNav />

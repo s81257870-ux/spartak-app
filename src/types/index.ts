@@ -91,13 +91,20 @@ export interface PlayerStats {
   redCards: number
 }
 
+export interface TrainingGuest {
+  id: string        // uuid
+  addedBy: string   // playerId who brought the guest
+  name?: string     // optional name, defaults to display as "Gæst"
+}
+
 export interface Training {
   id: string
   date: string       // 'YYYY-MM-DD'
   time: string       // 'HH:MM'
   location: string
   cancelled: boolean
-  attendance: string[] // playerIds
+  attendance: string[]      // playerIds
+  guests:     TrainingGuest[]
 }
 
 export interface Fine {

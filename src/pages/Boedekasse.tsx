@@ -6,6 +6,8 @@ import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import NewFineModal from '../components/boedekasse/NewFineModal'
 import { FINE_TYPES, CATEGORY_LABELS, type FineType } from '../data/fineTypes'
+import { SEASON_LABEL } from '../data/leagueTable'
+import PageHeader from '../components/layout/PageHeader'
 
 type Tab = 'spillere' | 'historik' | 'regler'
 
@@ -106,14 +108,7 @@ export default function Boedekasse() {
       <div className="px-4 pt-10 pb-5">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1"
-               style={{ color: 'var(--text-muted)' }}>
-              Spartak Ciervo
-            </p>
-            <h1 className="text-[2rem] font-black tracking-tight leading-none"
-                style={{ color: 'var(--text-primary)' }}>
-              Bødekasse
-            </h1>
+            <PageHeader label={SEASON_LABEL} title="Bødekasse" />
           </div>
           {isAdmin && (
             <button

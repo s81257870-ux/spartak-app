@@ -5,7 +5,8 @@ import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import LeagueTable from '../components/stats/LeagueTable'
-import { LEAGUE_TABLE, LEAGUE_NAME, CLUB_NAME } from '../data/leagueTable'
+import { LEAGUE_TABLE, LEAGUE_NAME, CLUB_NAME, SEASON_LABEL } from '../data/leagueTable'
+import PageHeader from '../components/layout/PageHeader'
 import LoginModal from '../components/auth/LoginModal'
 import { useThemeStore } from '../store/themeStore'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
@@ -61,14 +62,7 @@ export default function Home() {
         {/* ── Header row ─────────────────────────────────────── */}
         <div className="flex items-start justify-between relative">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1"
-               style={{ color: 'var(--text-muted)' }}>
-              Sæson 2025
-            </p>
-            <h1 className="text-[2rem] font-black tracking-tight leading-none"
-                style={{ color: 'var(--text-primary)' }}>
-              {CLUB_NAME}
-            </h1>
+            <PageHeader label={SEASON_LABEL} title={CLUB_NAME} />
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
               {players.length} spillere i truppen
             </p>

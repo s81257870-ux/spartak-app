@@ -4,6 +4,8 @@ import { useTrainingStore } from '../store/trainingStore'
 import { usePlayerStore } from '../store/playerStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
 import type { Player, Training } from '../types'
+import { SEASON_LABEL } from '../data/leagueTable'
+import PageHeader from '../components/layout/PageHeader'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 const THRESHOLD     = 10
@@ -150,17 +152,7 @@ export default function Trainings() {
           style={{ background: 'radial-gradient(ellipse, var(--hero-glow) 0%, transparent 70%)' }}
         />
         <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-4 rounded-full" style={{ background: 'var(--section-bar-bg)' }} />
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em]"
-                  style={{ color: 'var(--section-label-color)' }}>
-              Sæson 2025
-            </span>
-          </div>
-          <h1 className="text-[2rem] font-black tracking-tight leading-none mb-1.5"
-              style={{ color: 'var(--text-primary)' }}>
-            Træninger
-          </h1>
+          <PageHeader label={SEASON_LABEL} title="Træninger" />
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Mandag 19:30 · Ryparken Idrætsanlæg
           </p>

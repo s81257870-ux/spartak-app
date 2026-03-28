@@ -4,6 +4,7 @@ import { Plus, MapPin, Home, Plane, Radio, Building2, Goal, Users } from 'lucide
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
 import { isMatchLive, isMatchCompleted } from '../utils/matchTime'
+import PageHeader from '../components/layout/PageHeader'
 
 
 /** Ryparken is our home ground — any other location is away. */
@@ -71,17 +72,7 @@ export default function Matches() {
         />
         <div className="flex items-end justify-between relative">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-1 h-4 rounded-full" style={{ background: 'var(--section-bar-bg)' }} />
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em]"
-                    style={{ color: 'var(--section-label-color)' }}>
-                Kampprogram
-              </span>
-            </div>
-            <h1 className="text-[2rem] font-black tracking-tight leading-none"
-                style={{ color: 'var(--text-primary)' }}>
-              Kampe
-            </h1>
+            <PageHeader label="Kampprogram" title="Kampe" />
           </div>
           {isAdmin && (
             <button

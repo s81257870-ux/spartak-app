@@ -6,6 +6,8 @@ import PlayerAvatar from '../components/players/PlayerAvatar'
 import { Trophy, Target, Users, Flame, Share2 } from 'lucide-react'
 import { displayName } from '../utils/playerName'
 import type { Player } from '../types'
+import { SEASON_LABEL } from '../data/leagueTable'
+import PageHeader from '../components/layout/PageHeader'
 
 type SortKey = 'goals' | 'assists' | 'matchesPlayed' | 'yellowCards' | 'redCards'
 
@@ -48,17 +50,7 @@ export default function Stats() {
           style={{ background: 'radial-gradient(ellipse, var(--hero-glow) 0%, transparent 70%)' }}
         />
         <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-1 h-4 rounded-full" style={{ background: 'var(--section-bar-bg)' }} />
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em]"
-                  style={{ color: 'var(--section-label-color)' }}>
-              Sæson 2025
-            </span>
-          </div>
-          <h1 className="text-[2rem] font-black tracking-tight leading-none mb-1.5"
-              style={{ color: 'var(--text-primary)' }}>
-            Statistik
-          </h1>
+          <PageHeader label={SEASON_LABEL} title="Statistik" />
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             {completedMatches.length === 0
               ? 'Ingen afsluttede kampe endnu'

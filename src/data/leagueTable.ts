@@ -11,8 +11,9 @@ export interface LeagueRow {
   isSpartak?: boolean
 }
 
-export const CLUB_NAME   = 'Spartak Ciervo'
-export const LEAGUE_NAME = 'Herre Senior 5 7:7 Forår – Dommerløs, P4'
+export const CLUB_NAME    = 'Spartak Ciervo'
+export const LEAGUE_NAME  = 'Herre Senior 5 7:7 Forår – Dommerløs, P4'
+export const SEASON_LABEL = 'Sæson 2026'
 
 /**
  * Real league table data – update manually each round.

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { UserCheck, CheckCircle2 } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
+import PlayerAvatar from '../players/PlayerAvatar'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 
@@ -72,16 +73,7 @@ export default function AttendanceTab({ matchId }: Props) {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-black"
-              style={{
-                background: 'rgba(149,197,233,0.13)',
-                border: '1px solid rgba(149,197,233,0.30)',
-                color: 'white',
-              }}
-            >
-              {myPlayer?.name.split(' ')[0][0].toUpperCase() ?? '?'}
-            </div>
+            <PlayerAvatar name={myPlayer?.name ?? '?'} size="md" />
             <div className="flex-1 min-w-0">
               <p className="text-[10px] uppercase tracking-wider font-semibold"
                  style={{ color: 'var(--text-faint)' }}>
@@ -155,7 +147,6 @@ export default function AttendanceTab({ matchId }: Props) {
             {attendance.map((id) => {
               const player  = players.find((p) => p.id === id)
               const name    = player?.name ?? 'Ukendt spiller'
-              const initial = player?.name.split(' ')[0][0].toUpperCase() ?? '?'
               const isMe    = id === myPlayerId
 
               return (
@@ -171,16 +162,7 @@ export default function AttendanceTab({ matchId }: Props) {
                 >
                   {/* Left: avatar + name */}
                   <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-black"
-                      style={{
-                        background: isMe ? 'rgba(149,197,233,0.22)' : 'rgba(149,197,233,0.10)',
-                        border:     isMe ? '1.5px solid rgba(149,197,233,0.50)' : '1px solid rgba(149,197,233,0.18)',
-                        color: 'white',
-                      }}
-                    >
-                      {initial}
-                    </div>
+                    <PlayerAvatar name={name} size="sm" />
                     <span
                       className="text-sm font-medium truncate"
                       style={{ color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}

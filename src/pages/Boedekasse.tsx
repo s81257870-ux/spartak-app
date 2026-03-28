@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, CheckCircle2, Circle, Trash2, Trophy, History } from 'lucide-react'
+import { Plus, CheckCircle2, Circle, Trash2, Trophy, History, Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useFineStore } from '../store/fineStore'
 import { usePlayerStore } from '../store/playerStore'
@@ -25,7 +25,6 @@ function formatDanishDate(iso: string): string {
   })
 }
 
-const RANK_MEDAL = ['🥇', '🥈', '🥉']
 const RANK_STYLE: Record<number, { bg: string; color: string; border: string }> = {
   1: { bg: 'rgba(234,179,8,0.14)', color: '#eab308', border: 'rgba(234,179,8,0.28)' },
   2: { bg: 'rgba(148,163,184,0.12)', color: '#94a3b8', border: 'rgba(148,163,184,0.25)' },
@@ -157,7 +156,8 @@ export default function Boedekasse() {
             </div>
             {/* Unpaid count */}
             <div className="text-center">
-              <p className="text-2xl font-black leading-none mb-1 text-red-400">
+              <p className="text-2xl font-black leading-none mb-1"
+                 style={{ color: unpaidCount > 0 ? '#f87171' : 'var(--text-secondary)' }}>
                 {unpaidCount}
               </p>
               <p className="text-[10px] font-medium" style={{ color: 'var(--text-faint)' }}>
@@ -178,7 +178,9 @@ export default function Boedekasse() {
                 </>
               ) : (
                 <>
-                  <p className="text-2xl font-black leading-none mb-1 text-green-400">✓</p>
+                  <div className="flex justify-center mb-1">
+                    <Check size={20} style={{ color: '#4ade80' }} />
+                  </div>
                   <p className="text-[10px] font-medium" style={{ color: 'var(--text-faint)' }}>
                     Ingen skyld
                   </p>
@@ -235,14 +237,19 @@ export default function Boedekasse() {
                 >
                   {/* Rank badge */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base leading-none"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                     style={{
                       background: rs?.bg ?? 'var(--bg-raised)',
                       border: `1px solid ${rs?.border ?? 'var(--border)'}`,
                     }}
                   >
-                    {rank <= 3 ? RANK_MEDAL[rank - 1] : (
-                      <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{rank}</span>
+                    {rank === 1 ? (
+                      <Trophy size={14} style={{ color: rs?.color }} />
+                    ) : (
+                      <span className="text-xs font-bold tabular-nums"
+                            style={{ color: rs?.color ?? 'var(--text-muted)' }}>
+                        {rank}
+                      </span>
                     )}
                   </div>
 

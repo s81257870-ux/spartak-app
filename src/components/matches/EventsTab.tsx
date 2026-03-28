@@ -1,10 +1,20 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Goal } from 'lucide-react'
+import { Pencil, Trash2, Goal } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { useAuthStore } from '../../store/authStore'
 import type { MatchEvent, Player } from '../../types'
 import { displayName } from '../../utils/playerName'
+
+/** Football card rectangle — proportional to a real card (3:4 ratio). */
+function CardIcon({ color }: { color: string }) {
+  return (
+    <div
+      className="rounded-[2px] shrink-0"
+      style={{ width: 11, height: 15, background: color }}
+    />
+  )
+}
 
 interface Props {
   matchId: string
@@ -25,12 +35,49 @@ const emptyForm = (type: EventType = 'goal', team: GoalTeam = 'us'): EventFormDa
 })
 
 const EVENT_CONFIG: Record<EventType, {
-  label: string; emoji: string; color: string
-  bgColor: string; borderColor: string; btnColor: string
+  label: string
+  color: string          // text / icon colour (hex)
+  nodeBg: string         // timeline node background
+  nodeBorder: string     // timeline node border
+  activeBg: string       // form selector active background
+  activeBorder: string   // form selector active border
+  btnBg: string          // submit button background
 }> = {
-  'goal':        { label: 'Mål',       emoji: '⚽', color: 'text-green-400',  bgColor: 'bg-green-900/50',  borderColor: 'border-green-500/30',  btnColor: 'bg-green-500' },
-  'yellow-card': { label: 'Gult kort', emoji: '🟡', color: 'text-yellow-400', bgColor: 'bg-yellow-900/40', borderColor: 'border-yellow-500/30', btnColor: 'bg-yellow-400' },
-  'red-card':    { label: 'Rødt kort', emoji: '🔴', color: 'text-red-400',    bgColor: 'bg-red-900/40',    borderColor: 'border-red-500/30',    btnColor: 'bg-red-500' },
+  'goal': {
+    label: 'Mål',
+    color: '#4ade80',
+    nodeBg: 'rgba(74,222,128,0.10)',
+    nodeBorder: 'rgba(74,222,128,0.22)',
+    activeBg: 'rgba(74,222,128,0.12)',
+    activeBorder: 'rgba(74,222,128,0.30)',
+    btnBg: '#22c55e',
+  },
+  'yellow-card': {
+    label: 'Gult kort',
+    color: '#facc15',
+    nodeBg: 'rgba(250,204,21,0.12)',
+    nodeBorder: 'rgba(250,204,21,0.25)',
+    activeBg: 'rgba(250,204,21,0.12)',
+    activeBorder: 'rgba(250,204,21,0.30)',
+    btnBg: '#ca8a04',
+  },
+  'red-card': {
+    label: 'Rødt kort',
+    color: '#f87171',
+    nodeBg: 'rgba(248,113,113,0.12)',
+    nodeBorder: 'rgba(248,113,113,0.22)',
+    activeBg: 'rgba(248,113,113,0.10)',
+    activeBorder: 'rgba(248,113,113,0.28)',
+    btnBg: '#ef4444',
+  },
+}
+
+/** Returns the correct node icon for an event. */
+function EventIcon({ type, isOpponentGoal }: { type: EventType; isOpponentGoal: boolean }) {
+  if (type === 'yellow-card') return <CardIcon color="#facc15" />
+  if (type === 'red-card')    return <CardIcon color="#f87171" />
+  // goal — use lucide Goal icon, colour reflects our goal vs opponent goal
+  return <Goal size={16} color={isOpponentGoal ? '#f87171' : '#4ade80'} />
 }
 
 export default function EventsTab({ matchId }: Props) {
@@ -96,31 +143,51 @@ export default function EventsTab({ matchId }: Props) {
         <div className="grid grid-cols-2 gap-2 mb-4">
           <button
             onClick={() => openForm('goal', 'us')}
-            className="flex flex-col items-center justify-center gap-1 bg-green-900/50 border border-green-500/30 text-green-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+            className="flex items-center justify-center gap-2 rounded-xl py-3 font-semibold text-xs active:scale-[0.97] transition-transform"
+            style={{
+              background: EVENT_CONFIG['goal'].activeBg,
+              border: `1px solid ${EVENT_CONFIG['goal'].activeBorder}`,
+              color: EVENT_CONFIG['goal'].color,
+            }}
           >
-            <Plus size={15} strokeWidth={2.5} />
-            <span>⚽ Mål</span>
+            <Goal size={14} />
+            <span>Mål</span>
           </button>
           <button
             onClick={() => openForm('goal', 'them')}
-            className="flex flex-col items-center justify-center gap-1 bg-red-900/30 border border-red-500/20 text-red-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+            className="flex items-center justify-center gap-2 rounded-xl py-3 font-semibold text-xs active:scale-[0.97] transition-transform"
+            style={{
+              background: 'rgba(248,113,113,0.08)',
+              border: '1px solid rgba(248,113,113,0.18)',
+              color: '#f87171',
+            }}
           >
-            <Plus size={15} strokeWidth={2.5} />
-            <span>⚽ Modstandermål</span>
+            <Goal size={14} />
+            <span>Modstandermål</span>
           </button>
           <button
             onClick={() => openForm('yellow-card')}
-            className="flex flex-col items-center justify-center gap-1 bg-yellow-900/40 border border-yellow-500/30 text-yellow-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+            className="flex items-center justify-center gap-2 rounded-xl py-3 font-semibold text-xs active:scale-[0.97] transition-transform"
+            style={{
+              background: EVENT_CONFIG['yellow-card'].activeBg,
+              border: `1px solid ${EVENT_CONFIG['yellow-card'].activeBorder}`,
+              color: EVENT_CONFIG['yellow-card'].color,
+            }}
           >
-            <Plus size={15} strokeWidth={2.5} />
-            <span>🟡 Gult kort</span>
+            <CardIcon color="#facc15" />
+            <span>Gult kort</span>
           </button>
           <button
             onClick={() => openForm('red-card')}
-            className="flex flex-col items-center justify-center gap-1 bg-red-900/40 border border-red-500/30 text-red-400 rounded-xl py-3 font-medium text-xs active:scale-[0.97] transition-transform"
+            className="flex items-center justify-center gap-2 rounded-xl py-3 font-semibold text-xs active:scale-[0.97] transition-transform"
+            style={{
+              background: EVENT_CONFIG['red-card'].activeBg,
+              border: `1px solid ${EVENT_CONFIG['red-card'].activeBorder}`,
+              color: EVENT_CONFIG['red-card'].color,
+            }}
           >
-            <Plus size={15} strokeWidth={2.5} />
-            <span>🔴 Rødt kort</span>
+            <CardIcon color="#f87171" />
+            <span>Rødt kort</span>
           </button>
         </div>
       )}
@@ -158,20 +225,21 @@ export default function EventsTab({ matchId }: Props) {
               const cfg = EVENT_CONFIG[event.type]
               const isOpponentGoal = event.type === 'goal' && event.team === 'them'
 
-              const nodeColor   = isOpponentGoal ? '#f87171' : event.type === 'goal' ? '#4ade80' : event.type === 'yellow-card' ? '#facc15' : '#f87171'
-              const nodeBg      = isOpponentGoal ? 'rgba(248,113,113,0.12)' : event.type === 'goal' ? 'rgba(74,222,128,0.10)' : event.type === 'yellow-card' ? 'rgba(250,204,21,0.12)' : 'rgba(248,113,113,0.12)'
+              const effectiveCfg = isOpponentGoal
+                ? { ...EVENT_CONFIG['goal'], color: '#f87171', nodeBg: 'rgba(248,113,113,0.12)', nodeBorder: 'rgba(248,113,113,0.22)' }
+                : EVENT_CONFIG[event.type]
 
               return (
                 <div key={event.id} className="flex gap-3 items-start relative">
                   {/* Timeline node */}
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 text-lg leading-none"
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10"
                     style={{
-                      background: nodeBg,
-                      border: `1.5px solid ${nodeColor}40`,
+                      background: effectiveCfg.nodeBg,
+                      border: `1.5px solid ${effectiveCfg.nodeBorder}`,
                     }}
                   >
-                    {cfg.emoji}
+                    <EventIcon type={event.type} isOpponentGoal={isOpponentGoal} />
                   </div>
 
                   {/* Content card */}
@@ -193,7 +261,7 @@ export default function EventsTab({ matchId }: Props) {
                         <div className="flex-1 min-w-0">
                           <p
                             className="font-semibold text-sm leading-snug"
-                            style={{ color: nodeColor }}
+                            style={{ color: effectiveCfg.color }}
                           >
                             {isOpponentGoal ? 'Modstandermål' : cfg.label}
                           </p>
@@ -266,49 +334,60 @@ function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }:
     >
       {/* Type + team selector */}
       <div className="grid grid-cols-2 gap-2">
+        {/* Our goal */}
         <button
           onClick={() => onChange({ ...form, type: 'goal', team: 'us', assistId: '' })}
-          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+          className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+          style={
             isGoal && form.team === 'us'
-              ? 'bg-green-900/50 text-green-400 border border-green-500/30'
-              : 'border border-transparent'
-          }`}
-          style={!(isGoal && form.team === 'us') ? { background: 'var(--bg-input)', color: 'var(--text-muted)' } : {}}
+              ? { background: EVENT_CONFIG['goal'].activeBg, color: EVENT_CONFIG['goal'].color, border: `1px solid ${EVENT_CONFIG['goal'].activeBorder}` }
+              : { background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid transparent' }
+          }
         >
-          ⚽ Mål
+          <Goal size={12} />
+          Mål
         </button>
+
+        {/* Opponent goal */}
         <button
           onClick={() => onChange({ ...form, type: 'goal', team: 'them', scorerId: '', assistId: '' })}
-          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+          className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+          style={
             isOpponentGoal
-              ? 'bg-red-900/30 text-red-400 border border-red-500/20'
-              : 'border border-transparent'
-          }`}
-          style={!isOpponentGoal ? { background: 'var(--bg-input)', color: 'var(--text-muted)' } : {}}
+              ? { background: 'rgba(248,113,113,0.10)', color: '#f87171', border: '1px solid rgba(248,113,113,0.28)' }
+              : { background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid transparent' }
+          }
         >
-          ⚽ Modstandermål
+          <Goal size={12} />
+          Modstandermål
         </button>
+
+        {/* Yellow card */}
         <button
           onClick={() => onChange({ ...form, type: 'yellow-card', team: 'us', assistId: '' })}
-          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+          className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+          style={
             form.type === 'yellow-card'
-              ? 'bg-yellow-900/40 text-yellow-400 border border-yellow-500/30'
-              : 'border border-transparent'
-          }`}
-          style={form.type !== 'yellow-card' ? { background: 'var(--bg-input)', color: 'var(--text-muted)' } : {}}
+              ? { background: EVENT_CONFIG['yellow-card'].activeBg, color: EVENT_CONFIG['yellow-card'].color, border: `1px solid ${EVENT_CONFIG['yellow-card'].activeBorder}` }
+              : { background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid transparent' }
+          }
         >
-          🟡 Gult kort
+          <CardIcon color={form.type === 'yellow-card' ? '#facc15' : 'var(--text-muted)'} />
+          Gult kort
         </button>
+
+        {/* Red card */}
         <button
           onClick={() => onChange({ ...form, type: 'red-card', team: 'us', assistId: '' })}
-          className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+          className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
+          style={
             form.type === 'red-card'
-              ? 'bg-red-900/40 text-red-400 border border-red-500/30'
-              : 'border border-transparent'
-          }`}
-          style={form.type !== 'red-card' ? { background: 'var(--bg-input)', color: 'var(--text-muted)' } : {}}
+              ? { background: EVENT_CONFIG['red-card'].activeBg, color: EVENT_CONFIG['red-card'].color, border: `1px solid ${EVENT_CONFIG['red-card'].activeBorder}` }
+              : { background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid transparent' }
+          }
         >
-          🔴 Rødt kort
+          <CardIcon color={form.type === 'red-card' ? '#f87171' : 'var(--text-muted)'} />
+          Rødt kort
         </button>
       </div>
 
@@ -373,7 +452,11 @@ function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }:
         <button
           onClick={onSubmit}
           disabled={!isOpponentGoal && !form.scorerId}
-          className={`flex-1 ${isOpponentGoal ? 'bg-red-500' : cfg.btnColor} disabled:opacity-30 text-black font-bold py-3 rounded-xl text-sm active:scale-[0.98]`}
+          className="flex-1 disabled:opacity-30 font-bold py-3 rounded-xl text-sm active:scale-[0.98]"
+          style={{
+            background: isOpponentGoal ? '#ef4444' : cfg.btnBg,
+            color: '#000',
+          }}
         >
           {submitLabel}
         </button>

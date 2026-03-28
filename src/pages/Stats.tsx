@@ -143,12 +143,20 @@ export default function Stats() {
                     style={{ color: 'var(--text-faint)' }}>
                 Spiller
               </span>
-              {(['Mål', 'Ast', 'Kmp', '🟡', '🔴'] as const).map((h, i) => (
+              {(['Mål', 'Ast', 'Kmp'] as const).map((h, i) => (
                 <span key={i} className="w-8 text-center text-[10px] font-semibold uppercase tracking-wider"
                       style={{ color: 'var(--text-faint)' }}>
                   {h}
                 </span>
               ))}
+              {/* Yellow card header — small card rectangle */}
+              <span className="w-8 flex items-center justify-center">
+                <span className="w-[9px] h-[12px] rounded-[2px]" style={{ background: 'rgba(250,204,21,0.55)' }} />
+              </span>
+              {/* Red card header */}
+              <span className="w-8 flex items-center justify-center">
+                <span className="w-[9px] h-[12px] rounded-[2px]" style={{ background: 'rgba(248,113,113,0.55)' }} />
+              </span>
             </div>
 
             {/* Rows */}

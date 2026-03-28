@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Star } from 'lucide-react'
+import { ArrowLeft, Star, ShieldHalf } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -189,22 +189,19 @@ export default function MatchDetail() {
             )}
           </div>
 
-          {/* Opponent side */}
+          {/* Opponent side — consistent shield matches Spartak crest weight */}
           <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 64 }}>
-            {/* Generic opponent badge — initial in a circle */}
             <div
               className="flex items-center justify-center shrink-0 select-none"
               style={{
                 width:        52,
                 height:       52,
-                borderRadius: '50%',
+                borderRadius: '14px',
                 background:   'var(--bg-raised)',
                 border:       '1.5px solid var(--border-input)',
               }}
             >
-              <span className="text-xl font-black" style={{ color: 'var(--text-muted)' }}>
-                {match.opponent.charAt(0).toUpperCase()}
-              </span>
+              <ShieldHalf size={26} style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
             </div>
             <p
               className="text-[11px] font-semibold text-center leading-tight w-full truncate"

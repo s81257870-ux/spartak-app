@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Flame, CalendarCheck, Star, User } from 'lucide-react'
 import { usePlayerStore } from '../store/playerStore'
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
@@ -166,38 +166,41 @@ export default function Players() {
                     <div className="flex gap-1.5 flex-wrap mt-1.5">
                       {gStreak >= 2 && (
                         <span
-                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                           style={{
                             background: 'rgba(249,115,22,0.12)',
                             color: '#f97316',
                             border: '1px solid rgba(249,115,22,0.22)',
                           }}
                         >
-                          🔥 {gStreak} i træk
+                          <Flame size={9} strokeWidth={2.5} />
+                          {gStreak} i træk
                         </span>
                       )}
                       {aStreak >= 4 && (
                         <span
-                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                           style={{
                             background: 'var(--icon-accent-bg)',
                             color: 'var(--accent)',
                             border: '1px solid var(--badge-accent-border)',
                           }}
                         >
-                          📅 {aStreak} mødt op
+                          <CalendarCheck size={9} strokeWidth={2.5} />
+                          {aStreak} mødt op
                         </span>
                       )}
                       {motm > 0 && (
                         <span
-                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                           style={{
                             background: 'rgba(234,179,8,0.11)',
                             color: '#eab308',
                             border: '1px solid rgba(234,179,8,0.22)',
                           }}
                         >
-                          ⭐ MOTM ×{motm}
+                          <Star size={9} strokeWidth={2.5} />
+                          MOTM ×{motm}
                         </span>
                       )}
                     </div>
@@ -216,7 +219,10 @@ export default function Players() {
         {/* ── Empty state ───────────────────────────────────── */}
         {filtered.length === 0 && (
           <div className="text-center py-16" style={{ color: 'var(--text-faint)' }}>
-            <p className="text-3xl mb-3">👤</p>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                 style={{ background: 'var(--bg-raised)', color: 'var(--text-faint)' }}>
+              <User size={26} />
+            </div>
             <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>Ingen spillere fundet</p>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
@@ -17,6 +18,7 @@ const SORT_TABS: { key: SortKey; label: string }[] = [
 ]
 
 export default function Stats() {
+  const navigate = useNavigate()
   const players = usePlayerStore((s) => s.players)
   const matches = useMatchStore((s) => s.matches)
   const getPlayerStats = useMatchStore((s) => s.getPlayerStats)
@@ -166,10 +168,16 @@ export default function Stats() {
                 return (
                   <div
                     key={player.id}
-                    className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-3.5 items-center"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/spillere/${player.id}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate(`/spillere/${player.id}`)}
+                    className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-3.5 items-center active:opacity-70"
                     style={{
                       background:  isFirst ? 'rgba(149,197,233,0.04)' : undefined,
                       borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
+                      cursor:      'pointer',
+                      transition:  'opacity 120ms ease',
                     }}
                   >
                     {/* Player identity */}

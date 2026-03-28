@@ -72,6 +72,66 @@ function kickoffPlusMinutes(match: Match, minutes: number): string {
     .replace(' ', 'T')
 }
 
+// ─── Time-until-kickoff ────────────────────────────────────────────────────
+
+export interface TimeUntilKickoff {
+  /** Full calendar days remaining (Copenhagen boundaries). 0 = today. */
+  days: number
+  /** Remaining hours within the same day (0–23). */
+  hours: number
+  /** Remaining minutes within the same hour (0–59). */
+  minutes: number
+  /** Total minutes until kickoff (≥ 0). 0 means now or past. */
+  totalMinutes: number
+}
+
+/**
+ * Returns the time remaining until kickoff, split into days / hours / minutes,
+ * all resolved against Europe/Copenhagen local time.
+ *
+ * Day boundaries are Calendar-day boundaries in Copenhagen, not raw 24-hour
+ * blocks, so the count never decrements early in the evening.
+ *
+ * Same-day hours/minutes are computed by comparing Copenhagen "HH:MM" strings
+ * directly — no UTC offset arithmetic, no Date.now() drift.
+ */
+export function getTimeUntilKickoff(match: Match): TimeUntilKickoff {
+  const zero: TimeUntilKickoff = { days: 0, hours: 0, minutes: 0, totalMinutes: 0 }
+
+  const now     = nowInCopenhagen()   // "YYYY-MM-DDTHH:MM"
+  const kickoff = kickoffString(match) // "YYYY-MM-DDTHH:MM"
+
+  if (now >= kickoff) return zero
+
+  const [nowDate,  nowTime]  = now.split('T')
+  const [kickDate, kickTime] = kickoff.split('T')
+
+  // ── Calendar-day diff (Copenhagen date parts → UTC midnight, no DST issue) ──
+  const [ny, nm, nd] = nowDate.split('-').map(Number)
+  const [ky, km, kd] = kickDate.split('-').map(Number)
+  const days = Math.round(
+    (Date.UTC(ky, km - 1, kd) - Date.UTC(ny, nm - 1, nd)) / 86_400_000
+  )
+
+  if (days > 0) {
+    return { days, hours: 0, minutes: 0, totalMinutes: days * 1440 }
+  }
+
+  // ── Same calendar day — use Copenhagen HH:MM strings for the minute diff ──
+  const [nh, nmin] = nowTime.split(':').map(Number)
+  const [kh, kmin] = kickTime.split(':').map(Number)
+  const totalMinutes = Math.max(0, (kh * 60 + kmin) - (nh * 60 + nmin))
+
+  return {
+    days:         0,
+    hours:        Math.floor(totalMinutes / 60),
+    minutes:      totalMinutes % 60,
+    totalMinutes,
+  }
+}
+
+// ─── Match live / completed state ─────────────────────────────────────────
+
 /**
  * Returns true when the current Copenhagen time >= match kickoff.
  * i.e. the match has started (or is starting right now).

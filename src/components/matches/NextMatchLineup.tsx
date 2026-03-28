@@ -26,7 +26,7 @@ import { getFormation } from '../../data/formations'
 import { chipLabel } from '../../utils/playerName'
 import { CLUB_NAME } from '../../data/leagueTable'
 import { useMatchStore } from '../../store/matchStore'
-import { isMatchLive, isMatchCompleted } from '../../utils/matchTime'
+import { isMatchLive, isMatchCompleted, getTimeUntilKickoff } from '../../utils/matchTime'
 
 interface Props {
   match: Match
@@ -56,61 +56,40 @@ function formatMatchDate(iso: string): string {
 }
 
 /**
- * Returns the current calendar date as a YYYY-MM-DD string in Europe/Copenhagen time.
- * Uses Intl.DateTimeFormat to avoid raw UTC offset arithmetic.
+ * Formats the time remaining until a match into a human-readable Danish string.
+ *
+ * Thresholds (all in Europe/Copenhagen time):
+ *   > 1 day          → "Om X dage"
+ *   == 1 day         → "Om 1 dag"
+ *   same day, ≥ 1h   → "Om X timer og Y min"  (omits minutes when Y == 0)
+ *   same day, < 1h   → "Starter om X min"
+ *   < 1 min / past   → "Starter nu"
  */
-function todayInCopenhagen(): string {
-  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
+function formatCountdown(match: Match): string {
+  const { days, hours, minutes, totalMinutes } = getTimeUntilKickoff(match)
+
+  if (totalMinutes <= 0)  return 'Starter nu'
+  if (days > 1)           return `Om ${days} dage`
+  if (days === 1)         return 'Om 1 dag'
+
+  // Same day
+  if (totalMinutes < 60)  return `Starter om ${minutes} min`
+
+  // ≥ 1 hour — show hours and optionally minutes
+  const timerDel = hours === 1 ? 'time' : 'timer'
+  if (minutes === 0)      return `Om ${hours} ${timerDel}`
+  return `Om ${hours} ${timerDel} og ${minutes} min`
 }
 
-/** Live countdown to match kickoff. Updates every minute. */
-function useCountdown(isoDate: string): string {
-  const [label, setLabel] = useState('')
+/** Polls getTimeUntilKickoff every 60 s so the label updates automatically. */
+function useCountdown(match: Match): string {
+  const [label, setLabel] = useState(() => formatCountdown(match))
   useEffect(() => {
-    const calc = () => {
-      const [datePart, timePart] = isoDate.split('T')
-      const [y, m, d] = datePart.split('-').map(Number)
-
-      // Count calendar days remaining using Copenhagen date boundaries, not raw
-      // millisecond division. Raw ms/86400000 gives the wrong answer whenever the
-      // user's clock is in a positive-offset timezone (e.g. UTC+2 in summer): the
-      // UTC midnight of the match date is 22:00 the *previous* Copenhagen evening,
-      // so from ~19:00 Danish time the diff already crosses a 24-hour boundary and
-      // the day count drops by one too early.
-      const todayParts = todayInCopenhagen().split('-').map(Number)
-      const todayMs = Date.UTC(todayParts[0], todayParts[1] - 1, todayParts[2])
-      const matchMs = Date.UTC(y, m - 1, d)
-      const calendarDaysLeft = Math.round((matchMs - todayMs) / 86_400_000)
-
-      if (calendarDaysLeft < 0) { setLabel(''); return }
-
-      if (calendarDaysLeft > 1) {
-        setLabel(`Om ${calendarDaysLeft} dage`)
-        return
-      }
-      if (calendarDaysLeft === 1) {
-        setLabel('Om 1 dag')
-        return
-      }
-
-      // Same calendar day — fall back to hours/minutes until kickoff
-      if (timePart) {
-        const [h, min] = timePart.split(':').map(Number)
-        const target = new Date(y, m - 1, d, h || 0, min || 0)
-        const diff = target.getTime() - Date.now()
-        if (diff <= 0) { setLabel(''); return }
-        const hours = Math.floor(diff / 3_600_000)
-        const mins  = Math.floor((diff % 3_600_000) / 60_000)
-        if (hours > 0) setLabel(`Om ${hours}t ${mins}m`)
-        else           setLabel(`Om ${mins} min`)
-      } else {
-        setLabel('I dag')
-      }
-    }
+    const calc = () => setLabel(formatCountdown(match))
     calc()
     const id = setInterval(calc, 60_000)
     return () => clearInterval(id)
-  }, [isoDate])
+  }, [match])
   return label
 }
 
@@ -144,7 +123,7 @@ const SVG_W  = 130
 const SVG_RH = 50   // matches --nm-pitch-rh mobile value (for viewBox arithmetic only)
 
 export default function NextMatchLineup({ match, allPlayers }: Props) {
-  const countdown      = useCountdown(match.date)
+  const countdown      = useCountdown(match)
   const { live, completed } = useMatchState(match)
   const initializeLiveScore = useMatchStore((s) => s.initializeLiveScore)
 

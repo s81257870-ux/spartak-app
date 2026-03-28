@@ -6,6 +6,7 @@ import PlayerAvatar from '../components/players/PlayerAvatar'
 import type { Player, Training } from '../types'
 import { SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
+import { displayName } from '../utils/playerName'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 const THRESHOLD     = 10
@@ -173,7 +174,7 @@ export default function Trainings() {
                 <button key={p.id} onClick={() => selectPlayer(p.id)}
                   className="px-3 py-1.5 rounded-full text-xs font-semibold active:scale-95 transition-transform"
                   style={{ background: 'var(--bg-input)', border: '1px solid var(--border-input)', color: 'var(--text-primary)' }}>
-                  {p.name.split(' ')[0]}
+                  {displayName(p, players)}
                 </button>
               ))}
             </div>

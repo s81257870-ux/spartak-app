@@ -3,6 +3,7 @@ import { UserCheck, CheckCircle2 } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
 import PlayerAvatar from '../players/PlayerAvatar'
+import { displayName } from '../../utils/playerName'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 
@@ -65,7 +66,7 @@ export default function AttendanceTab({ matchId }: Props) {
                     }}
                   >
                     {alreadyIn && <CheckCircle2 size={11} />}
-                    {p.name.split(' ')[0]}
+                    {displayName(p, players)}
                   </button>
                 )
               })}

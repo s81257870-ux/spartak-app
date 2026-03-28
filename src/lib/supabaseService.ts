@@ -5,7 +5,7 @@
  */
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from './supabase'
-import type { Match, MatchEvent, Player, Position } from '../types'
+import type { Match, MatchEvent, Player, Position, Training, TrainingGuest } from '../types'
 import { DEFAULT_FORMATION } from '../data/formations'
 
 // ── Raw DB row shapes ─────────────────────────────────────────────────────────
@@ -435,4 +435,105 @@ export function subscribeMatchRow(
       }
     )
     .subscribe()
+}
+
+// ── Trainings ─────────────────────────────────────────────────────────────────
+
+interface DbTraining {
+  id:        string
+  date:      string
+  time:      string
+  location:  string
+  cancelled: boolean
+  signed_up: string[]
+  guests:    Array<{ id: string; addedBy: string; name?: string }>
+}
+
+function mapTraining(row: DbTraining): Training {
+  return {
+    id:         row.id,
+    date:       row.date,
+    time:       row.time,
+    location:   row.location,
+    cancelled:  row.cancelled ?? false,
+    attendance: row.signed_up ?? [],
+    guests:     (row.guests ?? []).map((g) => ({
+      id:      g.id,
+      addedBy: g.addedBy,
+      name:    g.name,
+    })),
+  }
+}
+
+/** Fetch all training sessions ordered by date. */
+export async function fetchTrainings(): Promise<Training[]> {
+  const { data, error } = await supabase
+    .from('trainings')
+    .select('*')
+    .order('date', { ascending: true })
+  if (error) throw error
+  return (data as DbTraining[]).map(mapTraining)
+}
+
+/**
+ * Upsert a training session row. Used on init to ensure upcoming Mondays exist.
+ * ignoreDuplicates: true means an existing row (with real attendance) is never
+ * overwritten — we only insert rows that don't exist yet.
+ */
+export async function upsertTraining(training: Training): Promise<void> {
+  const { error } = await supabase
+    .from('trainings')
+    .upsert(
+      {
+        id:        training.id,
+        date:      training.date,
+        time:      training.time,
+        location:  training.location,
+        cancelled: training.cancelled,
+        signed_up: training.attendance,
+        guests:    training.guests,
+      },
+      { onConflict: 'id', ignoreDuplicates: true }
+    )
+  if (error) throw error
+}
+
+export async function signUpForTraining(
+  trainingId: string,
+  playerId: string,
+  current: string[],
+): Promise<void> {
+  if (current.includes(playerId)) return
+  const { error } = await supabase
+    .from('trainings')
+    .update({ signed_up: [...current, playerId] })
+    .eq('id', trainingId)
+  if (error) throw error
+}
+
+export async function cancelSignUpForTraining(
+  trainingId: string,
+  playerId: string,
+  current: string[],
+  currentGuests: TrainingGuest[],
+): Promise<void> {
+  const { error } = await supabase
+    .from('trainings')
+    .update({
+      signed_up: current.filter((id) => id !== playerId),
+      guests:    currentGuests.filter((g) => g.addedBy !== playerId),
+    })
+    .eq('id', trainingId)
+  if (error) throw error
+}
+
+export async function updateTrainingGuests(
+  trainingId: string,
+  guests: TrainingGuest[],
+): Promise<void> {
+  const { error } = await supabase
+    .from('trainings')
+    .update({ guests })
+    .eq('id', trainingId)
+  if (error) throw error
 }

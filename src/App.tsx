@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { usePlayerStore } from './store/playerStore'
 import { useMatchStore } from './store/matchStore'
+import { useTrainingStore } from './store/trainingStore'
 import { useThemeStore } from './store/themeStore'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
@@ -16,13 +17,14 @@ import Trainings from './pages/Trainings'
 import Boedekasse from './pages/Boedekasse'
 
 function AppContent() {
-  const initPlayers = usePlayerStore((s) => s.init)
-  const initMatches = useMatchStore((s) => s.init)
-  const initTheme   = useThemeStore((s) => s.init)
+  const initPlayers   = usePlayerStore((s) => s.init)
+  const initMatches   = useMatchStore((s) => s.init)
+  const initTrainings = useTrainingStore((s) => s.init)
+  const initTheme     = useThemeStore((s) => s.init)
 
   useEffect(() => {
-    Promise.all([initPlayers(), initMatches()]).catch(console.error)
-  }, [initPlayers, initMatches])
+    Promise.all([initPlayers(), initMatches(), initTrainings()]).catch(console.error)
+  }, [initPlayers, initMatches, initTrainings])
 
   useEffect(() => {
     const cleanup = initTheme()

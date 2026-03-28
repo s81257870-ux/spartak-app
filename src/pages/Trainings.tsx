@@ -119,6 +119,7 @@ function formatTrainingDate(date: string): string {
 
 export default function Trainings() {
   const trainings    = useTrainingStore((s) => s.trainings)
+  const loading      = useTrainingStore((s) => s.loading)
   const signUp       = useTrainingStore((s) => s.signUp)
   const cancelSignUp = useTrainingStore((s) => s.cancelSignUp)
   const addGuest     = useTrainingStore((s) => s.addGuest)
@@ -201,8 +202,16 @@ export default function Trainings() {
           </div>
         )}
 
+        {/* ── Loading state ─────────────────────────────────────────────── */}
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
+                 style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
+          </div>
+        )}
+
         {/* ── Training cards ────────────────────────────────────────────── */}
-        {trainings.map((training, index) => {
+        {!loading && trainings.map((training, index) => {
           const isNext     = index === 0
           const isSignedUp = myPlayerId !== '' && training.attendance.includes(myPlayerId)
           const isExpanded = expandedId === training.id

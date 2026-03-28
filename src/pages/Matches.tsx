@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, MapPin, Home, Plane, Radio } from 'lucide-react'
+import { Plus, MapPin, Home, Plane, Radio, Building2, Goal, Users } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
 import { isMatchLive, isMatchCompleted } from '../utils/matchTime'
@@ -102,7 +102,12 @@ export default function Matches() {
       {/* ── Empty state ───────────────────────────────────── */}
       {matches.length === 0 && (
         <div className="text-center py-20 px-4" style={{ color: 'var(--text-faint)' }}>
-          <p className="text-4xl mb-4">🏟️</p>
+          <div
+            className="mx-auto mb-4 flex items-center justify-center rounded-2xl"
+            style={{ width: 52, height: 52, background: 'var(--bg-raised)', border: '1px solid var(--border-faint)' }}
+          >
+            <Building2 size={26} style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
+          </div>
           <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Ingen kampe endnu</p>
           <p className="text-sm mt-1">Tryk + for at oprette en kamp</p>
         </div>
@@ -265,8 +270,14 @@ export default function Matches() {
                     {/* Footer meta */}
                     <div className="flex gap-4 mt-3 pt-3 text-xs"
                          style={{ borderTop: '1px solid var(--border-faint)', color: 'var(--text-faint)' }}>
-                      <span>⚽ {match.events.filter(e => e.type === 'goal').length} mål</span>
-                      <span>👥 {Object.values(match.lineup).length + match.bench.length} udtaget</span>
+                      <span className="flex items-center gap-1">
+                        <Goal size={11} strokeWidth={1.75} />
+                        {match.events.filter(e => e.type === 'goal').length} mål
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Users size={11} strokeWidth={1.75} />
+                        {Object.values(match.lineup).length + match.bench.length} udtaget
+                      </span>
                     </div>
                   </button>
                 )

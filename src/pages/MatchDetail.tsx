@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Star, ShieldHalf } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -8,6 +8,7 @@ import EventsTab from '../components/matches/EventsTab'
 import AttendanceTab from '../components/matches/AttendanceTab'
 import LineupTab from '../components/lineup/LineupTab'
 import ClubCrest from '../components/ClubCrest'
+import OpponentCrest from '../components/OpponentCrest'
 import { displayName } from '../utils/playerName'
 import { CLUB_NAME } from '../data/leagueTable'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
@@ -189,20 +190,9 @@ export default function MatchDetail() {
             )}
           </div>
 
-          {/* Opponent side — consistent shield matches Spartak crest weight */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 64 }}>
-            <div
-              className="flex items-center justify-center shrink-0 select-none"
-              style={{
-                width:        52,
-                height:       52,
-                borderRadius: '14px',
-                background:   'var(--bg-raised)',
-                border:       '1.5px solid var(--border-input)',
-              }}
-            >
-              <ShieldHalf size={26} style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
-            </div>
+          {/* Opponent side — real logo when available, neutral shield fallback */}
+          <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 88 }}>
+            <OpponentCrest opponent={match.opponent} size={80} />
             <p
               className="text-[11px] font-semibold text-center leading-tight w-full truncate"
               style={{ color: 'var(--text-secondary)' }}

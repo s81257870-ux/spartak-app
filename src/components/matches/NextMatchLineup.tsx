@@ -54,24 +54,57 @@ function formatMatchDate(iso: string): string {
   return time ? `${weekday} ${dayMonth} · ${time}` : `${weekday} ${dayMonth}`
 }
 
+/**
+ * Returns the current calendar date as a YYYY-MM-DD string in Europe/Copenhagen time.
+ * Uses Intl.DateTimeFormat to avoid raw UTC offset arithmetic.
+ */
+function todayInCopenhagen(): string {
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
+}
+
 /** Live countdown to match kickoff. Updates every minute. */
 function useCountdown(isoDate: string): string {
   const [label, setLabel] = useState('')
   useEffect(() => {
     const calc = () => {
-      const [datePart, timePart = '00:00'] = isoDate.split('T')
+      const [datePart, timePart] = isoDate.split('T')
       const [y, m, d] = datePart.split('-').map(Number)
-      const [h, min] = (timePart).split(':').map(Number)
-      const target = new Date(y, m - 1, d, h || 0, min || 0)
-      const diff = target.getTime() - Date.now()
-      if (diff <= 0) { setLabel(''); return }
-      const days  = Math.floor(diff / 86_400_000)
-      const hours = Math.floor((diff % 86_400_000) / 3_600_000)
-      const mins  = Math.floor((diff % 3_600_000) / 60_000)
-      if (days > 1)       setLabel(`Om ${days} dage`)
-      else if (days === 1) setLabel(`Om 1 dag`)
-      else if (hours > 0)  setLabel(`Om ${hours}t ${mins}m`)
-      else                 setLabel(`Om ${mins} min`)
+
+      // Count calendar days remaining using Copenhagen date boundaries, not raw
+      // millisecond division. Raw ms/86400000 gives the wrong answer whenever the
+      // user's clock is in a positive-offset timezone (e.g. UTC+2 in summer): the
+      // UTC midnight of the match date is 22:00 the *previous* Copenhagen evening,
+      // so from ~19:00 Danish time the diff already crosses a 24-hour boundary and
+      // the day count drops by one too early.
+      const todayParts = todayInCopenhagen().split('-').map(Number)
+      const todayMs = Date.UTC(todayParts[0], todayParts[1] - 1, todayParts[2])
+      const matchMs = Date.UTC(y, m - 1, d)
+      const calendarDaysLeft = Math.round((matchMs - todayMs) / 86_400_000)
+
+      if (calendarDaysLeft < 0) { setLabel(''); return }
+
+      if (calendarDaysLeft > 1) {
+        setLabel(`Om ${calendarDaysLeft} dage`)
+        return
+      }
+      if (calendarDaysLeft === 1) {
+        setLabel('Om 1 dag')
+        return
+      }
+
+      // Same calendar day — fall back to hours/minutes until kickoff
+      if (timePart) {
+        const [h, min] = timePart.split(':').map(Number)
+        const target = new Date(y, m - 1, d, h || 0, min || 0)
+        const diff = target.getTime() - Date.now()
+        if (diff <= 0) { setLabel(''); return }
+        const hours = Math.floor(diff / 3_600_000)
+        const mins  = Math.floor((diff % 3_600_000) / 60_000)
+        if (hours > 0) setLabel(`Om ${hours}t ${mins}m`)
+        else           setLabel(`Om ${mins} min`)
+      } else {
+        setLabel('I dag')
+      }
     }
     calc()
     const id = setInterval(calc, 60_000)

@@ -25,23 +25,43 @@ export default function BottomNav() {
             key={to}
             to={to}
             end={to === '/'}
-            className={({ isActive }) =>
-              `flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors relative ${
-                isActive ? '' : 'active:text-slate-400'
-              }`
-            }
-            style={({ isActive }) => ({ color: isActive ? 'var(--nav-active-color)' : 'var(--text-faint)' })}
+            className="flex-1 flex flex-col items-center justify-center py-3 gap-1 relative select-none"
+            style={({ isActive }) => ({
+              color: isActive ? 'var(--nav-active-color)' : 'var(--text-faint)',
+              /* Colour fades smoothly; transform for tap feedback is set via pointer events */
+              transition: 'color 220ms ease',
+            })}
           >
             {({ isActive }) => (
               <>
+                {/* Indicator bar — always in DOM, animates in when active */}
                 {isActive && (
                   <span
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                    className="absolute top-0 left-1/2 w-8 h-0.5 rounded-full animate-nav-indicator"
                     style={{ background: 'var(--nav-active-indicator)' }}
                   />
                 )}
-                <Icon size={21} strokeWidth={isActive ? 2.2 : 1.8} />
-                <span className={`text-[10px] font-medium tracking-wide ${isActive ? 'font-semibold' : ''}`}>
+
+                {/* Icon — subtle scale + stroke weight shift */}
+                <span
+                  style={{
+                    display: 'flex',
+                    transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                    transition: 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+                  }}
+                >
+                  <Icon size={21} strokeWidth={isActive ? 2.2 : 1.8} />
+                </span>
+
+                {/* Label — opacity crossfade */}
+                <span
+                  className="text-[10px] tracking-wide"
+                  style={{
+                    fontWeight:  isActive ? 600 : 500,
+                    opacity:     isActive ? 1 : 0.7,
+                    transition:  'opacity 220ms ease, font-weight 0ms',
+                  }}
+                >
                   {label}
                 </span>
               </>

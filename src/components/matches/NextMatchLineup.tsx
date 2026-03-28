@@ -232,7 +232,8 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {/* LIVE badge — shown when kickoff has passed and match not yet completed */}
             {live && !completed && (
               <span
-                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-full animate-pulse"
+                key="live"
+                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-full animate-pulse animate-badge-pop"
                 style={{
                   background: 'rgba(239,68,68,0.15)',
                   color: '#ef4444',
@@ -247,7 +248,8 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {/* Final score badge — shown after match is completed (by admin or 110-min timeout) */}
             {completed && (
               <span
-                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
+                key="completed"
+                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full animate-badge-pop"
                 style={{
                   background: 'var(--bg-raised)',
                   color: 'var(--text-muted)',
@@ -261,7 +263,8 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {/* Countdown — only shown when match is upcoming */}
             {!live && !completed && countdown && (
               <span
-                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
+                key={countdown}
+                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full animate-badge-pop"
                 style={{
                   background: 'var(--icon-accent-bg)',
                   color: 'var(--accent)',

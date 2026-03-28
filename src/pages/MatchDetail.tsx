@@ -259,28 +259,35 @@ export default function MatchDetail() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all"
-            style={
-              tab === t
+            className="flex-1 py-2.5 rounded-xl text-xs font-semibold"
+            style={{
+              /* colour / shadow animate, scale snaps for instant press feedback */
+              transition: 'background 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 120ms ease',
+              ...(tab === t
                 ? {
                     background: 'var(--tab-active-bg)',
                     boxShadow: '0 4px 14px var(--tab-active-shadow)',
                     color: 'var(--tab-active-color)',
+                    transform: 'scale(1)',
                   }
                 : {
                     background: 'var(--bg-card)',
                     border: '1px solid var(--border)',
                     color: 'var(--text-muted)',
-                  }
-            }
+                    transform: 'scale(1)',
+                  }),
+            }}
+            onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)' }}
+            onPointerUp={(e)   => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)' }}
+            onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)' }}
           >
             {t === 'tilmelding' ? 'Tilmelding' : t === 'begivenheder' ? 'Begivenheder' : 'Opstilling'}
           </button>
         ))}
       </div>
 
-      {/* ── Tab content ───────────────────────────────────────── */}
-      <div className="px-4 mt-4">
+      {/* ── Tab content — key forces remount → CSS animation plays on switch ─ */}
+      <div key={tab} className="px-4 mt-4 animate-tab-enter">
         {tab === 'tilmelding'   && <AttendanceTab matchId={match.id} />}
         {tab === 'begivenheder' && <EventsTab matchId={match.id} />}
         {tab === 'opstilling'   && <LineupTab matchId={match.id} />}

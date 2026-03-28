@@ -91,6 +91,15 @@ export interface PlayerStats {
   redCards: number
 }
 
+export interface Training {
+  id: string
+  date: string       // 'YYYY-MM-DD'
+  time: string       // 'HH:MM'
+  location: string
+  cancelled: boolean
+  attendance: string[] // playerIds
+}
+
 export interface Fine {
   id: string
   playerId: string

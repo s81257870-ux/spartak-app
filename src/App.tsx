@@ -12,6 +12,7 @@ import Matches from './pages/Matches'
 import NewMatch from './pages/NewMatch'
 import MatchDetail from './pages/MatchDetail'
 import Stats from './pages/Stats'
+import Trainings from './pages/Trainings'
 import Boedekasse from './pages/Boedekasse'
 
 function AppContent() {
@@ -38,6 +39,7 @@ function AppContent() {
         <Route path="/kampe"         element={<Matches />} />
         <Route path="/kampe/ny"      element={<NewMatch />} />
         <Route path="/kampe/:id"     element={<MatchDetail />} />
+        <Route path="/traeninger"    element={<Trainings />} />
         <Route path="/statistik"     element={<Stats />} />
         <Route path="/boedekasse"    element={<Boedekasse />} />
       </Route>

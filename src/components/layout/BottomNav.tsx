@@ -1,15 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Calendar, BarChart2, Banknote } from 'lucide-react'
+import { Home, Calendar, Dumbbell, BarChart2, Banknote } from 'lucide-react'
 
 const tabs = [
-  { to: '/',           label: 'Hjem',      Icon: Home,      end: true  },
-  { to: '/kampe',      label: 'Kampe',     Icon: Calendar,  end: false },
-  { to: '/statistik',  label: 'Statistik', Icon: BarChart2, end: false },
-  { to: '/boedekasse', label: 'Bøder',     Icon: Banknote,  end: false },
+  { to: '/',            label: 'Hjem',       Icon: Home,      end: true  },
+  { to: '/kampe',       label: 'Kampe',      Icon: Calendar,  end: false },
+  { to: '/traeninger',  label: 'Træninger',  Icon: Dumbbell,  end: false },
+  { to: '/statistik',   label: 'Statistik',  Icon: BarChart2, end: false },
+  { to: '/boedekasse',  label: 'Bøder',      Icon: Banknote,  end: false },
 ]
 
-const N      = tabs.length          // 4
-const TAB_VW = 100 / N             // 25 — each tab occupies 25vw (nav = 100vw)
+const N      = tabs.length          // 5
+const TAB_VW = 100 / N             // 20 — each tab occupies 20vw (nav = 100vw)
 const IND_W  = 28                  // indicator width in px
 
 /**

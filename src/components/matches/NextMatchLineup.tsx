@@ -20,12 +20,13 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
-import { Clock } from 'lucide-react'
+import { Clock, Radio } from 'lucide-react'
 import type { Match, Player, Position } from '../../types'
 import { getFormation } from '../../data/formations'
 import { chipLabel } from '../../utils/playerName'
 import { CLUB_NAME } from '../../data/leagueTable'
 import { useMatchStore } from '../../store/matchStore'
+import { isMatchLive, isMatchCompleted } from '../../utils/matchTime'
 
 interface Props {
   match: Match
@@ -113,12 +114,47 @@ function useCountdown(isoDate: string): string {
   return label
 }
 
+/**
+ * Polls isMatchLive / isMatchCompleted every 60 seconds so the UI transitions
+ * automatically at kickoff without a page refresh.
+ */
+function useMatchState(match: Match): { live: boolean; completed: boolean } {
+  const [state, setState] = useState(() => ({
+    live:      isMatchLive(match),
+    completed: isMatchCompleted(match),
+  }))
+
+  useEffect(() => {
+    const recalc = () =>
+      setState({
+        live:      isMatchLive(match),
+        completed: isMatchCompleted(match),
+      })
+
+    recalc()
+    const id = setInterval(recalc, 60_000)
+    return () => clearInterval(id)
+  }, [match])
+
+  return state
+}
+
 // SVG viewBox uses fixed mobile coordinates; preserveAspectRatio="none" handles scaling.
 const SVG_W  = 130
 const SVG_RH = 50   // matches --nm-pitch-rh mobile value (for viewBox arithmetic only)
 
 export default function NextMatchLineup({ match, allPlayers }: Props) {
-  const countdown     = useCountdown(match.date)
+  const countdown      = useCountdown(match.date)
+  const { live, completed } = useMatchState(match)
+  const initializeLiveScore = useMatchStore((s) => s.initializeLiveScore)
+
+  // As soon as the match goes live, ensure scores are initialised to 0–0
+  useEffect(() => {
+    if (live && !match.isCompleted) {
+      initializeLiveScore(match.id)
+    }
+  }, [live, match.isCompleted, match.id, initializeLiveScore])
+
   const formation     = getFormation(match.formation)
   const attendanceIds = new Set(match.attendance ?? [])
 
@@ -199,7 +235,7 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {match.location}
           </p>
 
-          {/* Badges row: attendance + countdown */}
+          {/* Badges row: attendance + live/countdown/result */}
           <div className="flex flex-wrap items-center gap-2 mt-2.5 md:mt-3">
             <span
               className="inline-flex items-center text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
@@ -213,7 +249,38 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                 ? '1 spiller tilmeldt'
                 : `${match.attendance.length} spillere tilmeldt`}
             </span>
-            {countdown && (
+
+            {/* LIVE badge — shown when kickoff has passed and match not yet completed */}
+            {live && !completed && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-full animate-pulse"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239,68,68,0.30)',
+                }}
+              >
+                <Radio size={9} />
+                LIVE {match.scoreUs}–{match.scoreThem}
+              </span>
+            )}
+
+            {/* Final score badge — shown after match is completed (by admin or 110-min timeout) */}
+            {completed && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{
+                  background: 'var(--bg-raised)',
+                  color: 'var(--text-muted)',
+                  border: '1px solid var(--border)',
+                }}
+              >
+                Afsluttet {match.scoreUs}–{match.scoreThem}
+              </span>
+            )}
+
+            {/* Countdown — only shown when match is upcoming */}
+            {!live && !completed && countdown && (
               <span
                 className="inline-flex items-center gap-1 text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{

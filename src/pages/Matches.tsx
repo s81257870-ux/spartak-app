@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, MapPin, Home, Plane } from 'lucide-react'
+import { Plus, MapPin, Home, Plane, Radio } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { useAuthStore } from '../store/authStore'
+import { isMatchLive, isMatchCompleted } from '../utils/matchTime'
+
 
 /** Ryparken is our home ground — any other location is away. */
 const HOME_VENUE = 'ryparken'
@@ -31,10 +34,28 @@ const formatListDate = (iso: string): string => {
 const formatDate    = formatListDate
 const formatShortDate = formatListDate
 
+/**
+ * Returns a ticker value that increments every 60 seconds.
+ * Components that depend on live state can include this in their deps to
+ * automatically re-evaluate isMatchLive / isMatchCompleted.
+ */
+function useLiveTicker(): number {
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+  return tick
+}
+
 export default function Matches() {
   const navigate = useNavigate()
   const matches  = useMatchStore((s) => s.matches)
   const isAdmin  = useAuthStore((s) => s.isAdmin)
+  const tick     = useLiveTicker()   // causes re-render every 60 s for live detection
+
+  // Suppress unused-variable warning — tick is intentionally read to force updates
+  void tick
 
   const upcoming  = matches.filter((m) => !m.isCompleted)
   const completed = matches.filter((m) => m.isCompleted)
@@ -96,24 +117,34 @@ export default function Matches() {
             <div className="space-y-2.5">
               {upcoming.map((match, idx) => {
                 const isNext  = idx === 0
-                const home   = isHomeGame(match.location)
+                const home    = isHomeGame(match.location)
+                const live    = isMatchLive(match)
+                const completed = isMatchCompleted(match)
                 return (
                 <button
                   key={match.id}
                   onClick={() => navigate(`/kampe/${match.id}`)}
                   className="w-full rounded-2xl p-4 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
                   style={{
-                    background: isNext
-                      ? `linear-gradient(135deg, rgba(149,197,233,0.10) 0%, var(--bg-card) 65%)`
-                      : `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 70%)`,
-                    border: isNext
-                      ? '1px solid rgba(149,197,233,0.28)'
-                      : '1px solid var(--accent-card-border)',
+                    background: live && !completed
+                      ? `linear-gradient(135deg, rgba(239,68,68,0.08) 0%, var(--bg-card) 65%)`
+                      : isNext
+                        ? `linear-gradient(135deg, rgba(149,197,233,0.10) 0%, var(--bg-card) 65%)`
+                        : `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 70%)`,
+                    border: live && !completed
+                      ? '1px solid rgba(239,68,68,0.25)'
+                      : isNext
+                        ? '1px solid rgba(149,197,233,0.28)'
+                        : '1px solid var(--accent-card-border)',
                   }}
                 >
                   <div
                     className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
-                    style={{ background: isNext ? 'var(--accent)' : 'var(--accent-stripe)' }}
+                    style={{
+                      background: live && !completed
+                        ? '#ef4444'
+                        : isNext ? 'var(--accent)' : 'var(--accent-stripe)',
+                    }}
                   />
                   <div className="pl-3 flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -142,7 +173,21 @@ export default function Matches() {
                         {match.location} · {formatShortDate(match.date)}
                       </p>
                     </div>
-                    {isNext ? (
+
+                    {/* Right-side badge */}
+                    {live && !completed ? (
+                      <span
+                        className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0 animate-pulse"
+                        style={{
+                          background: 'rgba(239,68,68,0.15)',
+                          color: '#ef4444',
+                          border: '1px solid rgba(239,68,68,0.30)',
+                        }}
+                      >
+                        <Radio size={9} />
+                        LIVE {match.scoreUs}–{match.scoreThem}
+                      </span>
+                    ) : isNext ? (
                       <span
                         className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
                         style={{ background: 'var(--accent)', color: '#0b1220' }}

@@ -81,6 +81,9 @@ interface MatchStore {
   addStarter: (matchId: string, playerId: string) => void
   removeStarter: (matchId: string, playerId: string) => void
 
+  // Live score initialization
+  initializeLiveScore: (matchId: string) => void
+
   // Realtime callbacks (called by useRealtimeMatch hook)
   setMatchEvents: (matchId: string, events: MatchEvent[]) => void
   setMatchLineup: (matchId: string, lineup: Record<string, string>, bench: string[]) => void
@@ -327,6 +330,29 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
 
   setManOfTheMatch: (matchId, playerId) => {
     get().updateMatch(matchId, { manOfTheMatch: playerId })
+  },
+
+  // ── Live score initialization ──────────────────────────────────────────────
+  initializeLiveScore: (matchId) => {
+    const match = get().matches.find((m) => m.id === matchId)
+    // Only initialize when both scores are still at the default 0 and no
+    // goals have been recorded — avoids overwriting real data if the admin
+    // has already entered goals.
+    if (!match) return
+    const hasGoalEvents = match.events.some((e) => e.type === 'goal')
+    if (hasGoalEvents) return
+    if (match.scoreUs === 0 && match.scoreThem === 0) return  // already at 0–0, nothing to do
+    // If for some reason scores are undefined/null (edge case), set them to 0
+    set((s) => ({
+      matches: s.matches.map((m) =>
+        m.id === matchId
+          ? { ...m, scoreUs: m.scoreUs ?? 0, scoreThem: m.scoreThem ?? 0 }
+          : m
+      ),
+    }))
+    patchMatch(matchId, { scoreUs: 0, scoreThem: 0 }).catch((err) =>
+      console.error('[MatchStore] initializeLiveScore failed:', err)
+    )
   },
 
   // ── Attendance ────────────────────────────────────────────────────────────

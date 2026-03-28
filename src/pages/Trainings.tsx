@@ -369,8 +369,9 @@ function NextTrainingCard({
   }, [])
 
   // Guest UI state
-  const [showGuestInput, setShowGuestInput] = useState(false)
-  const [guestName, setGuestName]           = useState('')
+  const [showGuestInput, setShowGuestInput]     = useState(false)
+  const [guestName, setGuestName]               = useState('')
+  const [showAttendeeList, setShowAttendeeList] = useState(false)
 
   const myGuest    = training.guests.find((g) => g.addedBy === myPlayerId)
   const total      = training.attendance.length + training.guests.length
@@ -484,30 +485,116 @@ function NextTrainingCard({
         </p>
       </div>
 
-      {/* ── Social layer ─────────────────────────────────────────────────── */}
+      {/* ── Social layer — tappable, expands to full attendee list ─────── */}
       {total > 0 && (
-        <div className="px-4 pt-3 flex items-center gap-2.5">
-          <div className="flex items-center">
-            {avatarIds.map((id, i) => {
-              const player = players.find((p) => p.id === id)
-              const name   = player?.name ?? 'Ukendt'
-              return (
-                <div key={id} style={{ marginLeft: i === 0 ? 0 : -8, zIndex: avatarIds.length - i, position: 'relative' }}>
-                  <PlayerAvatar name={name} size="sm" />
+        <>
+          <button
+            onClick={() => setShowAttendeeList((v) => !v)}
+            className="w-full px-4 pt-3 flex items-center gap-2.5 active:opacity-70 transition-opacity"
+          >
+            {/* Stacked avatars */}
+            <div className="flex items-center shrink-0">
+              {avatarIds.map((id, i) => {
+                const player = players.find((p) => p.id === id)
+                const name   = player?.name ?? 'Ukendt'
+                return (
+                  <div key={id} style={{ marginLeft: i === 0 ? 0 : -8, zIndex: avatarIds.length - i, position: 'relative' }}>
+                    <PlayerAvatar name={name} size="sm" />
+                  </div>
+                )
+              })}
+              {overflow > 0 && (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                     style={{ marginLeft: -8, zIndex: 0, background: 'var(--bg-raised)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                  +{overflow}
                 </div>
-              )
-            })}
-            {overflow > 0 && (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-                   style={{ marginLeft: -8, zIndex: 0, background: 'var(--bg-raised)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-                +{overflow}
-              </div>
-            )}
-          </div>
-          <p className="text-xs leading-snug min-w-0 truncate" style={{ color: 'var(--text-muted)' }}>
-            {social}
-          </p>
-        </div>
+              )}
+            </div>
+
+            {/* Summary label + chevron */}
+            <p className="text-xs leading-snug flex-1 text-left" style={{ color: 'var(--text-muted)' }}>
+              {social}
+            </p>
+            <span className="text-xs shrink-0" style={{ color: 'var(--text-faint)' }}>
+              {showAttendeeList ? '▲' : '▼'}
+            </span>
+          </button>
+
+          {/* Expanded attendee list */}
+          {showAttendeeList && (
+            <div className="mx-4 mt-2 rounded-xl overflow-hidden"
+                 style={{ border: '1px solid var(--border-faint)' }}>
+              {training.attendance.map((id, i) => {
+                const player = players.find((p) => p.id === id)
+                const name   = player?.name ?? 'Ukendt spiller'
+                const isMe   = id === myPlayerId
+                // Find any guest this player brought
+                const theirGuest = training.guests.find((g) => g.addedBy === id)
+                return (
+                  <div key={id}>
+                    {/* Player row */}
+                    <div
+                      className="flex items-center gap-3 px-3 py-2.5"
+                      style={{
+                        background:  isMe ? 'rgba(149,197,233,0.07)' : 'var(--bg-raised)',
+                        borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
+                      }}
+                    >
+                      <PlayerAvatar name={name} size="sm" />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium block truncate"
+                              style={{ color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}>
+                          {name}
+                          {isMe && (
+                            <span className="ml-1.5 text-xs font-normal"
+                                  style={{ color: 'rgba(149,197,233,0.60)' }}>
+                              (dig)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Guest row — indented under their player */}
+                    {theirGuest && (
+                      <div className="flex items-center gap-3 px-3 py-2"
+                           style={{
+                             background:  'var(--bg-raised)',
+                             borderTop:   '1px solid var(--border-faint)',
+                             paddingLeft: 52,   // align with player name
+                           }}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                             style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
+                          <UserPlus size={11} style={{ color: 'var(--text-muted)' }} />
+                        </div>
+                        <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                          {theirGuest.name
+                            ? <><span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{theirGuest.name}</span> <span style={{ color: 'var(--text-faint)' }}>(gæst)</span></>
+                            : <span style={{ color: 'var(--text-muted)' }}>Navnløs gæst</span>
+                          }
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              {/* Any orphaned guests (edge case) */}
+              {training.guests
+                .filter((g) => !training.attendance.includes(g.addedBy))
+                .map((g) => (
+                  <div key={g.id} className="flex items-center gap-3 px-3 py-2.5"
+                       style={{ borderTop: '1px solid var(--border-faint)', background: 'var(--bg-raised)' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                         style={{ background: 'var(--bg-input)', border: '1px solid var(--border)' }}>
+                      <UserPlus size={13} style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                    <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                      {g.name ?? 'Navnløs gæst'}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}

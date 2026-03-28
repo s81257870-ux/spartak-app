@@ -28,26 +28,28 @@ const STATE_COLOR: Record<AttState, string> = {
 }
 
 const STATE_LABEL: Record<AttState, string> = {
-  low:    'Vi mangler spillere',
-  medium: 'Tæt på',
-  full:   'Træning bekræftet',
+  low:    'Er I døde eller hvad?',
+  medium: 'Det begynder at ligne noget',
+  full:   'Holdet er samlet',
 }
 
 function getMicrocopy(count: number, isSignedUp: boolean): string {
   const needed = THRESHOLD - count
   if (count >= THRESHOLD) {
-    return isSignedUp ? 'Træningen er bekræftet!' : 'Træningen er bekræftet – tilmeld dig'
+    return isSignedUp ? 'Du er med. Så er der træning!' : 'Så er der træning!'
   }
   if (isSignedUp) {
-    return count >= 6 ? `Kun ${needed} mangler stadig` : `${needed} spillere mangler stadig`
+    if (needed === 1) return 'Vi mangler én mere – ring til nogen!'
+    return count >= 6 ? `${needed} mere så spiller vi!` : `Godkendt – men ${needed} mangler stadig`
   }
-  if (count === 0) return 'Vær den første – alle starter et sted'
-  if (count >= 6) return `Kun ${needed} mangler – vær med og gør det til 10`
-  return `${needed} mangler – du kan være den der får træningen til at ske`
+  if (count === 0) return 'Nogen der gider møde op?'
+  if (needed === 1) return '1 mere så spiller vi – det er dig!'
+  if (count >= 6) return `${needed} mere. Vi er næsten der.`
+  return 'Meld dig ind og red træningen'
 }
 
 function getCtaLabel(state: AttState): string {
-  return state === 'medium' ? 'Tilmeld mig nu' : 'Tilmeld mig'
+  return state === 'medium' ? 'Jeg er med!' : 'Tilmeld mig'
 }
 
 // ── Social label ───────────────────────────────────────────────────────────────

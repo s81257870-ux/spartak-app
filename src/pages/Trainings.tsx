@@ -13,24 +13,30 @@ const THRESHOLD = 10
 
 // ── Attendance state ───────────────────────────────────────────────────────────
 
-type AttState = 'low' | 'medium' | 'full'
+type AttState = 'low' | 'lowmedium' | 'medium' | 'high' | 'full'
 
 function attState(count: number): AttState {
   if (count >= THRESHOLD) return 'full'
+  if (count >= 8)          return 'high'
   if (count >= 6)          return 'medium'
+  if (count >= 4)          return 'lowmedium'
   return 'low'
 }
 
 const STATE_COLOR: Record<AttState, string> = {
-  low:    '#f87171',   // red-400
-  medium: '#fbbf24',   // amber-400
-  full:   '#4ade80',   // green-400
+  low:       '#f87171',   // red-400
+  lowmedium: '#fb923c',   // orange-400
+  medium:    '#fbbf24',   // amber-400
+  high:      '#a3e635',   // lime-400
+  full:      '#4ade80',   // green-400
 }
 
 const STATE_LABEL: Record<AttState, string> = {
-  low:    'Er I døde eller hvad?',
-  medium: 'Det begynder at ligne noget',
-  full:   'Holdet er samlet',
+  low:       'Er I døde eller hvad?',
+  lowmedium: 'Tilmeld jer',
+  medium:    'Det begynder at ligne noget',
+  high:      'SÅ TÆT',
+  full:      'Holdet er samlet',
 }
 
 function getMicrocopy(count: number, isSignedUp: boolean): string {
@@ -40,16 +46,19 @@ function getMicrocopy(count: number, isSignedUp: boolean): string {
   }
   if (isSignedUp) {
     if (needed === 1) return 'Vi mangler én mere – ring til nogen!'
-    return count >= 6 ? `${needed} mere så spiller vi!` : `Godkendt – men ${needed} mangler stadig`
+    if (count >= 8)   return `${needed} mere så spiller vi!`
+    if (count >= 6)   return `${needed} mere så spiller vi!`
+    return `Godkendt – men ${needed} mangler stadig`
   }
   if (count === 0) return 'Nogen der gider møde op?'
   if (needed === 1) return '1 mere så spiller vi – det er dig!'
-  if (count >= 6) return `${needed} mere. Vi er næsten der.`
+  if (count >= 8)   return `${needed} mere. Vi er næsten der.`
+  if (count >= 6)   return `${needed} mere. Vi er næsten der.`
   return 'Meld dig ind og red træningen'
 }
 
 function getCtaLabel(state: AttState): string {
-  return state === 'medium' ? 'Jeg er med!' : 'Tilmeld mig'
+  return state === 'high' ? 'Jeg er med!' : 'Tilmeld mig'
 }
 
 // ── Social label ───────────────────────────────────────────────────────────────

@@ -7,40 +7,7 @@ import {
   cancelSignUpForTraining,
   updateTrainingGuests,
 } from '../lib/supabaseService'
-
-// ── Session generator ──────────────────────────────────────────────────────────
-// Produces skeleton Training objects for the next `count` Mondays.
-// These are upserted to Supabase on init (ignoreDuplicates: true ensures existing
-// rows — which carry real attendance — are never overwritten).
-
-function generateUpcomingMondays(count: number): Training[] {
-  const trainings: Training[] = []
-
-  const copenhDate = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' })
-    .format(new Date())
-  const [year, month, day] = copenhDate.split('-').map(Number)
-  const current = new Date(Date.UTC(year, month - 1, day, 12, 0, 0))
-
-  const dow = current.getUTCDay()
-  const daysToMonday = dow === 1 ? 0 : (8 - dow) % 7
-  current.setUTCDate(current.getUTCDate() + daysToMonday)
-
-  for (let i = 0; i < count; i++) {
-    const dateStr = current.toISOString().slice(0, 10)
-    trainings.push({
-      id:         `training-${dateStr}`,
-      date:       dateStr,
-      time:       '19:30',
-      location:   'Ryparken Idrætsanlæg',
-      cancelled:  false,
-      attendance: [],
-      guests:     [],
-    })
-    current.setUTCDate(current.getUTCDate() + 7)
-  }
-
-  return trainings
-}
+import { generateUpcomingTrainings } from '../utils/trainingSchedule'
 
 // ── Store ──────────────────────────────────────────────────────────────────────
 
@@ -48,7 +15,7 @@ interface TrainingStore {
   trainings:    Training[]
   loading:      boolean
   initialized:  boolean
-  init:         () => Promise<void>
+  init:         (matchDates: Set<string>) => Promise<void>
   signUp:       (trainingId: string, playerId: string) => void
   cancelSignUp: (trainingId: string, playerId: string) => void
   addGuest:     (trainingId: string, playerId: string, name?: string) => void
@@ -61,29 +28,32 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
   initialized: false,
 
   // ── Init ────────────────────────────────────────────────────────────────────
-  // 1. Generate the upcoming Monday skeleton sessions
+  // 1. Generate upcoming training sessions (Mon→Tue rule, match days excluded)
   // 2. Fetch existing rows from Supabase
-  // 3. Upsert any Monday sessions that don't exist yet (empty attendance)
-  // 4. Merge: Supabase data wins (carries real attendance); local fills in new sessions
-  init: async () => {
+  // 3. Upsert any new sessions that don't exist yet (ignoreDuplicates preserves attendance)
+  // 4. Merge: Supabase data wins (carries real attendance); local fills new sessions
+  //
+  // `matchDates` — Set of 'YYYY-MM-DD' strings; any matching date is skipped.
+  // Must be passed by the caller after the match store is initialised.
+  init: async (matchDates: Set<string>) => {
     if (get().initialized) return
     set({ loading: true })
     try {
-      const upcoming     = generateUpcomingMondays(10)
-      const existing     = await fetchTrainings()
-      const existingMap  = new Map(existing.map((t) => [t.id, t]))
+      const upcoming    = generateUpcomingTrainings(10, matchDates)
+      const existing    = await fetchTrainings()
+      const existingMap = new Map(existing.map((t) => [t.id, t]))
 
-      // Upsert any Monday that isn't in Supabase yet (fires ignoreDuplicates in the service)
+      // Upsert sessions not yet in Supabase (ignoreDuplicates keeps existing attendance)
       const missing = upcoming.filter((t) => !existingMap.has(t.id))
       await Promise.all(missing.map((t) => upsertTraining(t)))
 
-      // Merge local skeletons with Supabase rows (Supabase data wins)
+      // Merge: Supabase row wins (has real attendance); local skeleton fills new ones
       const trainings = upcoming.map((t) => existingMap.get(t.id) ?? t)
 
       set({ trainings, initialized: true, loading: false })
     } catch (err) {
-      console.error('[TrainingStore] Supabase init failed, using empty sessions:', err)
-      set({ trainings: generateUpcomingMondays(10), initialized: true, loading: false })
+      console.error('[TrainingStore] Supabase init failed, using generated sessions:', err)
+      set({ trainings: generateUpcomingTrainings(10, matchDates), initialized: true, loading: false })
     }
   },
 

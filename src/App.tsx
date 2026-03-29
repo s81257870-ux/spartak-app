@@ -23,7 +23,16 @@ function AppContent() {
   const initTheme     = useThemeStore((s) => s.init)
 
   useEffect(() => {
-    Promise.all([initPlayers(), initMatches(), initTrainings()]).catch(console.error)
+    async function boot() {
+      // Players and matches can load in parallel.
+      // Trainings must wait for matches so we can exclude match-day dates.
+      await Promise.all([initPlayers(), initMatches()])
+      const matchDates = new Set(
+        useMatchStore.getState().matches.map((m) => m.date.slice(0, 10)),
+      )
+      await initTrainings(matchDates)
+    }
+    boot().catch(console.error)
   }, [initPlayers, initMatches, initTrainings])
 
   useEffect(() => {

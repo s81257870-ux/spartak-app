@@ -7,6 +7,7 @@ import type { Player, Training } from '../types'
 import { SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
 import { displayName } from '../utils/playerName'
+import { currentTrainingRule, TRAINING_LOCATION } from '../utils/trainingSchedule'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 const THRESHOLD     = 10
@@ -155,7 +156,7 @@ export default function Trainings() {
         <div className="relative">
           <PageHeader label={SEASON_LABEL} title="Træninger" />
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Mandag 19:30 · Ryparken Idrætsanlæg
+            {currentTrainingRule().label} · {TRAINING_LOCATION}
           </p>
         </div>
       </div>

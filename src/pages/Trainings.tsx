@@ -35,7 +35,7 @@ const STATE_COLOR: Record<AttState, string> = {
 
 const STATE_LABEL: Record<AttState, string> = {
   low:       'Er I døde eller hvad?',
-  lowmedium: 'Tilmeld jer',
+  lowmedium: 'Slet ikke nok...',
   medium:    'Det begynder at ligne noget',
   high:      'SÅ TÆT',
   full:      'Holdet er samlet',

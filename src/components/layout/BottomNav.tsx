@@ -11,7 +11,7 @@ const tabs = [
 
 const N      = tabs.length          // 5
 const TAB_VW = 100 / N             // 20 — each tab occupies 20vw (nav = 100vw)
-const IND_W  = 28                  // indicator width in px
+const IND_W  = 32                  // indicator width in px
 
 /**
  * Derive active tab index directly from the current pathname.
@@ -59,9 +59,10 @@ export default function BottomNav() {
           top:           0,
           left:          0,
           width:         IND_W,
-          height:        2,
+          height:        3,
           borderRadius:  9999,
           background:    'var(--nav-active-indicator)',
+          boxShadow:     '0 0 8px rgba(149,197,233,0.55)',
           transform:     `translateX(${indicatorX})`,
           transition:    'transform 230ms cubic-bezier(0.22, 1, 0.36, 1)',
           pointerEvents: 'none',
@@ -77,7 +78,7 @@ export default function BottomNav() {
             end={end}
             className="flex-1 flex flex-col items-center justify-center py-3 gap-1 relative select-none"
             style={({ isActive }) => ({
-              color:      isActive ? 'var(--nav-active-color)' : 'var(--text-faint)',
+              color:      isActive ? 'var(--nav-active-color)' : 'var(--text-muted)',
               transition: 'color 200ms ease',
             })}
             /* ── Press feedback ──────────────────────────────────────────
@@ -118,8 +119,8 @@ export default function BottomNav() {
                 <span
                   className="text-[10px] tracking-wide"
                   style={{
-                    fontWeight:  isActive ? 600 : 400,
-                    opacity:     isActive ? 1 : 0.5,
+                    fontWeight:  isActive ? 700 : 400,
+                    opacity:     isActive ? 1 : 0.65,
                     transition:  'opacity 200ms ease',
                   }}
                 >

@@ -7,7 +7,7 @@ import type { Player, Training } from '../types'
 import { SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
 import { displayName } from '../utils/playerName'
-import { currentTrainingRule, TRAINING_LOCATION } from '../utils/trainingSchedule'
+import { currentTrainingRule, trainingRuleForDate, TRAINING_LOCATION } from '../utils/trainingSchedule'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 const THRESHOLD     = 10
@@ -144,6 +144,15 @@ export default function Trainings() {
     setShowPicker(false)
   }
 
+  // Split trainings: past (already happened) vs upcoming
+  const today             = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
+  const upcomingTrainings = trainings.filter((t) => t.date >= today)
+  const pastTrainings     = trainings.filter((t) => t.date < today).reverse() // most recent first
+
+  // Subtitle reflects the next training that will actually be held
+  const nextActive      = upcomingTrainings.find((t) => !t.cancelled && !isDeadlinePassed(t.date))
+  const scheduleLabel   = nextActive ? trainingRuleForDate(nextActive.date).label : currentTrainingRule().label
+
   return (
     <div className="pb-8">
 
@@ -156,7 +165,7 @@ export default function Trainings() {
         <div className="relative">
           <PageHeader label={SEASON_LABEL} title="Træninger" />
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            {currentTrainingRule().label} · {TRAINING_LOCATION}
+            {scheduleLabel} · {TRAINING_LOCATION}
           </p>
         </div>
       </div>
@@ -204,8 +213,8 @@ export default function Trainings() {
           </div>
         )}
 
-        {/* ── Training cards ────────────────────────────────────────────── */}
-        {!loading && trainings.map((training, index) => {
+        {/* ── Upcoming training cards ───────────────────────────────────── */}
+        {!loading && upcomingTrainings.map((training, index) => {
           const isNext     = index === 0
           const isSignedUp = myPlayerId !== '' && training.attendance.includes(myPlayerId)
           const isExpanded = expandedId === training.id
@@ -355,6 +364,67 @@ export default function Trainings() {
             </div>
           )
         })}
+
+        {/* ── Forrige træninger ─────────────────────────────────────────── */}
+        {!loading && pastTrainings.length > 0 && (
+          <div className="pt-2">
+            <p className="text-[11px] uppercase tracking-[0.12em] font-semibold mb-2 px-1"
+               style={{ color: 'var(--text-faint)' }}>
+              Forrige træninger
+            </p>
+            <div className="space-y-2">
+              {pastTrainings.map((training) => {
+                const total    = training.attendance.length + training.guests.length
+                const rejected = !training.cancelled && total < THRESHOLD
+                const reason   = training.cancelled
+                  ? 'Træning aflyst'
+                  : `Aflyst – kun ${total} af ${THRESHOLD} tilmeldte`
+                const isAflyst = training.cancelled || rejected
+
+                return (
+                  <div key={training.id} className="rounded-2xl overflow-hidden"
+                       style={{
+                         background: 'var(--bg-raised)',
+                         border: isAflyst
+                           ? '1px solid rgba(248,113,113,0.22)'
+                           : '1px solid var(--border)',
+                         opacity: 0.75,
+                       }}>
+                    {isAflyst && (
+                      <div className="flex items-center gap-2 px-4 py-2"
+                           style={{ background: 'rgba(248,113,113,0.10)', borderBottom: '1px solid rgba(248,113,113,0.15)' }}>
+                        <Ban size={12} style={{ color: '#f87171' }} />
+                        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
+                          {reason}
+                        </span>
+                      </div>
+                    )}
+                    <div className="px-4 py-3">
+                      <p className="font-semibold text-sm leading-tight"
+                         style={{
+                           color: isAflyst ? 'var(--text-muted)' : 'var(--text-primary)',
+                           textDecoration: isAflyst ? 'line-through' : 'none',
+                         }}>
+                        {formatTrainingDate(training.date)}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={11} style={{ color: 'var(--text-faint)' }} />
+                          <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{training.time}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <MapPin size={11} style={{ color: 'var(--text-faint)' }} />
+                          <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{training.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

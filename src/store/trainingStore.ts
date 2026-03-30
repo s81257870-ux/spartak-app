@@ -7,7 +7,23 @@ import {
   cancelSignUpForTraining,
   updateTrainingGuests,
 } from '../lib/supabaseService'
-import { generateUpcomingTrainings } from '../utils/trainingSchedule'
+import { generateUpcomingTrainings, TRAINING_LOCATION } from '../utils/trainingSchedule'
+
+// ── Historical seeds ───────────────────────────────────────────────────────────
+// Past sessions to seed once into Supabase (ignoreDuplicates preserves real data).
+// attendance holds the player IDs who had signed up before the deadline.
+
+const HISTORICAL_SEEDS: Training[] = [
+  {
+    id:         'training-2026-03-23',
+    date:       '2026-03-23',
+    time:       '19:30',
+    location:   TRAINING_LOCATION,
+    cancelled:  false,
+    attendance: ['p1', 'p2', 'p3', 'p4'],
+    guests:     [],
+  },
+]
 
 // ── Store ──────────────────────────────────────────────────────────────────────
 
@@ -41,14 +57,18 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
     try {
       const upcoming    = generateUpcomingTrainings(10, matchDates)
       const existing    = await fetchTrainings()
-      const existingMap = new Map(existing.map((t) => [t.id, t]))
+      const existingIds = new Set(existing.map((t) => t.id))
 
       // Upsert sessions not yet in Supabase (ignoreDuplicates keeps existing attendance)
-      const missing = upcoming.filter((t) => !existingMap.has(t.id))
-      await Promise.all(missing.map((t) => upsertTraining(t)))
+      const missingUpcoming    = upcoming.filter((t) => !existingIds.has(t.id))
+      const missingHistorical  = HISTORICAL_SEEDS.filter((t) => !existingIds.has(t.id))
+      await Promise.all([
+        ...missingUpcoming.map((t) => upsertTraining(t)),
+        ...missingHistorical.map((t) => upsertTraining(t)),
+      ])
 
-      // Merge: Supabase row wins (has real attendance); local skeleton fills new ones
-      const trainings = upcoming.map((t) => existingMap.get(t.id) ?? t)
+      // Re-fetch all rows (past historical + upcoming); Supabase is source of truth
+      const trainings = await fetchTrainings()
 
       set({ trainings, initialized: true, loading: false })
     } catch (err) {

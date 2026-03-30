@@ -527,6 +527,11 @@ export async function cancelSignUpForTraining(
   if (error) throw error
 }
 
+export async function deleteTraining(id: string): Promise<void> {
+  const { error } = await supabase.from('trainings').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function updateTrainingGuests(
   trainingId: string,
   guests: TrainingGuest[],

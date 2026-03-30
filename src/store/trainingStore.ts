@@ -3,11 +3,12 @@ import type { Training, TrainingGuest } from '../types'
 import {
   fetchTrainings,
   upsertTraining,
+  deleteTraining,
   signUpForTraining,
   cancelSignUpForTraining,
   updateTrainingGuests,
 } from '../lib/supabaseService'
-import { generateUpcomingTrainings, TRAINING_LOCATION } from '../utils/trainingSchedule'
+import { generateUpcomingTrainings, trainingRuleForDate, TRAINING_LOCATION } from '../utils/trainingSchedule'
 
 // ── Historical seeds ───────────────────────────────────────────────────────────
 // Past sessions to seed once into Supabase (ignoreDuplicates preserves real data).
@@ -66,6 +67,16 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
         ...missingUpcoming.map((t) => upsertTraining(t)),
         ...missingHistorical.map((t) => upsertTraining(t)),
       ])
+
+      // Delete sessions whose weekday no longer matches the schedule rule for their date
+      // (happens when the Monday→Tuesday cutoff was introduced after sessions were upserted)
+      const allBeforeCleanup = await fetchTrainings()
+      const stale = allBeforeCleanup.filter((t) => {
+        const rule = trainingRuleForDate(t.date)
+        const dow  = new Date(`${t.date}T12:00:00Z`).getUTCDay()
+        return dow !== rule.weekday
+      })
+      await Promise.all(stale.map((t) => deleteTraining(t.id)))
 
       // Re-fetch all rows (past historical + upcoming); Supabase is source of truth
       const trainings = await fetchTrainings()

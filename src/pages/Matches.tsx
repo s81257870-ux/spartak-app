@@ -144,7 +144,7 @@ export default function Matches() {
                       <p className="text-xs mt-0.5 flex items-center gap-1"
                          style={{ color: 'var(--text-muted)' }}>
                         <MapPin size={10} className="shrink-0" />
-                        {match.location} · {formatShortDate(match.date)}
+                        {match.location} · {fmtMatchList(match.date)}
                       </p>
                     </div>
 
@@ -220,7 +220,7 @@ export default function Matches() {
                         <p className="text-xs mt-0.5 flex items-center gap-1"
                            style={{ color: 'var(--text-faint)' }}>
                           <MapPin size={10} className="shrink-0" />
-                          {match.location} · {formatDate(match.date)}
+                          {match.location} · {fmtMatchList(match.date)}
                         </p>
                       </div>
                       <div className="text-right shrink-0">

@@ -412,21 +412,30 @@ function NextTrainingCard({
     ? 'rgba(248,113,113,0.28)'
     : `${color}40`
 
-  // Cancelled overrides everything — show a simple, clear card
-  if (training.cancelled) {
+  // Cancelled or rejected (deadline passed + too few players) — same clear treatment
+  if (training.cancelled || rejected) {
+    const reason = training.cancelled
+      ? 'Træning aflyst'
+      : `Aflyst – kun ${total} af ${THRESHOLD} tilmeldte`
     return (
       <div className="rounded-2xl overflow-hidden"
            style={{ background: 'var(--bg-raised)', border: '1px solid rgba(248,113,113,0.30)', opacity: 0.85 }}>
         {/* Red banner */}
         <div className="flex items-center gap-2 px-4 py-2.5"
-             style={{ background: 'rgba(248,113,113,0.12)', borderBottom: '1px solid rgba(248,113,113,0.20)' }}>
+             style={{ background: 'rgba(248,113,113,0.14)', borderBottom: '1px solid rgba(248,113,113,0.22)' }}>
           <Ban size={14} style={{ color: '#f87171' }} />
           <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
-            Træning aflyst
+            {reason}
           </span>
         </div>
         <div className="px-4 py-4">
-          <p className="font-bold text-base leading-tight"
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-md"
+                  style={{ background: 'rgba(248,113,113,0.10)', color: '#f87171' }}>
+              Næste træning
+            </span>
+          </div>
+          <p className="font-bold text-base leading-tight mt-1.5"
              style={{ color: 'var(--text-muted)', textDecoration: 'line-through' }}>
             {formatTrainingDate(training.date)}
           </p>

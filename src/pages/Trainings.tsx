@@ -9,6 +9,7 @@ import PageHeader from '../components/layout/PageHeader'
 import { displayName } from '../utils/playerName'
 import { currentTrainingRule, trainingRuleForDate, TRAINING_LOCATION } from '../utils/trainingSchedule'
 import { fmtLong } from '../utils/dateFormat'
+import { getUpcomingTrainings, getPastTrainings } from '../utils/trainingState'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 const THRESHOLD     = 10
@@ -136,14 +137,21 @@ export default function Trainings() {
     setShowPicker(false)
   }
 
-  // Split trainings: past (already happened) vs upcoming
-  const today             = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
-  const upcomingTrainings = trainings.filter((t) => t.date >= today)
-  const pastTrainings     = trainings.filter((t) => t.date < today).reverse() // most recent first
+  // Tick every minute so the next→past promotion happens automatically in-browser.
+  const [, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
-  // Subtitle reflects the next training that will actually be held
-  const nextActive      = upcomingTrainings.find((t) => !t.cancelled && !isDeadlinePassed(t.date))
-  const scheduleLabel   = nextActive ? trainingRuleForDate(nextActive.date).label : currentTrainingRule().label
+  // Split trainings using the centralised 2-hour cutoff logic.
+  // A training stays "upcoming" until 2 hours after its start time.
+  const upcomingTrainings = getUpcomingTrainings(trainings)
+  const pastTrainings     = getPastTrainings(trainings)
+
+  // Subtitle reflects the schedule of the next training that will actually be held.
+  const nextActive    = upcomingTrainings.find((t) => !t.cancelled)
+  const scheduleLabel = nextActive ? trainingRuleForDate(nextActive.date).label : currentTrainingRule().label
 
   return (
     <div className="pb-8">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Clock, MapPin, UserCheck, CheckCircle2, UserPlus, X } from 'lucide-react'
+import { Clock, MapPin, UserCheck, CheckCircle2, UserPlus, X, Ban } from 'lucide-react'
 import { useTrainingStore } from '../store/trainingStore'
 import { usePlayerStore } from '../store/playerStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
@@ -230,12 +230,33 @@ export default function Trainings() {
           // ── Compact future card ────────────────────────────────────────
           return (
             <div key={training.id} className="rounded-2xl overflow-hidden"
-                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                 style={{
+                   background: training.cancelled ? 'var(--bg-raised)' : 'var(--bg-card)',
+                   border: training.cancelled
+                     ? '1px solid rgba(248,113,113,0.25)'
+                     : '1px solid var(--border)',
+                   opacity: training.cancelled ? 0.7 : 1,
+                 }}>
+
+              {/* Cancelled banner */}
+              {training.cancelled && (
+                <div className="flex items-center gap-2 px-4 py-2"
+                     style={{ background: 'rgba(248,113,113,0.10)', borderBottom: '1px solid rgba(248,113,113,0.20)' }}>
+                  <Ban size={13} style={{ color: '#f87171' }} />
+                  <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
+                    Aflyst
+                  </span>
+                </div>
+              )}
+
               <div className="px-4 pt-4 pb-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-bold text-base leading-tight"
-                       style={{ color: 'var(--text-primary)' }}>
+                       style={{
+                         color: training.cancelled ? 'var(--text-muted)' : 'var(--text-primary)',
+                         textDecoration: training.cancelled ? 'line-through' : 'none',
+                       }}>
                       {formatTrainingDate(training.date)}
                     </p>
                     <div className="flex items-center gap-3 mt-1.5">
@@ -249,22 +270,24 @@ export default function Trainings() {
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => setExpandedId(isExpanded ? null : training.id)}
-                    className="flex items-center gap-1.5 shrink-0 active:opacity-60 transition-opacity"
-                    aria-label="Vis tilmeldte">
-                    <UserCheck size={15} style={{
-                      color: training.attendance.length > 0 ? 'var(--accent)' : 'var(--text-faint)'
-                    }} />
-                    <span className="text-sm font-bold tabular-nums" style={{
-                      color: training.attendance.length > 0 ? 'var(--accent)' : 'var(--text-faint)'
-                    }}>
-                      {training.attendance.length + training.guests.length}
-                    </span>
-                  </button>
+                  {!training.cancelled && (
+                    <button onClick={() => setExpandedId(isExpanded ? null : training.id)}
+                      className="flex items-center gap-1.5 shrink-0 active:opacity-60 transition-opacity"
+                      aria-label="Vis tilmeldte">
+                      <UserCheck size={15} style={{
+                        color: training.attendance.length > 0 ? 'var(--accent)' : 'var(--text-faint)'
+                      }} />
+                      <span className="text-sm font-bold tabular-nums" style={{
+                        color: training.attendance.length > 0 ? 'var(--accent)' : 'var(--text-faint)'
+                      }}>
+                        {training.attendance.length + training.guests.length}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {myPlayerId !== '' && !showPicker && (
+              {myPlayerId !== '' && !showPicker && !training.cancelled && (
                 <div className="px-4 pb-4">
                   {isSignedUp ? (
                     <div className="flex items-center gap-2.5">
@@ -388,6 +411,39 @@ function NextTrainingCard({
     : rejected
     ? 'rgba(248,113,113,0.28)'
     : `${color}40`
+
+  // Cancelled overrides everything — show a simple, clear card
+  if (training.cancelled) {
+    return (
+      <div className="rounded-2xl overflow-hidden"
+           style={{ background: 'var(--bg-raised)', border: '1px solid rgba(248,113,113,0.30)', opacity: 0.85 }}>
+        {/* Red banner */}
+        <div className="flex items-center gap-2 px-4 py-2.5"
+             style={{ background: 'rgba(248,113,113,0.12)', borderBottom: '1px solid rgba(248,113,113,0.20)' }}>
+          <Ban size={14} style={{ color: '#f87171' }} />
+          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
+            Træning aflyst
+          </span>
+        </div>
+        <div className="px-4 py-4">
+          <p className="font-bold text-base leading-tight"
+             style={{ color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+            {formatTrainingDate(training.date)}
+          </p>
+          <div className="flex items-center gap-3 mt-1.5">
+            <div className="flex items-center gap-1.5">
+              <Clock size={12} style={{ color: 'var(--text-faint)' }} />
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{training.time}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MapPin size={12} style={{ color: 'var(--text-faint)' }} />
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{training.location}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-2xl overflow-hidden"

@@ -8,6 +8,7 @@ import { SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
 import { displayName } from '../utils/playerName'
 import { currentTrainingRule, trainingRuleForDate, TRAINING_LOCATION } from '../utils/trainingSchedule'
+import { fmtLong } from '../utils/dateFormat'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
 const THRESHOLD     = 10
@@ -108,15 +109,6 @@ function buildSocialLabel(
   if (n === 2) return `${first(sorted[0])} og ${first(sorted[1])} tilmeldt`
   if (n === 3) return `${first(sorted[0])}, ${first(sorted[1])} og ${first(sorted[2])} tilmeldt`
   return `${first(sorted[0])}, ${first(sorted[1])} og ${n - 2} andre tilmeldt`
-}
-
-// ── Date formatting ────────────────────────────────────────────────────────────
-
-function formatTrainingDate(date: string): string {
-  const d = new Date(`${date}T12:00:00Z`)
-  const weekday = new Intl.DateTimeFormat('da-DK', { weekday: 'long' }).format(d)
-  const dayMonth = new Intl.DateTimeFormat('da-DK', { day: 'numeric', month: 'long' }).format(d)
-  return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} ${dayMonth}`
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────────
@@ -266,7 +258,7 @@ export default function Trainings() {
                          color: training.cancelled ? 'var(--text-muted)' : 'var(--text-primary)',
                          textDecoration: training.cancelled ? 'line-through' : 'none',
                        }}>
-                      {formatTrainingDate(training.date)}
+                      {fmtLong(training.date)}
                     </p>
                     <div className="flex items-center gap-3 mt-1.5">
                       <div className="flex items-center gap-1.5">
@@ -405,7 +397,7 @@ export default function Trainings() {
                            color: isAflyst ? 'var(--text-muted)' : 'var(--text-primary)',
                            textDecoration: isAflyst ? 'line-through' : 'none',
                          }}>
-                        {formatTrainingDate(training.date)}
+                        {fmtLong(training.date)}
                       </p>
                       <div className="flex items-center gap-3 mt-1">
                         <div className="flex items-center gap-1.5">
@@ -507,7 +499,7 @@ function NextTrainingCard({
           </div>
           <p className="font-bold text-base leading-tight mt-1.5"
              style={{ color: 'var(--text-muted)', textDecoration: 'line-through' }}>
-            {formatTrainingDate(training.date)}
+            {fmtLong(training.date)}
           </p>
           <div className="flex items-center gap-3 mt-1.5">
             <div className="flex items-center gap-1.5">
@@ -557,7 +549,7 @@ function NextTrainingCard({
         </div>
 
         <p className="font-bold text-base leading-tight" style={{ color: 'var(--text-primary)' }}>
-          {formatTrainingDate(training.date)}
+          {fmtLong(training.date)}
         </p>
         <div className="flex items-center gap-3 mt-1.5">
           <div className="flex items-center gap-1.5">

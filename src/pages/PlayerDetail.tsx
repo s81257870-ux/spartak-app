@@ -6,17 +6,7 @@ import { useMatchStore } from '../store/matchStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
 import PositionBadge from '../components/players/PositionBadge'
 import { POSITION_LABELS, type Position } from '../types'
-
-/** Timezone-safe short date: "Tirs 07/04 · 20:30" */
-function formatMatchDate(iso: string): string {
-  const [datePart] = iso.split('T')
-  const [y, m, d] = datePart.split('-')
-  const dateObj = new Date(Number(y), Number(m) - 1, Number(d))
-  const weekday = dateObj.toLocaleDateString('da-DK', { weekday: 'short' })
-  const cap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
-  const time = iso.includes('T') ? iso.split('T')[1]?.slice(0, 5) : ''
-  return time ? `${cap} ${d}/${m} · ${time}` : `${cap} ${d}/${m}`
-}
+import { fmtSlashWithTime } from '../utils/dateFormat'
 
 /** Maps each Position to a { row, col } on a 4-row × 3-col pitch grid.
  *  row 1 = attack (top), row 4 = goalkeeper (bottom).
@@ -281,7 +271,7 @@ export default function PlayerDetail() {
                     border: '1px solid var(--badge-accent-border)',
                   }}
                 >
-                  {formatMatchDate(m.date)}
+                  {fmtSlashWithTime(m.date)}
                 </span>
               </div>
             ))}

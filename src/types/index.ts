@@ -37,17 +37,6 @@ export const POSITION_LABELS: Record<Position, string> = {
   UKE: 'Ukendt',
 }
 
-// Legacy — kept for compatibility; formations.ts now drives lineup positions
-export const LINEUP_POSITIONS: { key: Position; label: string }[] = [
-  { key: 'MV', label: 'Målvogter' },
-  { key: 'VB', label: 'Venstre back' },
-  { key: 'HB', label: 'Højre back' },
-  { key: 'VM', label: 'Venstre midtbane' },
-  { key: 'CM', label: 'Central midtbane' },
-  { key: 'HM', label: 'Højre midtbane' },
-  { key: 'A', label: 'Angriber' },
-]
-
 export interface Player {
   id: string
   name: string

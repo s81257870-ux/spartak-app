@@ -8,6 +8,7 @@ import NewFineModal from '../components/boedekasse/NewFineModal'
 import { FINE_TYPES, CATEGORY_LABELS, type FineType } from '../data/fineTypes'
 import { SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
+import { fmtDayMonthYear } from '../utils/dateFormat'
 
 type Tab = 'spillere' | 'historik' | 'regler'
 
@@ -20,12 +21,6 @@ const AMOUNT_SUFFIX: Partial<Record<string, string>> = {
   'pr-maal':   ' pr. mand',
 }
 
-function formatDanishDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('da-DK', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  })
-}
 
 const RANK_STYLE: Record<number, { bg: string; color: string; border: string }> = {
   1: { bg: 'rgba(234,179,8,0.14)', color: '#eab308', border: 'rgba(234,179,8,0.28)' },
@@ -338,7 +333,7 @@ export default function Boedekasse() {
                               {fine.label}
                             </p>
                             <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-                              {player?.name ?? 'Ukendt spiller'} · {formatDanishDate(fine.date)}
+                              {player?.name ?? 'Ukendt spiller'} · {fmtDayMonthYear(fine.date)}
                             </p>
                             {fine.note && (
                               <p className="text-xs mt-0.5 italic" style={{ color: 'var(--text-faint)' }}>

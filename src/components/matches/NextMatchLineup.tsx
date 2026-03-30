@@ -27,6 +27,7 @@ import { chipLabel } from '../../utils/playerName'
 import { CLUB_NAME } from '../../data/leagueTable'
 import { useMatchStore } from '../../store/matchStore'
 import { isMatchLive, isMatchCompleted, getTimeUntilKickoff } from '../../utils/matchTime'
+import { fmtShortWithTime } from '../../utils/dateFormat'
 
 interface Props {
   match: Match
@@ -44,16 +45,6 @@ function pitchLabel(player: Player): string {
   return parts[parts.length - 1]
 }
 
-/** Timezone-safe — parses date parts directly so no UTC-midnight weekday shift. */
-function formatMatchDate(iso: string): string {
-  const [datePart] = iso.split('T')
-  const [y, m, d]  = datePart.split('-').map(Number)
-  const dateObj    = new Date(y, m - 1, d)
-  const weekday    = dateObj.toLocaleDateString('da-DK', { weekday: 'short' })
-  const dayMonth   = dateObj.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })
-  const time       = iso.includes('T') ? iso.split('T')[1]?.slice(0, 5) : ''
-  return time ? `${weekday} ${dayMonth} · ${time}` : `${weekday} ${dayMonth}`
-}
 
 /**
  * Formats the time remaining until a match into a human-readable Danish string.
@@ -203,7 +194,7 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             className="text-sm md:text-base mt-0.5 md:mt-1"
             style={{ color: 'var(--nm-date-color)' }}
           >
-            {formatMatchDate(match.date)}
+            {fmtShortWithTime(match.date)}
           </p>
 
           {/* Location */}

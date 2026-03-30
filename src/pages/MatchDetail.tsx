@@ -11,31 +11,12 @@ import ClubCrest from '../components/ClubCrest'
 import OpponentCrest from '../components/OpponentCrest'
 import { displayName } from '../utils/playerName'
 import { CLUB_NAME } from '../data/leagueTable'
+import { fmtLong } from '../utils/dateFormat'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
 import type { Match, Player } from '../types'
 
 type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
 
-/** Extracts HH:MM from an ISO string like '2026-04-07T20:30' — returns '' if no time present. */
-const extractTime = (iso: string): string => {
-  const t = iso.split('T')[1]
-  return t ? t.slice(0, 5) : ''
-}
-
-/**
- * "Tirsdag 7. april · 20:30"  (with time)
- * "Tirsdag 7. april"          (date-only)
- */
-const formatDate = (iso: string): string => {
-  const [datePart] = iso.split('T')
-  const [y, m, d] = datePart.split('-').map(Number)
-  const dateObj = new Date(y, m - 1, d)
-  const weekday  = dateObj.toLocaleDateString('da-DK', { weekday: 'long' })
-  const dayMonth = dateObj.toLocaleDateString('da-DK', { day: 'numeric', month: 'long' })
-  const cap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
-  const time = extractTime(iso)
-  return time ? `${cap} ${dayMonth} · ${time}` : `${cap} ${dayMonth}`
-}
 
 export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()
@@ -132,7 +113,7 @@ export default function MatchDetail() {
         <h2 className="text-xl font-black tracking-tight mb-0.5" style={{ color: 'var(--text-primary)' }}>
           {CLUB_NAME} vs. {match.opponent}
         </h2>
-        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(match.date)}</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{fmtLong(match.date)}</p>
 
         {/* ── Score display — football scoreboard ───────────── */}
         <div className="mt-6 flex items-center gap-2 px-1">
@@ -173,12 +154,12 @@ export default function MatchDetail() {
             ) : (
               /* ── Upcoming: show kickoff time ── */
               <>
-                {extractTime(match.date) ? (
+                {match.date.includes('T') ? (
                   <span
                     className="font-display text-5xl leading-none tabular-nums"
                     style={{ color: 'var(--text-primary)' }}
                   >
-                    {extractTime(match.date)}
+                    {match.date.split('T')[1]?.slice(0, 5)}
                   </span>
                 ) : (
                   <span className="text-3xl font-black leading-none" style={{ color: 'var(--text-dimmer)' }}>–</span>

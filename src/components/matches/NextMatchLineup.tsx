@@ -20,7 +20,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
-import { Clock, Radio } from 'lucide-react'
+import { Clock, Radio, ChevronRight } from 'lucide-react'
 import type { Match, Player, Position } from '../../types'
 import { getFormation } from '../../data/formations'
 import { chipLabel } from '../../utils/playerName'
@@ -413,12 +413,24 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
       )}
 
       {/* ── Tap hint ──────────────────────────────────────────────────── */}
-      <p
-        className="text-[11px] md:text-[13px] mt-3 md:mt-4"
-        style={{ color: 'var(--text-faint)' }}
+      <div
+        className="flex items-center justify-between mt-3 md:mt-4 pt-2.5"
+        style={{ borderTop: '1px solid var(--border-faint)' }}
       >
-        Tryk for at se kamp →
-      </p>
+        <span
+          className="text-[11px] md:text-[13px] font-semibold"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Se kampdetaljer
+        </span>
+        <span
+          className="inline-flex items-center gap-0.5 text-[11px] md:text-[13px] font-bold"
+          style={{ color: 'var(--accent)' }}
+        >
+          Se kamp
+          <ChevronRight size={14} strokeWidth={2.5} />
+        </span>
+      </div>
     </>
   )
 }

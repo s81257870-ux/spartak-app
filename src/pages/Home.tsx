@@ -154,10 +154,19 @@ export default function Home() {
             <SectionLabel>Næste kamp</SectionLabel>
             <button
               onClick={() => navigate(`/kampe/${upcomingMatches[0].id}`)}
-              className="w-full rounded-2xl p-4 md:p-6 text-left active:scale-[0.98] transition-transform relative overflow-hidden"
+              className="w-full rounded-2xl p-4 md:p-6 text-left active:scale-[0.97] transition-all duration-150 relative overflow-hidden cursor-pointer group"
               style={{
                 background: `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 60%)`,
                 border: '1px solid var(--accent-card-border)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 6px 24px rgba(149,197,233,0.14), 0 2px 8px rgba(0,0,0,0.15)'
+                e.currentTarget.style.borderColor = 'rgba(149,197,233,0.38)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.12)'
+                e.currentTarget.style.borderColor = 'var(--accent-card-border)'
               }}
             >
               <div

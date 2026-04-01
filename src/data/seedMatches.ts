@@ -48,7 +48,7 @@ export const SEED_MATCHES: Match[] = [
   },
   {
     id: 'sm4',
-    opponent: 'Oversidder',
+    opponent: 'Jægersborg 4',
     date: '2026-04-21T20:30',
     location: 'Ryparken Idrætsanlæg',
     scoreUs: 0,

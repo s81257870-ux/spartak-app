@@ -307,7 +307,7 @@ function MotmVoting({ matchId, match, players }: {
   }
 
   const [votes, setVotes] = useState<Record<string, string>>(loadVotes)
-  const myId = localStorage.getItem('spartak_player_id') ?? ''
+  const myId = localStorage.getItem('spartak_my_player_id') ?? ''
 
   const myVote      = votes[myId] ?? ''
   const hasVoted    = !!myVote

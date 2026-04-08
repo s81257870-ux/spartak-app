@@ -85,3 +85,27 @@ ALTER TABLE matches ADD COLUMN IF NOT EXISTS signed_up uuid[] NOT NULL DEFAULT '
 
 -- 9. Track which signed-up players are in the starting lineup
 ALTER TABLE matches ADD COLUMN IF NOT EXISTS starters uuid[] NOT NULL DEFAULT '{}';
+
+-- ============================================================
+-- Migration 5 — Bødekasse (fine system)
+-- ============================================================
+
+-- 10. Create fines table (previously only stored in localStorage)
+CREATE TABLE IF NOT EXISTS fines (
+  id           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  player_id    uuid        NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  fine_type_id text        NOT NULL,
+  label        text        NOT NULL,
+  amount       integer     NOT NULL CHECK (amount >= 0),
+  date         date        NOT NULL,
+  note         text,
+  paid         boolean     NOT NULL DEFAULT false,
+  match_id     uuid        REFERENCES matches(id) ON DELETE SET NULL,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS fines_player_idx ON fines(player_id);
+CREATE INDEX IF NOT EXISTS fines_date_idx   ON fines(date DESC);
+
+-- 11. Enable Realtime for fines
+ALTER PUBLICATION supabase_realtime ADD TABLE fines;

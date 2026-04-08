@@ -5,7 +5,7 @@
  */
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from './supabase'
-import type { Match, MatchEvent, Player, Position, Training, TrainingGuest } from '../types'
+import type { Fine, Match, MatchEvent, Player, Position, Training, TrainingGuest } from '../types'
 import { DEFAULT_FORMATION } from '../data/formations'
 
 // ── Raw DB row shapes ─────────────────────────────────────────────────────────
@@ -541,4 +541,110 @@ export async function updateTrainingGuests(
     .update({ guests })
     .eq('id', trainingId)
   if (error) throw error
+}
+
+// ── Fines ─────────────────────────────────────────────────────────────────────
+
+interface DbFine {
+  id: string
+  player_id: string
+  fine_type_id: string
+  label: string
+  amount: number
+  date: string
+  note: string | null
+  paid: boolean
+  match_id: string | null
+  created_at: string
+}
+
+function mapFine(row: DbFine): Fine {
+  return {
+    id:          row.id,
+    playerId:    row.player_id,
+    fineTypeId:  row.fine_type_id,
+    label:       row.label,
+    amount:      row.amount,
+    date:        row.date,
+    note:        row.note ?? undefined,
+    paid:        row.paid,
+    matchId:     row.match_id ?? undefined,
+  }
+}
+
+export async function fetchFines(): Promise<Fine[]> {
+  const { data, error } = await supabase
+    .from('fines')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data as DbFine[]).map(mapFine)
+}
+
+export async function insertFine(fine: Omit<Fine, 'id'>): Promise<Fine> {
+  const { data, error } = await supabase
+    .from('fines')
+    .insert({
+      player_id:    fine.playerId,
+      fine_type_id: fine.fineTypeId,
+      label:        fine.label,
+      amount:       fine.amount,
+      date:         fine.date,
+      note:         fine.note ?? null,
+      paid:         fine.paid,
+      match_id:     fine.matchId ?? null,
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return mapFine(data as DbFine)
+}
+
+export async function insertFines(fines: Omit<Fine, 'id'>[]): Promise<Fine[]> {
+  if (fines.length === 0) return []
+  const { data, error } = await supabase
+    .from('fines')
+    .insert(
+      fines.map((f) => ({
+        player_id:    f.playerId,
+        fine_type_id: f.fineTypeId,
+        label:        f.label,
+        amount:       f.amount,
+        date:         f.date,
+        note:         f.note ?? null,
+        paid:         f.paid,
+        match_id:     f.matchId ?? null,
+      }))
+    )
+    .select()
+  if (error) throw error
+  return (data as DbFine[]).map(mapFine)
+}
+
+export async function patchFine(id: string, paid: boolean): Promise<void> {
+  const { error } = await supabase.from('fines').update({ paid }).eq('id', id)
+  if (error) throw error
+}
+
+export async function removeFine(id: string): Promise<void> {
+  const { error } = await supabase.from('fines').delete().eq('id', id)
+  if (error) throw error
+}
+
+/** Realtime subscription — refetches full list on any change to the fines table. */
+export function subscribeFines(onUpdate: (fines: Fine[]) => void): RealtimeChannel {
+  return supabase
+    .channel('fines-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'fines' },
+      async () => {
+        const { data } = await supabase
+          .from('fines')
+          .select('*')
+          .order('created_at', { ascending: false })
+        if (data) onUpdate((data as DbFine[]).map(mapFine))
+      }
+    )
+    .subscribe()
 }

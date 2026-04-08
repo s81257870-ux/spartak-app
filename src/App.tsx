@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { usePlayerStore } from './store/playerStore'
 import { useMatchStore } from './store/matchStore'
 import { useTrainingStore } from './store/trainingStore'
+import { useFineStore } from './store/fineStore'
 import { useThemeStore } from './store/themeStore'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
@@ -20,20 +21,22 @@ function AppContent() {
   const initPlayers   = usePlayerStore((s) => s.init)
   const initMatches   = useMatchStore((s) => s.init)
   const initTrainings = useTrainingStore((s) => s.init)
+  const initFines     = useFineStore((s) => s.init)
   const initTheme     = useThemeStore((s) => s.init)
 
   useEffect(() => {
     async function boot() {
       // Players and matches can load in parallel.
       // Trainings must wait for matches so we can exclude match-day dates.
-      await Promise.all([initPlayers(), initMatches()])
+      // Fines are independent and can load alongside everything else.
+      await Promise.all([initPlayers(), initMatches(), initFines()])
       const matchDates = new Set(
         useMatchStore.getState().matches.map((m) => m.date.slice(0, 10)),
       )
       await initTrainings(matchDates)
     }
     boot().catch(console.error)
-  }, [initPlayers, initMatches, initTrainings])
+  }, [initPlayers, initMatches, initTrainings, initFines])
 
   useEffect(() => {
     const cleanup = initTheme()

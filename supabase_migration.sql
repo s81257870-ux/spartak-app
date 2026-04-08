@@ -1,6 +1,7 @@
 -- ============================================================
 -- Spartak App — Supabase Migration
--- Run this entire script in the Supabase SQL Editor
+-- This file is IDEMPOTENT — safe to re-run at any time.
+-- Each section only applies changes that don't already exist.
 -- ============================================================
 
 -- 1. Add position column to players
@@ -55,10 +56,16 @@ CREATE INDEX IF NOT EXISTS lineup_slots_match_idx ON lineup_slots(match_id);
 -- 4. Add assist column to events table
 ALTER TABLE events ADD COLUMN IF NOT EXISTS assist_player_id uuid REFERENCES players(id) ON DELETE SET NULL;
 
--- 5. Enable Realtime for the three tables
-ALTER PUBLICATION supabase_realtime ADD TABLE lineup_slots;
-ALTER PUBLICATION supabase_realtime ADD TABLE events;
-ALTER PUBLICATION supabase_realtime ADD TABLE matches;
+-- 5. Enable Realtime for the three tables (safe to re-run)
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE lineup_slots;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE events;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE matches;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ============================================================
 -- Migration 2 — Live score from events
@@ -107,5 +114,11 @@ CREATE TABLE IF NOT EXISTS fines (
 CREATE INDEX IF NOT EXISTS fines_player_idx ON fines(player_id);
 CREATE INDEX IF NOT EXISTS fines_date_idx   ON fines(date DESC);
 
--- 11. Enable Realtime for fines
-ALTER PUBLICATION supabase_realtime ADD TABLE fines;
+-- 11. Enable RLS + Realtime for fines
+ALTER TABLE fines ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  CREATE POLICY "Public read/write" ON fines FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE fines;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

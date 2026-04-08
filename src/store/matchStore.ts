@@ -55,6 +55,7 @@ interface MatchStore {
   deleteMatch: (id: string) => void
   getMatch: (id: string) => Match | undefined
   completeMatch: (id: string) => void
+  reopenMatch: (id: string) => void
   setFormation: (matchId: string, formation: string) => void
 
   // Events
@@ -146,6 +147,7 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
   getMatch: (id) => get().matches.find((m) => m.id === id),
 
   completeMatch: (id) => get().updateMatch(id, { isCompleted: true }),
+  reopenMatch:   (id) => get().updateMatch(id, { isCompleted: false }),
 
   setFormation: (matchId, formation) => {
     set((s) => ({

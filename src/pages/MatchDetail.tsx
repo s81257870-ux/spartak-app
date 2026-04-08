@@ -24,6 +24,7 @@ export default function MatchDetail() {
   const navigate = useNavigate()
   const match = useMatchStore((s) => s.matches.find((m) => m.id === id))
   const completeMatch = useMatchStore((s) => s.completeMatch)
+  const reopenMatch   = useMatchStore((s) => s.reopenMatch)
   const setManOfTheMatch = useMatchStore((s) => s.setManOfTheMatch)
   const players = usePlayerStore((s) => s.players)
 
@@ -87,6 +88,19 @@ export default function MatchDetail() {
               }}
             >
               Afslut kamp
+            </button>
+          )}
+          {isAdmin && match.isCompleted && (
+            <button
+              onClick={() => reopenMatch(match.id)}
+              className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform"
+              style={{
+                background: 'rgba(239,68,68,0.12)',
+                color: '#ef4444',
+                border: '1px solid rgba(239,68,68,0.30)',
+              }}
+            >
+              Genåbn kamp
             </button>
           )}
           {resultLabel && (

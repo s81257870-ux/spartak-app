@@ -28,6 +28,7 @@ import { CLUB_NAME } from '../../data/leagueTable'
 import { useMatchStore } from '../../store/matchStore'
 import { isMatchLive, isMatchCompleted, getTimeUntilKickoff } from '../../utils/matchTime'
 import { fmtShortWithTime } from '../../utils/dateFormat'
+import { groupGoalScorers } from '../../utils/matchEvents'
 
 interface Props {
   match: Match
@@ -267,6 +268,24 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
               </span>
             )}
           </div>
+
+          {/* ── Live scorer summary ───────────────────────────────── */}
+          {live && !completed && match.events.filter((e) => e.type === 'goal' && e.team === 'us').length > 0 && (
+            <div className="mt-2 space-y-0.5">
+              {groupGoalScorers(match.events, allPlayers).map((s) => (
+                <p key={s.name} className="text-[11px] leading-snug">
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {s.name}{s.count > 1 && ` (${s.count})`}
+                  </span>
+                  {s.assists.length > 0 && (
+                    <span style={{ color: 'var(--text-muted)' }}>
+                      {' · '}Assist: {s.assists.join(', ')}
+                    </span>
+                  )}
+                </p>
+              ))}
+            </div>
+          )}
 
         </div>
 

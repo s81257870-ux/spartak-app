@@ -271,8 +271,9 @@ export default function EventsTab({ matchId }: Props) {
                             </p>
                           )}
                           {event.type === 'goal' && !isOpponentGoal && event.assistId && (
-                            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                              Assist: {getPlayerName(event.assistId)}
+                            <p className="text-xs mt-1 font-medium" style={{ color: 'var(--text-secondary)' }}>
+                              <span style={{ color: 'var(--text-muted)' }}>Assist: </span>
+                              {getPlayerName(event.assistId)}
                             </p>
                           )}
                         </div>

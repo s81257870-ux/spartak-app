@@ -13,6 +13,7 @@ import { displayName } from '../utils/playerName'
 import { CLUB_NAME } from '../data/leagueTable'
 import { fmtLong } from '../utils/dateFormat'
 import { useRealtimeMatch } from '../hooks/useRealtimeMatch'
+import { isMatchLive } from '../utils/matchTime'
 import type { Match, Player } from '../types'
 
 type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
@@ -150,6 +151,35 @@ export default function MatchDetail() {
                   </span>
                 </div>
                 <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>Afsluttet</p>
+              </>
+            ) : isMatchLive(match) ? (
+              /* ── Live: show current score with LIVE label ── */
+              <>
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="font-display text-6xl leading-none tabular-nums"
+                    style={{ color: '#4ade80' }}
+                  >
+                    {match.scoreUs}
+                  </span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
+                  <span
+                    className="font-display text-6xl leading-none tabular-nums"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {match.scoreThem}
+                  </span>
+                </div>
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full mt-1 animate-pulse"
+                  style={{
+                    background: 'rgba(239,68,68,0.15)',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239,68,68,0.30)',
+                  }}
+                >
+                  LIVE
+                </span>
               </>
             ) : (
               /* ── Upcoming: show kickoff time ── */

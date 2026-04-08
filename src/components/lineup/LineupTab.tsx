@@ -11,7 +11,6 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
 import { X, Users } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
@@ -59,12 +58,12 @@ function PlayerChip({
 }
 
 function DraggableChip({ player, allPlayers }: { player: Player; allPlayers: Player[] }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: player.id })
-  const style = transform
-    ? { transform: CSS.Translate.toString(transform), zIndex: 50, position: 'relative' as const }
-    : undefined
+  // Do NOT apply transform here — DragOverlay renders the floating clone.
+  // Applying transform to the original breaks hit-testing and creates a
+  // second visual element fighting the overlay.
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: player.id })
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes} className="touch-none">
+    <div ref={setNodeRef} {...listeners} {...attributes} className="touch-none">
       <PlayerChip player={player} allPlayers={allPlayers} isDragging={isDragging} />
     </div>
   )

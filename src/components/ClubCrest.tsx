@@ -62,8 +62,6 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
         style={{
           width:  size,
           height: size,
-          // TEMPORARY: logo reveal pending — remove the blur/opacity line below when ready
-          filter: 'blur(6px) opacity(0.45) drop-shadow(0 2px 8px rgba(0,0,0,0.35))',
         }}
         onError={(e) => {
           e.currentTarget.style.display = 'none'

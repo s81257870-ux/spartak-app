@@ -10,8 +10,10 @@ import {
   useDraggable,
   type DragEndEvent,
   type DragStartEvent,
+  type Modifier,
 } from '@dnd-kit/core'
-import { X, Users } from 'lucide-react'
+import { getEventCoordinates } from '@dnd-kit/utilities'
+import { X } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { useAuthStore } from '../../store/authStore'
@@ -19,6 +21,20 @@ import type { Position, Player } from '../../types'
 import { displayName, chipLabel } from '../../utils/playerName'
 import { ChevronDown } from 'lucide-react'
 import { FORMATIONS, FORMATION_CATEGORIES, DEFAULT_FORMATION, getFormation } from '../../data/formations'
+
+// Snap the DragOverlay center to the cursor/finger grab point
+const snapCenterToCursor: Modifier = ({ activatorEvent, draggingNodeRect, transform }) => {
+  if (draggingNodeRect && activatorEvent) {
+    const coords = getEventCoordinates(activatorEvent)
+    if (!coords) return transform
+    return {
+      ...transform,
+      x: transform.x + coords.x - (draggingNodeRect.left + draggingNodeRect.width / 2),
+      y: transform.y + coords.y - (draggingNodeRect.top + draggingNodeRect.height / 2),
+    }
+  }
+  return transform
+}
 
 interface Props {
   matchId: string
@@ -89,7 +105,7 @@ function PitchSlot({
   const { setNodeRef, isOver } = useDroppable({ id: `slot:${position}` })
 
   return (
-    <div ref={setNodeRef} className="flex items-center justify-center">
+    <div ref={setNodeRef} className="w-full h-full flex items-center justify-center">
       {player ? (
         <div className="relative">
           <DraggableChip player={player} allPlayers={allPlayers} />
@@ -117,8 +133,6 @@ function PitchSlot({
 }
 
 // ─── Droppable bench ──────────────────────────────────────────────────────────
-// Bench = attendance players not currently on the pitch.
-// No remove button here — cancelling attendance is done in the Tilmelding tab.
 
 function BenchZone({
   players,
@@ -172,19 +186,21 @@ export default function LineupTab({ matchId }: Props) {
 
   if (!match) return null
 
-  // ── Source of truth: only attendance players are available ─────────────────
+  // Only attendance players are available for the lineup
   const attendanceIds     = new Set(match.attendance ?? [])
   const attendancePlayers = allPlayers.filter((p) => attendanceIds.has(p.id))
 
-  // Starter IDs — only those still in attendance (guards against stale IDs)
+  // Starter IDs — attendance players placed on the pitch
   const starterIds = new Set(
     Object.values(match.lineup).filter((pid) => attendanceIds.has(pid))
   )
 
-  // Bench = attendance players not currently on the pitch
-  const benchPlayers = attendancePlayers.filter((p) => !starterIds.has(p.id))
+  // Bench = attendance players not currently on the pitch, sorted by name
+  const benchPlayers = [...attendancePlayers]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .filter((p) => !starterIds.has(p.id))
 
-  // Resolve a pitch slot: return undefined if player left attendance (stale)
+  // Resolve a pitch slot (only valid if player is still in attendance)
   const getPlayerInSlot = (pos: Position): Player | undefined => {
     const pid = match.lineup[pos]
     if (!pid || !attendanceIds.has(pid)) return undefined
@@ -208,11 +224,9 @@ export default function LineupTab({ matchId }: Props) {
     const playerId = active.id as string
     const target   = over.id as string
 
-    // Only allow moves for attendance players
     if (!attendanceIds.has(playerId)) return
 
     if (target === 'bench') {
-      // Remove from pitch — player returns to derived bench
       moveToBench(matchId, playerId)
     } else if (target.startsWith('slot:')) {
       const position = target.replace('slot:', '') as Position
@@ -237,7 +251,6 @@ export default function LineupTab({ matchId }: Props) {
   if (attendancePlayers.length === 0) {
     return (
       <div className="text-center py-12 text-slate-500">
-        <Users size={32} className="mx-auto mb-3 opacity-20" />
         <p className="text-sm font-medium">Ingen tilmeldte spillere endnu</p>
         <p className="text-xs mt-1 text-slate-600">Spillere vises her når de tilmelder sig under "Tilmelding"</p>
       </div>
@@ -247,7 +260,7 @@ export default function LineupTab({ matchId }: Props) {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} modifiers={[snapCenterToCursor]} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 
       {/* ── Formation selector ─────────────────────────────────── */}
       {isAdmin ? (
@@ -372,7 +385,7 @@ export default function LineupTab({ matchId }: Props) {
         </div>
       </div>
 
-      {/* ── Bench (derived: attendance − pitch) ───────────────── */}
+      {/* ── Bench: tilmeldte spillere ikke på banen ───────────── */}
       <div className="mb-2">
         <BenchZone
           players={benchPlayers}

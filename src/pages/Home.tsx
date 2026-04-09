@@ -502,12 +502,12 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function NextTrainingCard({ training }: { training: Training }) {
-  const navigate   = useNavigate()
-  const players    = usePlayerStore((s) => s.players)
-  const signUp     = useTrainingStore((s) => s.signUp)
+  const players      = usePlayerStore((s) => s.players)
+  const signUp       = useTrainingStore((s) => s.signUp)
   const cancelSignUp = useTrainingStore((s) => s.cancelSignUp)
 
-  const [myPlayerId] = useState<string>(() => localStorage.getItem('spartak_my_player_id') ?? '')
+  const [myPlayerId, setMyPlayerId] = useState<string>(() => localStorage.getItem('spartak_my_player_id') ?? '')
+  const [showPicker, setShowPicker] = useState(false)
 
   const attendance = training.attendance ?? []
   const total      = attendance.length
@@ -525,9 +525,16 @@ function NextTrainingCard({ training }: { training: Training }) {
   const avatarIds  = attendance.slice(0, AVATAR_MAX)
   const overflow   = attendance.length - AVATAR_MAX
 
+  const selectAndSignUp = (pid: string) => {
+    setMyPlayerId(pid)
+    localStorage.setItem('spartak_my_player_id', pid)
+    setShowPicker(false)
+    signUp(training.id, pid)
+  }
+
   const handleSignUp = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!myPlayerId) { navigate('/træninger'); return }
+    if (!myPlayerId) { setShowPicker(true); return }
     if (isSignedUp) cancelSignUp(training.id, myPlayerId)
     else signUp(training.id, myPlayerId)
   }
@@ -580,50 +587,80 @@ function NextTrainingCard({ training }: { training: Training }) {
         </p>
       </div>
 
-      {/* Social row + CTA */}
-      <button
-        onClick={handleSignUp}
-        className="w-full flex items-center gap-2.5 px-4 py-3 active:opacity-75 transition-opacity"
-        style={{ borderTop: '1px solid var(--border-faint)', background: isSignedUp ? 'rgba(74,222,128,0.06)' : undefined }}
-      >
-        {/* Avatars */}
-        {attendance.length > 0 && (
-          <div className="flex -space-x-1.5 shrink-0">
-            {avatarIds.map((id) => {
-              const p = players.find((pl) => pl.id === id)
-              return p ? (
-                <div key={id} className="w-7 h-7 rounded-full overflow-hidden shrink-0"
-                     style={{ outline: '2px solid var(--bg-card)' }}>
-                  <PlayerAvatar name={p.name} size="sm" />
-                </div>
-              ) : null
-            })}
-            {overflow > 0 && (
-              <div className="w-7 h-7 rounded-full ring-2 flex items-center justify-center text-[9px] font-bold shrink-0"
-                   style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
-                +{overflow}
-              </div>
-            )}
+      {/* Inline player picker */}
+      {showPicker && (
+        <div className="px-4 pb-3" style={{ borderTop: '1px solid var(--border-faint)' }}>
+          <p className="text-xs font-semibold mt-3 mb-2" style={{ color: 'var(--text-secondary)' }}>
+            Hvem er du?
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {[...players].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
+              <button
+                key={p.id}
+                onClick={() => selectAndSignUp(p.id)}
+                className="px-3 py-1.5 rounded-full text-xs font-semibold active:scale-95 transition-transform"
+                style={{ background: 'var(--bg-raised)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+              >
+                {p.name.split(' ')[0]}
+              </button>
+            ))}
           </div>
-        )}
+          <button
+            onClick={() => setShowPicker(false)}
+            className="mt-2 text-[11px]"
+            style={{ color: 'var(--text-faint)' }}
+          >
+            Annuller
+          </button>
+        </div>
+      )}
 
-        <p className="flex-1 text-xs text-left truncate" style={{ color: 'var(--text-secondary)' }}>
-          {attendance.length === 0
-            ? 'Vær den første til at tilmelde dig'
-            : buildSocialLabel(attendance, players, myPlayerId)}
-        </p>
+      {/* Social row + CTA */}
+      {!showPicker && (
+        <button
+          onClick={handleSignUp}
+          className="w-full flex items-center gap-2.5 px-4 py-3 active:opacity-75 transition-opacity"
+          style={{ borderTop: '1px solid var(--border-faint)', background: isSignedUp ? 'rgba(74,222,128,0.06)' : undefined }}
+        >
+          {/* Avatars */}
+          {attendance.length > 0 && (
+            <div className="flex -space-x-1.5 shrink-0">
+              {avatarIds.map((id) => {
+                const p = players.find((pl) => pl.id === id)
+                return p ? (
+                  <div key={id} className="w-7 h-7 rounded-full overflow-hidden shrink-0"
+                       style={{ outline: '2px solid var(--bg-card)' }}>
+                    <PlayerAvatar name={p.name} size="sm" />
+                  </div>
+                ) : null
+              })}
+              {overflow > 0 && (
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                     style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                  +{overflow}
+                </div>
+              )}
+            </div>
+          )}
 
-        {isSignedUp ? (
-          <span className="flex items-center gap-1 text-[11px] font-bold shrink-0" style={{ color: '#4ade80' }}>
-            <CheckCircle2 size={13} /> Tilmeldt
-          </span>
-        ) : (
-          <span className="text-[11px] font-bold shrink-0 px-2.5 py-1 rounded-full"
-                style={{ background: 'var(--cta-bg)', color: 'var(--cta-color)' }}>
-            Tilmeld mig
-          </span>
-        )}
-      </button>
+          <p className="flex-1 text-xs text-left truncate" style={{ color: 'var(--text-secondary)' }}>
+            {attendance.length === 0
+              ? 'Vær den første til at tilmelde dig'
+              : buildSocialLabel(attendance, players, myPlayerId)}
+          </p>
+
+          {isSignedUp ? (
+            <span className="flex items-center gap-1 text-[11px] font-bold shrink-0" style={{ color: '#4ade80' }}>
+              <CheckCircle2 size={13} /> Tilmeldt
+            </span>
+          ) : (
+            <span className="text-[11px] font-bold shrink-0 px-2.5 py-1 rounded-full"
+                  style={{ background: 'var(--cta-bg)', color: 'var(--cta-color)' }}>
+              Tilmeld mig
+            </span>
+          )}
+        </button>
+      )}
     </div>
   )
 }

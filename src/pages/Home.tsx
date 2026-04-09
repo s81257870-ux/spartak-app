@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, Calendar, Sun, Moon } from 'lucide-react'
+import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, Calendar, Sun, Moon, MapPin, Clock } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
+import { useTrainingStore } from '../store/trainingStore'
 import LeagueTable from '../components/stats/LeagueTable'
 import { LEAGUE_TABLE, LEAGUE_NAME, CLUB_NAME, SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
@@ -11,6 +12,8 @@ import LoginModal from '../components/auth/LoginModal'
 import { useThemeStore } from '../store/themeStore'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
 import ClubCrest from '../components/ClubCrest'
+import { isOversidder } from '../utils/matchTime'
+import type { Training } from '../types'
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -28,10 +31,26 @@ export default function Home() {
   const [tableOpen, setTableOpen]   = useState(false)
   const [showLogin, setShowLogin]   = useState(false)
 
+  const trainings        = useTrainingStore((s) => s.trainings)
+
   const completedMatches = matches.filter((m) => m.isCompleted)
-  const upcomingMatches  = matches.filter((m) => !m.isCompleted)
-  const recentMatches    = completedMatches.slice(0, 3)
-  const formMatches      = completedMatches.slice(0, 5)
+  // Real upcoming matches: not completed, not Oversidder
+  const upcomingMatches  = matches.filter((m) => !m.isCompleted && !isOversidder(m))
+  const recentMatches    = completedMatches.filter((m) => !isOversidder(m)).slice(0, 3)
+  const formMatches      = completedMatches.filter((m) => !isOversidder(m)).slice(0, 5)
+
+  // Next activity: real match wins unless first upcoming is after the next training
+  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
+  const nextRealMatch = upcomingMatches.find((m) => m.date.slice(0, 10) >= today) ?? upcomingMatches[0] ?? null
+  const nextTraining  = [...trainings]
+    .filter((t) => !t.cancelled && t.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
+
+  // Show training card only when there's no real upcoming match,
+  // OR the next real match is after the next training
+  const showTrainingCard =
+    !nextRealMatch ||
+    (nextTraining !== null && nextTraining.date < nextRealMatch.date.slice(0, 10))
 
   const wins       = completedMatches.filter((m) => m.scoreUs > m.scoreThem).length
   const draws      = completedMatches.filter((m) => m.scoreUs === m.scoreThem).length
@@ -148,12 +167,12 @@ export default function Home() {
           </div>
         )}
 
-        {/* ── Next match ────────────────────────────────────── */}
-        {upcomingMatches.length > 0 && (
+        {/* ── Next activity: real match OR training ─────────── */}
+        {!showTrainingCard && nextRealMatch && (
           <div>
             <SectionLabel>Næste kamp</SectionLabel>
             <button
-              onClick={() => navigate(`/kampe/${upcomingMatches[0].id}`)}
+              onClick={() => navigate(`/kampe/${nextRealMatch.id}`)}
               className="w-full rounded-2xl p-4 md:p-6 text-left active:scale-[0.97] transition-all duration-150 relative overflow-hidden cursor-pointer group"
               style={{
                 background: `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 60%)`,
@@ -174,9 +193,16 @@ export default function Home() {
                 style={{ background: 'var(--accent-stripe)' }}
               />
               <div className="pl-3">
-                <NextMatchLineup match={upcomingMatches[0]} allPlayers={players} />
+                <NextMatchLineup match={nextRealMatch} allPlayers={players} />
               </div>
             </button>
+          </div>
+        )}
+
+        {showTrainingCard && nextTraining && (
+          <div>
+            <SectionLabel>Næste træning</SectionLabel>
+            <NextTrainingCard training={nextTraining} />
           </div>
         )}
 
@@ -425,6 +451,59 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
        style={{ color: 'var(--text-muted)' }}>
       {children}
     </p>
+  )
+}
+
+function NextTrainingCard({ training }: { training: Training }) {
+  const navigate = useNavigate()
+  const dateLabel = new Date(training.date + 'T12:00:00').toLocaleDateString('da-DK', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  })
+
+  return (
+    <button
+      onClick={() => navigate('/træninger')}
+      className="w-full rounded-2xl p-4 text-left active:scale-[0.97] transition-all duration-150 relative overflow-hidden"
+      style={{
+        background: `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 60%)`,
+        border: '1px solid var(--accent-card-border)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 6px 24px rgba(149,197,233,0.14), 0 2px 8px rgba(0,0,0,0.15)'
+        e.currentTarget.style.borderColor = 'rgba(149,197,233,0.38)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.12)'
+        e.currentTarget.style.borderColor = 'var(--accent-card-border)'
+      }}
+    >
+      <div
+        className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
+        style={{ background: 'var(--accent-stripe)' }}
+      />
+      <div className="pl-3">
+        <p className="font-bold text-base capitalize" style={{ color: 'var(--text-primary)' }}>
+          {dateLabel}
+        </p>
+        <div className="flex items-center gap-4 mt-2">
+          <span className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <Clock size={13} strokeWidth={2} />
+            {training.time}
+          </span>
+          <span className="flex items-center gap-1.5 text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
+            <MapPin size={13} strokeWidth={2} />
+            {training.location}
+          </span>
+        </div>
+        <div className="flex items-center justify-between mt-3 pt-2.5" style={{ borderTop: '1px solid var(--border-faint)' }}>
+          <span className="text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>Tilmeld dig træningen</span>
+          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold" style={{ color: 'var(--accent)' }}>
+            Se træning <ChevronRight size={14} strokeWidth={2.5} />
+          </span>
+        </div>
+      </div>
+    </button>
   )
 }
 

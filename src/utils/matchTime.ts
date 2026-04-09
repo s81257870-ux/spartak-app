@@ -155,3 +155,12 @@ export function isMatchCompleted(match: Match): boolean {
   const endOfMatch = kickoffPlusMinutes(match, 110)
   return now > endOfMatch
 }
+
+/**
+ * Returns true if the match is a bye week ("Oversidder").
+ * Oversidder matches are not real matches — they should be excluded
+ * from sign-up, stats, home screen next-match display, etc.
+ */
+export function isOversidder(match: Match): boolean {
+  return match.opponent.trim().toLowerCase() === 'oversidder'
+}

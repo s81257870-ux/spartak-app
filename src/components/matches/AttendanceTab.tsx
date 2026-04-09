@@ -3,6 +3,7 @@ import { UserCheck, CheckCircle2 } from 'lucide-react'
 import { useMatchStore } from '../../store/matchStore'
 import { usePlayerStore } from '../../store/playerStore'
 import PlayerAvatar from '../players/PlayerAvatar'
+import { isOversidder } from '../../utils/matchTime'
 import { displayName } from '../../utils/playerName'
 
 const MY_PLAYER_KEY = 'spartak_my_player_id'
@@ -23,6 +24,16 @@ export default function AttendanceTab({ matchId }: Props) {
   const [showPicker, setShowPicker] = useState<boolean>(myPlayerId === '')
 
   if (!match) return null
+
+  if (isOversidder(match)) {
+    return (
+      <div className="text-center py-12" style={{ color: 'var(--text-faint)' }}>
+        <p className="text-2xl mb-2">😴</p>
+        <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Friuge</p>
+        <p className="text-sm mt-1">Ingen kamp denne uge — vi har Oversidder.</p>
+      </div>
+    )
+  }
 
   const attendance = match.attendance ?? []
   const myPlayer   = players.find((p) => p.id === myPlayerId) ?? null

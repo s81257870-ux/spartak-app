@@ -49,25 +49,25 @@ export default function Boedekasse() {
   const getPlayer = (id: string) => players.find((p) => p.id === id)
 
   // ── Derived totals ───────────────────────────────────────────────────
-  const unpaidFines   = fines.filter((f) => !f.paid)
-  const totalUnpaid   = unpaidFines.reduce((sum, f) => sum + f.amount, 0)
-  const unpaidCount   = unpaidFines.length
+  const totalAll      = fines.reduce((sum, f) => sum + f.amount, 0)
+  const unpaidCount   = fines.filter((f) => !f.paid).length
 
-  // Per-player unpaid totals — only players with at least one fine
+  // Per-player totals — total accumulated (paid + unpaid), unpaid amount separately
   const playerTotals = useMemo(() => {
-    const map = new Map<string, { total: number; count: number; unpaid: number }>()
+    const map = new Map<string, { total: number; count: number; unpaid: number; unpaidAmt: number }>()
     for (const f of fines) {
-      const existing = map.get(f.playerId) ?? { total: 0, count: 0, unpaid: 0 }
+      const existing = map.get(f.playerId) ?? { total: 0, count: 0, unpaid: 0, unpaidAmt: 0 }
       map.set(f.playerId, {
-        total:  existing.total  + (f.paid ? 0 : f.amount),
-        count:  existing.count  + 1,
-        unpaid: existing.unpaid + (f.paid ? 0 : 1),
+        total:     existing.total     + f.amount,
+        count:     existing.count     + 1,
+        unpaid:    existing.unpaid    + (f.paid ? 0 : 1),
+        unpaidAmt: existing.unpaidAmt + (f.paid ? 0 : f.amount),
       })
     }
     return map
   }, [fines])
 
-  // Player who owes the most (unpaid)
+  // Player with most total fines
   const topDebtor = useMemo(() => {
     let max = 0
     let pid = ''
@@ -78,7 +78,7 @@ export default function Boedekasse() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerTotals])
 
-  // Sorted player list by unpaid amount desc
+  // Sorted player list by total accumulated desc
   const sortedPlayers = useMemo(() => {
     return [...playerTotals.entries()]
       .map(([pid, stats]) => ({ player: getPlayer(pid), ...stats, pid }))
@@ -134,14 +134,14 @@ export default function Boedekasse() {
             Overblik
           </p>
           <div className="grid grid-cols-3 gap-2">
-            {/* Total unpaid */}
+            {/* Total all-time */}
             <div className="text-center">
               <p className="text-2xl font-black leading-none mb-1" style={{ color: 'var(--amount-color)' }}>
-                {totalUnpaid}
+                {totalAll}
                 <span className="text-sm font-semibold"> kr</span>
               </p>
               <p className="text-[10px] font-medium" style={{ color: 'var(--text-faint)' }}>
-                Samlet skyldig
+                Samlet i sæsonen
               </p>
             </div>
             {/* Unpaid count */}
@@ -215,10 +215,10 @@ export default function Boedekasse() {
                 sub="Ingen spillere skylder noget — så langt!"
               />
             ) : (
-              sortedPlayers.map(({ pid, player, total, count, unpaid }, index) => {
+              sortedPlayers.map(({ pid, player, total, count, unpaid, unpaidAmt }, index) => {
                 const rank = index + 1
                 const rs = RANK_STYLE[rank]
-                const personality = getPersonality(rank, total, count)
+                const personality = getPersonality(rank, unpaidAmt, count)
                 return (
                 <div
                   key={pid}
@@ -261,9 +261,9 @@ export default function Boedekasse() {
                         <span
                           className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
                           style={{
-                            background: total === 0 ? 'rgba(74,222,128,0.10)' : (rs?.bg ?? 'var(--bg-raised)'),
-                            color: total === 0 ? '#4ade80' : (rs?.color ?? 'var(--text-faint)'),
-                            border: `1px solid ${total === 0 ? 'rgba(74,222,128,0.20)' : (rs?.border ?? 'transparent')}`,
+                            background: unpaidAmt === 0 ? 'rgba(74,222,128,0.10)' : (rs?.bg ?? 'var(--bg-raised)'),
+                            color: unpaidAmt === 0 ? '#4ade80' : (rs?.color ?? 'var(--text-faint)'),
+                            border: `1px solid ${unpaidAmt === 0 ? 'rgba(74,222,128,0.20)' : (rs?.border ?? 'transparent')}`,
                           }}
                         >
                           {personality}
@@ -274,14 +274,15 @@ export default function Boedekasse() {
 
                   {/* Amount */}
                   <div className="text-right shrink-0">
-                    <p
-                      className="font-black text-base leading-none"
-                      style={{ color: total > 0 ? 'var(--amount-color)' : '#4ade80' }}
-                    >
-                      {total > 0 ? `${total} kr` : '0 kr'}
+                    <p className="font-black text-base leading-none" style={{ color: 'var(--amount-color)' }}>
+                      {total} kr
                     </p>
                     <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
-                      {total > 0 ? 'skyldig' : 'betalt'}
+                      {unpaidAmt > 0 ? (
+                        <span style={{ color: '#f87171' }}>{unpaidAmt} kr skyldig</span>
+                      ) : (
+                        <span style={{ color: '#4ade80' }}>alt betalt</span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -289,7 +290,7 @@ export default function Boedekasse() {
             )}
 
             {/* Trophy for clean slate */}
-            {sortedPlayers.length > 0 && totalUnpaid === 0 && (
+            {sortedPlayers.length > 0 && unpaidCount === 0 && (
               <div className="flex items-center gap-2 justify-center py-2">
                 <Trophy size={14} style={{ color: '#4ade80' }} />
                 <p className="text-xs" style={{ color: 'var(--text-faint)' }}>

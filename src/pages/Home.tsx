@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, Calendar, Sun, Moon, MapPin, Clock } from 'lucide-react'
+import { Plus, ChevronRight, ChevronDown, Lock, LogOut, Flame, Share2, Trophy, Calendar, Sun, Moon, MapPin, Clock, CheckCircle2 } from 'lucide-react'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
@@ -12,8 +12,58 @@ import LoginModal from '../components/auth/LoginModal'
 import { useThemeStore } from '../store/themeStore'
 import NextMatchLineup from '../components/matches/NextMatchLineup'
 import ClubCrest from '../components/ClubCrest'
+import PlayerAvatar from '../components/players/PlayerAvatar'
 import { isOversidder } from '../utils/matchTime'
-import type { Training } from '../types'
+import type { Player, Training } from '../types'
+
+// ── Training card helpers (mirrors Trainings.tsx) ─────────────────────────────
+
+const THRESHOLD = 10
+
+type AttState = 'low' | 'lowmedium' | 'medium' | 'high' | 'full'
+function attState(n: number): AttState {
+  if (n >= THRESHOLD) return 'full'
+  if (n >= 8) return 'high'
+  if (n >= 6) return 'medium'
+  if (n >= 4) return 'lowmedium'
+  return 'low'
+}
+const STATE_COLOR: Record<AttState, string> = {
+  low: '#f87171', lowmedium: '#fb923c', medium: '#fbbf24', high: '#a3e635', full: '#4ade80',
+}
+const STATE_LABEL: Record<AttState, string> = {
+  low: 'Er I døde eller hvad?', lowmedium: 'Slet ikke nok...', medium: 'Det begynder at ligne noget',
+  high: 'SÅ TÆT', full: 'Holdet er samlet',
+}
+function getMicrocopy(total: number, isSignedUp: boolean): string {
+  const needed = THRESHOLD - total
+  if (total >= THRESHOLD) return isSignedUp ? 'Du er med. Så er der træning!' : 'Så er der træning!'
+  if (isSignedUp) {
+    if (needed === 1) return 'Vi mangler én mere – ring til nogen!'
+    if (total >= 6)   return `${needed} mere så spiller vi!`
+    return `Godkendt – men ${needed} mangler stadig`
+  }
+  if (total === 0) return 'Nogen der gider møde op?'
+  if (needed === 1) return '1 mere så spiller vi – det er dig!'
+  if (total >= 6)   return `${needed} mere. Vi er næsten der.`
+  return 'Meld dig ind og red træningen'
+}
+function buildSocialLabel(attendance: string[], players: Player[], myId: string): string {
+  if (attendance.length === 0) return ''
+  const sorted = [...attendance].sort((a) => (a === myId ? -1 : 1))
+  const first = (id: string) => players.find((p) => p.id === id)?.name.split(' ')[0] ?? 'Ukendt'
+  const n = sorted.length
+  if (n === 1) return `${first(sorted[0])} tilmeldt`
+  if (n === 2) return `${first(sorted[0])} og ${first(sorted[1])} tilmeldt`
+  if (n === 3) return `${first(sorted[0])}, ${first(sorted[1])} og ${first(sorted[2])} tilmeldt`
+  return `${first(sorted[0])}, ${first(sorted[1])} og ${n - 2} andre tilmeldt`
+}
+function daysUntil(dateStr: string): number {
+  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
+  const [ty, tm, td] = today.split('-').map(Number)
+  const [gy, gm, gd] = dateStr.split('-').map(Number)
+  return Math.round((Date.UTC(gy, gm - 1, gd) - Date.UTC(ty, tm - 1, td)) / 86_400_000)
+}
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -200,10 +250,7 @@ export default function Home() {
         )}
 
         {showTrainingCard && nextTraining && (
-          <div>
-            <SectionLabel>Næste træning</SectionLabel>
-            <NextTrainingCard training={nextTraining} />
-          </div>
+          <NextTrainingCard training={nextTraining} />
         )}
 
         {/* ── Form strip ────────────────────────────────────── */}
@@ -455,55 +502,129 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function NextTrainingCard({ training }: { training: Training }) {
-  const navigate = useNavigate()
+  const navigate   = useNavigate()
+  const players    = usePlayerStore((s) => s.players)
+  const signUp     = useTrainingStore((s) => s.signUp)
+  const cancelSignUp = useTrainingStore((s) => s.cancelSignUp)
+
+  const [myPlayerId] = useState<string>(() => localStorage.getItem('spartak_my_player_id') ?? '')
+
+  const attendance = training.attendance ?? []
+  const total      = attendance.length
+  const isSignedUp = myPlayerId !== '' && attendance.includes(myPlayerId)
+  const state      = attState(total)
+  const color      = STATE_COLOR[state]
+  const pct        = Math.min(100, Math.round((total / THRESHOLD) * 100))
+  const days       = daysUntil(training.date)
+
   const dateLabel = new Date(training.date + 'T12:00:00').toLocaleDateString('da-DK', {
     weekday: 'long', day: 'numeric', month: 'long',
   })
 
+  const AVATAR_MAX = 5
+  const avatarIds  = attendance.slice(0, AVATAR_MAX)
+  const overflow   = attendance.length - AVATAR_MAX
+
+  const handleSignUp = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!myPlayerId) { navigate('/træninger'); return }
+    if (isSignedUp) cancelSignUp(training.id, myPlayerId)
+    else signUp(training.id, myPlayerId)
+  }
+
   return (
-    <button
-      onClick={() => navigate('/træninger')}
-      className="w-full rounded-2xl p-4 text-left active:scale-[0.97] transition-all duration-150 relative overflow-hidden"
-      style={{
-        background: `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 60%)`,
-        border: '1px solid var(--accent-card-border)',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 6px 24px rgba(149,197,233,0.14), 0 2px 8px rgba(0,0,0,0.15)'
-        e.currentTarget.style.borderColor = 'rgba(149,197,233,0.38)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.12)'
-        e.currentTarget.style.borderColor = 'var(--accent-card-border)'
-      }}
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--accent-card-border)', boxShadow: '0 2px 12px rgba(0,0,0,0.12)' }}
     >
-      <div
-        className="absolute top-0 left-0 w-1 h-full rounded-l-2xl"
-        style={{ background: 'var(--accent-stripe)' }}
-      />
-      <div className="pl-3">
-        <p className="font-bold text-base capitalize" style={{ color: 'var(--text-primary)' }}>
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3">
+        <div className="flex items-start justify-between mb-1">
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(149,197,233,0.12)', color: 'var(--accent)' }}>
+            Næste træning
+          </span>
+          {days >= 0 && (
+            <span className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--text-faint)' }}>
+              <Clock size={10} />
+              Svarfrist om {days} {days === 1 ? 'dag' : 'dage'}
+            </span>
+          )}
+        </div>
+        <p className="font-bold text-lg capitalize mt-2" style={{ color: 'var(--text-primary)' }}>
           {dateLabel}
         </p>
-        <div className="flex items-center gap-4 mt-2">
-          <span className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-            <Clock size={13} strokeWidth={2} />
-            {training.time}
+        <div className="flex items-center gap-4 mt-1">
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            <Clock size={11} strokeWidth={2} />{training.time}
           </span>
-          <span className="flex items-center gap-1.5 text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
-            <MapPin size={13} strokeWidth={2} />
-            {training.location}
-          </span>
-        </div>
-        <div className="flex items-center justify-between mt-3 pt-2.5" style={{ borderTop: '1px solid var(--border-faint)' }}>
-          <span className="text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>Tilmeld dig træningen</span>
-          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold" style={{ color: 'var(--accent)' }}>
-            Se træning <ChevronRight size={14} strokeWidth={2.5} />
+          <span className="flex items-center gap-1.5 text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
+            <MapPin size={11} strokeWidth={2} />{training.location}
           </span>
         </div>
       </div>
-    </button>
+
+      {/* Attendance bar */}
+      <div className="mx-4 mb-3 rounded-xl px-3 py-2.5" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-faint)' }}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold" style={{ color }}>{STATE_LABEL[state]}</span>
+          <span className="text-xs font-bold tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+            {total} / {THRESHOLD}
+          </span>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-input)' }}>
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
+        </div>
+        <p className="text-[11px] mt-1.5" style={{ color: 'var(--text-faint)' }}>
+          {getMicrocopy(total, isSignedUp)}
+        </p>
+      </div>
+
+      {/* Social row + CTA */}
+      <button
+        onClick={handleSignUp}
+        className="w-full flex items-center gap-2.5 px-4 py-3 active:opacity-75 transition-opacity"
+        style={{ borderTop: '1px solid var(--border-faint)', background: isSignedUp ? 'rgba(74,222,128,0.06)' : undefined }}
+      >
+        {/* Avatars */}
+        {attendance.length > 0 && (
+          <div className="flex -space-x-1.5 shrink-0">
+            {avatarIds.map((id) => {
+              const p = players.find((pl) => pl.id === id)
+              return p ? (
+                <div key={id} className="w-7 h-7 rounded-full overflow-hidden shrink-0"
+                     style={{ outline: '2px solid var(--bg-card)' }}>
+                  <PlayerAvatar name={p.name} size="sm" />
+                </div>
+              ) : null
+            })}
+            {overflow > 0 && (
+              <div className="w-7 h-7 rounded-full ring-2 flex items-center justify-center text-[9px] font-bold shrink-0"
+                   style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                +{overflow}
+              </div>
+            )}
+          </div>
+        )}
+
+        <p className="flex-1 text-xs text-left truncate" style={{ color: 'var(--text-secondary)' }}>
+          {attendance.length === 0
+            ? 'Vær den første til at tilmelde dig'
+            : buildSocialLabel(attendance, players, myPlayerId)}
+        </p>
+
+        {isSignedUp ? (
+          <span className="flex items-center gap-1 text-[11px] font-bold shrink-0" style={{ color: '#4ade80' }}>
+            <CheckCircle2 size={13} /> Tilmeldt
+          </span>
+        ) : (
+          <span className="text-[11px] font-bold shrink-0 px-2.5 py-1 rounded-full"
+                style={{ background: 'var(--cta-bg)', color: 'var(--cta-color)' }}>
+            Tilmeld mig
+          </span>
+        )}
+      </button>
+    </div>
   )
 }
 

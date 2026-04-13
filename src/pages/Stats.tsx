@@ -166,7 +166,7 @@ export default function Stats() {
                     onKeyDown={(e) => e.key === 'Enter' && navigate(`/spillere/${player.id}`)}
                     className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-3.5 items-center active:opacity-70"
                     style={{
-                      background:  isFirst ? 'rgba(149,197,233,0.04)' : undefined,
+                      background:  isFirst ? 'rgba(229,62,62,0.04)' : undefined,
                       borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
                       cursor:      'pointer',
                       transition:  'opacity 120ms ease',
@@ -274,7 +274,7 @@ function SummaryCard({
       <p
         className="font-display text-3xl leading-none mb-1"
         style={accent
-          ? { color: 'var(--accent)', textShadow: '0 0 20px rgba(149,197,233,0.30)' }
+          ? { color: 'var(--accent)', textShadow: '0 0 20px rgba(229,62,62,0.30)' }
           : { color: 'var(--text-primary)' }}
       >
         {value}
@@ -319,7 +319,7 @@ function TopCard({
         <div className="flex items-baseline gap-1">
           <span
             className="font-display text-3xl leading-none"
-            style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.30)' }}
+            style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(229,62,62,0.30)' }}
           >
             {value}
           </span>

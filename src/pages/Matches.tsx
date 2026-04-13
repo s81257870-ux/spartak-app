@@ -103,12 +103,12 @@ export default function Matches() {
                     background: live && !completed
                       ? `linear-gradient(135deg, rgba(239,68,68,0.08) 0%, var(--bg-card) 65%)`
                       : isNext
-                        ? `linear-gradient(135deg, rgba(149,197,233,0.10) 0%, var(--bg-card) 65%)`
+                        ? `linear-gradient(135deg, rgba(229,62,62,0.10) 0%, var(--bg-card) 65%)`
                         : `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 70%)`,
                     border: live && !completed
                       ? '1px solid rgba(239,68,68,0.25)'
                       : isNext
-                        ? '1px solid rgba(149,197,233,0.28)'
+                        ? '1px solid rgba(229,62,62,0.28)'
                         : '1px solid var(--accent-card-border)',
                   }}
                 >
@@ -164,7 +164,7 @@ export default function Matches() {
                     ) : isNext ? (
                       <span
                         className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shrink-0"
-                        style={{ background: 'var(--accent)', color: '#0b1220' }}
+                        style={{ background: 'var(--accent)', color: '#ffffff' }}
                       >
                         Næste
                       </span>

@@ -153,7 +153,7 @@ export default function Players() {
                       className="font-semibold"
                       style={{
                         color: stats.goals > 0 ? 'var(--accent)' : 'var(--text-muted)',
-                        textShadow: stats.goals > 0 ? '0 0 10px rgba(149,197,233,0.30)' : 'none',
+                        textShadow: stats.goals > 0 ? '0 0 10px rgba(229,62,62,0.30)' : 'none',
                       }}
                     >
                       {stats.goals} mål

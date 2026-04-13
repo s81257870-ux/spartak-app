@@ -12,18 +12,18 @@ const initials = (name: string) =>
     .join('')
     .toUpperCase()
 
-// Single-hue palette — all steel-blue derived from the accent color.
+// Single-hue palette — all red derived from the brand accent color.
 // Eight distinct shades to avoid consecutive players looking identical,
 // while keeping the overall list visually cohesive.
 const PALETTE: { bg: string; color: string }[] = [
-  { bg: 'rgba(149,197,233,0.18)', color: '#95C5E9' },
-  { bg: 'rgba(116,174,215,0.20)', color: '#74AED7' },
-  { bg: 'rgba(86,148,195,0.18)',  color: '#5694C3' },
-  { bg: 'rgba(60,120,172,0.22)',  color: '#8DC0E8' },
-  { bg: 'rgba(149,197,233,0.12)', color: '#AACCEC' },
-  { bg: 'rgba(96,163,210,0.20)',  color: '#60A3D2' },
-  { bg: 'rgba(130,185,228,0.16)', color: '#82B9E4' },
-  { bg: 'rgba(70,135,185,0.22)',  color: '#A3CBEB' },
+  { bg: 'rgba(229,62,62,0.18)',  color: '#E53E3E' },
+  { bg: 'rgba(197,48,48,0.20)',  color: '#C53030' },
+  { bg: 'rgba(252,129,129,0.16)', color: '#FC8181' },
+  { bg: 'rgba(229,62,62,0.12)',  color: '#FEB2B2' },
+  { bg: 'rgba(185,28,28,0.22)',  color: '#F87171' },
+  { bg: 'rgba(239,68,68,0.15)',  color: '#EF4444' },
+  { bg: 'rgba(220,38,38,0.18)',  color: '#DC2626' },
+  { bg: 'rgba(252,165,165,0.15)', color: '#FCA5A5' },
 ]
 
 const paletteFor = (name: string) =>

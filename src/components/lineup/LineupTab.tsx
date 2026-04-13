@@ -61,7 +61,7 @@ function PlayerChip({
         className="w-9 h-9 rounded-full border-2 flex items-center justify-center font-bold text-white text-[10px] shadow"
         style={{
           background: 'linear-gradient(135deg, #1e4a2e, #16361f)',
-          borderColor: 'rgba(149,197,233,0.60)',
+          borderColor: 'rgba(229,62,62,0.60)',
         }}
       >
         {avatarText}
@@ -297,8 +297,8 @@ export default function LineupTab({ matchId }: Props) {
       {/* ── Formation change confirmation ─────────────────────── */}
       {confirmFormation && (
         <div className="rounded-2xl p-4 mb-3 text-sm"
-             style={{ background: 'rgba(149,197,233,0.06)', border: '1px solid rgba(149,197,233,0.20)' }}>
-          <p className="font-medium mb-3" style={{ color: '#95C5E9' }}>
+             style={{ background: 'rgba(229,62,62,0.06)', border: '1px solid rgba(229,62,62,0.20)' }}>
+          <p className="font-medium mb-3" style={{ color: '#E53E3E' }}>
             Skift til <strong>{confirmFormation}</strong>? Placeringerne på banen nulstilles — tilmeldte spillere beholder deres plads på bænken.
           </p>
           <div className="flex gap-2">

@@ -230,8 +230,8 @@ export default function Home() {
                 boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 6px 24px rgba(149,197,233,0.14), 0 2px 8px rgba(0,0,0,0.15)'
-                e.currentTarget.style.borderColor = 'rgba(149,197,233,0.38)'
+                e.currentTarget.style.boxShadow = '0 6px 24px rgba(229,62,62,0.14), 0 2px 8px rgba(0,0,0,0.15)'
+                e.currentTarget.style.borderColor = 'rgba(229,62,62,0.38)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.12)'
@@ -331,7 +331,7 @@ export default function Home() {
               </div>
               <p
                 className="font-display text-4xl leading-none"
-                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.35)' }}
+                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(229,62,62,0.35)' }}
               >
                 {topScorer?.goals ?? 0}
                 <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)', fontFamily: 'inherit' }}>mål</span>
@@ -365,7 +365,7 @@ export default function Home() {
               </div>
               <p
                 className="font-display text-4xl leading-none"
-                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.35)' }}
+                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(229,62,62,0.35)' }}
               >
                 {topAssister?.assists ?? 0}
                 <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)', fontFamily: 'inherit' }}>ast</span>
@@ -548,7 +548,7 @@ function NextTrainingCard({ training }: { training: Training }) {
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-start justify-between mb-1">
           <span className="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(149,197,233,0.12)', color: 'var(--accent)' }}>
+                style={{ background: 'rgba(229,62,62,0.12)', color: 'var(--accent)' }}>
             Næste træning
           </span>
           {days >= 0 && (

@@ -101,29 +101,31 @@ export default function MobilePaySheet({ amount, fineCount, onClose, onMarkAllPa
             </button>
           </div>
 
-          {/* ── Amount hero ────────────────────────────────────────────── */}
-          <div
-            className="rounded-2xl py-5 text-center"
-            style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-faint)' }}
-          >
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-2"
-               style={{ color: 'var(--text-faint)' }}>
-              Du skylder
-            </p>
-            <p className="font-black leading-none"
-               style={{ fontSize: 52, color: 'var(--amount-color)', lineHeight: 1 }}>
-              {amount}
-              <span
-                className="font-semibold ml-2"
-                style={{ fontSize: 22, color: 'var(--text-muted)' }}
-              >
-                kr
-              </span>
-            </p>
-            <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>
-              {fineCount} ubetalt{fineCount !== 1 ? 'e' : ''} bøde{fineCount !== 1 ? 'r' : ''}
-            </p>
-          </div>
+          {/* ── Amount hero — only when there's actual debt ─────────── */}
+          {amount > 0 && (
+            <div
+              className="rounded-2xl py-5 text-center"
+              style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-faint)' }}
+            >
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] mb-2"
+                 style={{ color: 'var(--text-faint)' }}>
+                Du skylder
+              </p>
+              <p className="font-black leading-none"
+                 style={{ fontSize: 52, color: 'var(--amount-color)', lineHeight: 1 }}>
+                {amount}
+                <span
+                  className="font-semibold ml-2"
+                  style={{ fontSize: 22, color: 'var(--text-muted)' }}
+                >
+                  kr
+                </span>
+              </p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>
+                {fineCount} ubetalt{fineCount !== 1 ? 'e' : ''} bøde{fineCount !== 1 ? 'r' : ''}
+              </p>
+            </div>
+          )}
 
           {/* ── MobilePay box card ─────────────────────────────────────── */}
           <div
@@ -206,21 +208,23 @@ export default function MobilePaySheet({ amount, fineCount, onClose, onMarkAllPa
             <ArrowUpRight size={18} strokeWidth={2.5} />
           </button>
 
-          {/* ── Mark as paid ───────────────────────────────────────────── */}
-          <button
-            onClick={handleConfirmPaid}
-            className="w-full py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 active:opacity-70 transition-all"
-            style={{
-              background: confirming ? 'rgba(74,222,128,0.10)' : 'var(--bg-raised)',
-              color:      confirming ? '#4ade80' : 'var(--text-muted)',
-              border:     `1px solid ${confirming ? 'rgba(74,222,128,0.25)' : 'var(--border)'}`,
-              transition: 'background 300ms, color 300ms, border-color 300ms',
-            }}
-          >
-            {confirming
-              ? <><Check size={15} /> Markeret som betalt!</>
-              : 'Jeg har betalt — marker som betalt'}
-          </button>
+          {/* ── Mark as paid — only when there's debt to clear ────────── */}
+          {amount > 0 && (
+            <button
+              onClick={handleConfirmPaid}
+              className="w-full py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 active:opacity-70 transition-all"
+              style={{
+                background: confirming ? 'rgba(74,222,128,0.10)' : 'var(--bg-raised)',
+                color:      confirming ? '#4ade80' : 'var(--text-muted)',
+                border:     `1px solid ${confirming ? 'rgba(74,222,128,0.25)' : 'var(--border)'}`,
+                transition: 'background 300ms, color 300ms, border-color 300ms',
+              }}
+            >
+              {confirming
+                ? <><Check size={15} /> Markeret som betalt!</>
+                : 'Jeg har betalt — marker som betalt'}
+            </button>
+          )}
 
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, CheckCircle2, Circle, Trash2, Trophy, History, Check, Smartphone } from 'lucide-react'
+import { Plus, Circle, Trash2, Trophy, History, Check, CheckCircle2, Smartphone } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useFineStore } from '../store/fineStore'
 import { usePlayerStore } from '../store/playerStore'
@@ -208,66 +208,53 @@ export default function Boedekasse() {
           </div>
         </div>
 
-        {/* ── My debt / MobilePay card ────────────────────────────── */}
-        {myPlayerId && myUnpaidAmount > 0 && (
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{
-              background: 'rgba(91,79,232,0.07)',
-              border:     '1px solid rgba(91,79,232,0.20)',
-            }}
-          >
-            <div className="flex items-center justify-between gap-3 px-4 py-3.5">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.10em] mb-0.5"
-                   style={{ color: 'rgba(91,79,232,0.55)' }}>
-                  {myPlayer ? myPlayer.name.split(' ')[0] : 'Du'} skylder
+        {/* ── MobilePay payment card — always visible ──────────────── */}
+        <div
+          className="rounded-2xl"
+          style={{
+            background: 'rgba(91,79,232,0.07)',
+            border:     '1px solid rgba(91,79,232,0.20)',
+          }}
+        >
+          <div className="flex items-center justify-between gap-3 px-4 py-4">
+            {/* Left: box info + optional personal debt */}
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.10em] mb-1"
+                 style={{ color: 'rgba(91,79,232,0.55)' }}>
+                MobilePay Boks
+              </p>
+              <p className="font-black text-2xl leading-none tracking-widest"
+                 style={{ color: MP, letterSpacing: '0.08em' }}>
+                {MOBILEPAY_BOX_ID}
+              </p>
+              {myPlayerId && myUnpaidAmount > 0 ? (
+                <p className="text-xs mt-1.5 font-semibold"
+                   style={{ color: 'var(--color-danger)' }}>
+                  {myPlayer ? myPlayer.name.split(' ')[0] : 'Du'} skylder{' '}
+                  <span className="font-black">{myUnpaidAmount} kr</span>
                 </p>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-black text-2xl leading-none"
-                        style={{ color: 'var(--amount-color)' }}>
-                    {myUnpaidAmount}
-                  </span>
-                  <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>kr</span>
-                  <span className="text-xs ml-1" style={{ color: 'var(--text-faint)' }}>
-                    · {myUnpaidFines.length} bøde{myUnpaidFines.length !== 1 ? 'r' : ''}
-                  </span>
-                </div>
-                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(91,79,232,0.50)' }}>
-                  Boks {MOBILEPAY_BOX_ID}
+              ) : (
+                <p className="text-xs mt-1.5" style={{ color: 'rgba(91,79,232,0.45)' }}>
+                  Spartak Ciervo bødekassen
                 </p>
-              </div>
-              <button
-                onClick={() => setShowPaySheet(true)}
-                className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm active:scale-95 transition-transform"
-                style={{
-                  background: `linear-gradient(135deg, ${MP} 0%, #7B6FE8 100%)`,
-                  color:      '#fff',
-                  boxShadow:  '0 4px 16px rgba(91,79,232,0.35)',
-                }}
-              >
-                <Smartphone size={15} />
-                Betal
-              </button>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* ── All-clear state ─────────────────────────────────────── */}
-        {myPlayerId && myUnpaidAmount === 0 && fines.some((f) => f.playerId === myPlayerId) && (
-          <div
-            className="rounded-2xl px-4 py-3 flex items-center gap-3"
-            style={{
-              background: 'rgba(74,222,128,0.06)',
-              border:     '1px solid rgba(74,222,128,0.18)',
-            }}
-          >
-            <CheckCircle2 size={16} style={{ color: '#4ade80', flexShrink: 0 }} />
-            <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>
-              {myPlayer ? myPlayer.name.split(' ')[0] : 'Du'} har ingen udestående bøder
-            </p>
+            {/* Right: Betal CTA */}
+            <button
+              onClick={() => setShowPaySheet(true)}
+              className="shrink-0 flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-sm active:scale-95 transition-transform"
+              style={{
+                background: `linear-gradient(135deg, ${MP} 0%, #7B6FE8 100%)`,
+                color:      '#fff',
+                boxShadow:  '0 4px 16px rgba(91,79,232,0.32)',
+              }}
+            >
+              <Smartphone size={15} />
+              Betal
+            </button>
           </div>
-        )}
+        </div>
 
         {/* ── Tabs ────────────────────────────────────────────────── */}
         <div

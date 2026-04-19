@@ -9,6 +9,7 @@ import { displayName } from '../utils/playerName'
 import type { Player } from '../types'
 import { SEASON_LABEL, LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
+import { isOversidder } from '../utils/matchTime'
 
 type SortKey = 'goals' | 'assists' | 'matchesPlayed' | 'yellowCards' | 'redCards'
 
@@ -27,7 +28,7 @@ export default function Stats() {
   const getPlayerStats = useMatchStore((s) => s.getPlayerStats)
   const [sortBy, setSortBy] = useState<SortKey>('goals')
 
-  const completedMatches = matches.filter((m) => m.isCompleted)
+  const completedMatches = matches.filter((m) => m.isCompleted && !isOversidder(m))
   const totalGoals = completedMatches.reduce((sum, m) => sum + m.scoreUs, 0)
   const wins = completedMatches.filter((m) => m.scoreUs > m.scoreThem).length
   const winRate = completedMatches.length > 0

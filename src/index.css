@@ -9,7 +9,7 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    Theme tokens — dark mode (default)
-   Palette: deep black surfaces · #E53E3E red accent · off-white text
+   Palette: deep black surfaces · #DC2626 red accent · off-white text
    ═══════════════════════════════════════════════════════════════════ */
 :root {
   /* surfaces — deep black hierarchy */
@@ -20,74 +20,107 @@
   --bg-nav:      #0c0c0c;   /* nav — bottom nav                      */
 
   /* borders — subtle red tint */
-  --border:        rgba(229, 62, 62, 0.10);
-  --border-faint:  rgba(229, 62, 62, 0.06);
-  --border-input:  rgba(229, 62, 62, 0.15);
+  --border:        rgba(220, 38, 38, 0.10);
+  --border-faint:  rgba(220, 38, 38, 0.06);
+  --border-input:  rgba(220, 38, 38, 0.15);
 
   /* text — off-white hierarchy */
   --text-primary:    #f0f0f0;   /* bright off-white                  */
   --text-secondary:  #a0a0a0;   /* medium gray                       */
-  --text-muted:      #666666;   /* muted gray                        */
-  --text-faint:      #444444;   /* faint gray                        */
-  --text-dimmer:     #2a2a2a;   /* barely-there                      */
+  --text-muted:      #767676;   /* 4.5:1 on #111 — exactly AA        */
+  --text-faint:      #5a5a5a;   /* 3.1:1 — decorative/non-essential  */
+  --text-dimmer:     #333333;   /* barely-there                      */
 
   /* accent-tinted card surfaces */
-  --accent-card-tint:   rgba(229, 62, 62, 0.07);
-  --accent-card-border: rgba(229, 62, 62, 0.18);
+  --accent-card-tint:   rgba(220, 38, 38, 0.07);
+  --accent-card-border: rgba(220, 38, 38, 0.18);
 
   /* theme toggle active pill */
-  --toggle-active-bg:     #E53E3E;
+  --toggle-active-bg:     #DC2626;
   --toggle-active-color:  #ffffff;
-  --toggle-active-shadow: rgba(229, 62, 62, 0.30);
-  --toggle-track-bg:      rgba(229, 62, 62, 0.12);
+  --toggle-active-shadow: rgba(220, 38, 38, 0.30);
+  --toggle-track-bg:      rgba(220, 38, 38, 0.12);
 
-  /* ── Brand accent system (dark = #E53E3E red) ────────────────── */
+  /* ── Accent usage rules ─────────────────────────────────────────
+     Full-saturation accent (#DC2626) is ONLY for:
+       • CTA buttons (--cta-bg)
+       • Active nav tab indicator (--nav-active-color, --nav-active-indicator)
+       • Tappable badges and interactive labels (--badge-accent-text)
+       • Focused/active tab pills (--tab-active-bg)
+
+     Low-opacity accent is for DECORATIVE / AMBIENT use:
+       • Card borders (--border, --accent-card-border)
+       • Hero glow (--hero-glow)
+       • Icon box backgrounds (--icon-accent-bg)
+       • Badge backgrounds (--badge-accent-bg)
+
+     Status reds (loss, error, danger) use --color-loss / --color-danger, NOT --accent.
+     Large stat numbers use --text-primary — context makes meaning clear without accent.
+     ────────────────────────────────────────────────────────────── */
+
+  /* ── Brand accent system (unified #DC2626 red, both modes) ──── */
 
   /* Primary accent — used for text highlights, icons */
-  --accent:              #E53E3E;
+  --accent:              #DC2626;
 
   /* CTA / admin action buttons */
-  --cta-bg:              linear-gradient(135deg, #C53030 0%, #E53E3E 100%);
+  --cta-bg:              linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
   --cta-color:           #ffffff;
-  --cta-shadow:          rgba(229, 62, 62, 0.35);
+  --cta-shadow:          rgba(220, 38, 38, 0.35);
 
   /* Left border stripe on upcoming match cards */
-  --accent-stripe:       linear-gradient(180deg, #E53E3E, #FC8181);
+  --accent-stripe:       linear-gradient(180deg, #DC2626, #F87171);
 
   /* Bottom nav active tab */
-  --nav-active-color:     #E53E3E;
-  --nav-active-indicator: linear-gradient(90deg, #E53E3E, #FC8181);
+  --nav-active-color:     #DC2626;
+  --nav-active-indicator: linear-gradient(90deg, #DC2626, #F87171);
 
   /* Date/time text in the next-match card */
-  --nm-date-color:       rgba(229, 62, 62, 0.90);
+  --nm-date-color:       rgba(220, 38, 38, 0.90);
 
   /* Player dot on mini pitch */
-  --dot-border:          rgba(229, 62, 62, 0.85);
-  --dot-glow:            rgba(229, 62, 62, 0.22);
+  --dot-border:          rgba(220, 38, 38, 0.85);
+  --dot-glow:            rgba(220, 38, 38, 0.22);
 
   /* Status / "Kommende" / admin badge chips */
-  --badge-accent-bg:     rgba(229, 62, 62, 0.10);
-  --badge-accent-text:   #E53E3E;
-  --badge-accent-border: rgba(229, 62, 62, 0.28);
+  --badge-accent-bg:     rgba(220, 38, 38, 0.10);
+  --badge-accent-text:   #DC2626;
+  --badge-accent-border: rgba(220, 38, 38, 0.28);
 
   /* Hero section decorative radial glow */
-  --hero-glow:           rgba(229, 62, 62, 0.06);
+  --hero-glow:           rgba(220, 38, 38, 0.06);
 
   /* Section header pill-bar + eyebrow label */
-  --section-bar-bg:      linear-gradient(to bottom, #E53E3E, #FC8181);
-  --section-label-color: rgba(229, 62, 62, 0.80);
+  --section-bar-bg:      linear-gradient(to bottom, #DC2626, #F87171);
+  --section-label-color: rgba(220, 38, 38, 0.80);
 
   /* Icon background in modals / lock */
-  --icon-accent-bg:      rgba(229, 62, 62, 0.12);
+  --icon-accent-bg:      rgba(220, 38, 38, 0.12);
 
-  /* Amount / financial highlight (unpaid fines, top scorer) */
-  --amount-color:        #E53E3E;
-  --amount-avatar-bg:    linear-gradient(135deg, rgba(229,62,62,0.18), rgba(252,129,129,0.10));
+  /* Amount / financial highlight */
+  --amount-color:        #DC2626;
+  --amount-avatar-bg:    linear-gradient(135deg, rgba(220,38,38,0.18), rgba(248,113,113,0.10));
 
   /* Tab / segmented pill active state */
-  --tab-active-bg:       #E53E3E;
+  --tab-active-bg:       #DC2626;
   --tab-active-color:    #ffffff;
-  --tab-active-shadow:   rgba(229, 62, 62, 0.30);
+  --tab-active-shadow:   rgba(220, 38, 38, 0.30);
+
+  /* Toggle active pill */
+  --toggle-active-bg:     #DC2626;
+  --toggle-active-shadow: rgba(220, 38, 38, 0.30);
+  --toggle-track-bg:      rgba(220, 38, 38, 0.12);
+
+  /* Semantic status colors — do NOT use raw palette/brand red for these */
+  --color-win:      #4ade80;   /* match result: win                   */
+  --color-draw:     #facc15;   /* match result: draw                  */
+  --color-loss:     #fc8a4a;   /* match result: loss — orange-red, away from brand red */
+  --color-goal:     #4ade80;
+  --color-card-y:   #fbbf24;   /* yellow card                         */
+  --color-card-r:   #fc8a4a;   /* red card — same shift, not brand red */
+  --color-success:  #4ade80;   /* positive: signed up, paid, full     */
+  --color-warning:  #fbbf24;   /* caution state                       */
+  --color-danger:   #fc8a4a;   /* negative state                      */
 
   /* misc */
   --shadow-modal: rgba(0, 0, 0, 0.75);
@@ -106,31 +139,32 @@
   --bg-input:    #e8e8e8;
   --bg-nav:      #f9f9f9;
 
-  /* borders */
-  --border:        rgba(0, 0, 0, 0.09);
-  --border-faint:  rgba(0, 0, 0, 0.05);
-  --border-input:  rgba(0, 0, 0, 0.13);
+  /* borders — red-tinted, matches dark mode brand character */
+  --border:        rgba(220, 38, 38, 0.10);
+  --border-faint:  rgba(220, 38, 38, 0.06);
+  --border-input:  rgba(220, 38, 38, 0.15);
+
+  /* card shadow — subtle depth in light mode */
+  --card-shadow:   0 1px 4px rgba(0, 0, 0, 0.06);
 
   /* text — dark hierarchy */
   --text-primary:    #111111;
   --text-secondary:  #4a4a4a;
-  --text-muted:      #7a7a7a;
-  --text-faint:      #9e9e9e;
-  --text-dimmer:     #c4c4c4;
+  --text-muted:      #6b6b6b;   /* 4.6:1 on #f9f9f9 — passes AA     */
+  --text-faint:      #909090;   /* 2.8:1 — decorative use only       */
+  --text-dimmer:     #bbbbbb;
 
   /* accent-tinted surfaces */
   --accent-card-tint:   rgba(220, 38, 38, 0.06);
   --accent-card-border: rgba(220, 38, 38, 0.16);
 
   /* toggle active pill */
-  --toggle-active-bg:     linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
+  --toggle-active-bg:     #DC2626;
   --toggle-active-color:  #ffffff;
   --toggle-active-shadow: rgba(220, 38, 38, 0.25);
   --toggle-track-bg:      rgba(220, 38, 38, 0.08);
 
-  /* ── Brand accent system (light = #DC2626 red) ───────────────── */
-
-  --accent:              #DC2626;
+  /* ── Brand accent system — inherits --accent: #DC2626 from :root */
 
   --cta-bg:              linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
   --cta-color:           #ffffff;
@@ -160,7 +194,7 @@
   --amount-color:        #B91C1C;
   --amount-avatar-bg:    linear-gradient(135deg, rgba(220,38,38,0.12), rgba(248,113,113,0.08));
 
-  --tab-active-bg:       linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
+  --tab-active-bg:       #DC2626;
   --tab-active-color:    #ffffff;
   --tab-active-shadow:   rgba(220, 38, 38, 0.22);
 
@@ -294,17 +328,17 @@ body {
 .active\:text-orange-400:active { color: var(--accent); }
 
 /* used by LineupTab confirmation dialog (dark default) */
-.bg-orange-900\/30  { background-color: rgba(229,62,62,0.08); }
+.bg-orange-900\/30  { background-color: rgba(220,38,38,0.08); }
 .text-orange-200    { color: #FC8181; }
 
 /* non-focus border variants */
-.border-orange-500\/40  { border-color: rgba(229,62,62,0.22); }
-.border-orange-500\/30  { border-color: rgba(229,62,62,0.16); }
-.border-orange-400\/50  { border-color: rgba(229,62,62,0.28); }
+.border-orange-500\/40  { border-color: rgba(220,38,38,0.22); }
+.border-orange-500\/30  { border-color: rgba(220,38,38,0.16); }
+.border-orange-400\/50  { border-color: rgba(220,38,38,0.28); }
 
 /* focus border variants */
-.focus\:border-orange-500\/40:focus { border-color: rgba(229,62,62,0.38); }
-.focus\:border-orange-500\/50:focus { border-color: rgba(229,62,62,0.44); }
+.focus\:border-orange-500\/40:focus { border-color: rgba(220,38,38,0.38); }
+.focus\:border-orange-500\/50:focus { border-color: rgba(220,38,38,0.44); }
 
 /* ═══════════════════════════════════════════════════════════════════
    Light-mode overrides for Tailwind utility classes

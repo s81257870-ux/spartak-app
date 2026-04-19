@@ -49,7 +49,7 @@ export default function MatchDetail() {
   const draw = match.isCompleted && match.scoreUs === match.scoreThem
   const lost = match.isCompleted && match.scoreUs < match.scoreThem
 
-  const resultColor = won ? '#4ade80' : draw ? '#facc15' : lost ? '#f87171' : undefined
+  const resultColor = won ? '#4ade80' : draw ? '#facc15' : lost ? 'var(--color-loss)' : undefined
   const resultLabel = won ? 'Sejr' : draw ? 'Uafgjort' : lost ? 'Nederlag' : null
 
   return (

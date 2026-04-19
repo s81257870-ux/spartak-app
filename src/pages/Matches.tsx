@@ -103,12 +103,12 @@ export default function Matches() {
                     background: live && !completed
                       ? `linear-gradient(135deg, rgba(239,68,68,0.08) 0%, var(--bg-card) 65%)`
                       : isNext
-                        ? `linear-gradient(135deg, rgba(229,62,62,0.10) 0%, var(--bg-card) 65%)`
+                        ? `linear-gradient(135deg, rgba(220,38,38,0.10) 0%, var(--bg-card) 65%)`
                         : `linear-gradient(135deg, var(--accent-card-tint) 0%, var(--bg-card) 70%)`,
                     border: live && !completed
                       ? '1px solid rgba(239,68,68,0.25)'
                       : isNext
-                        ? '1px solid rgba(229,62,62,0.28)'
+                        ? '1px solid rgba(220,38,38,0.28)'
                         : '1px solid var(--accent-card-border)',
                   }}
                 >
@@ -197,7 +197,7 @@ export default function Matches() {
                 const won  = match.scoreUs > match.scoreThem
                 const draw = match.scoreUs === match.scoreThem
                 const resultLabel = won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'
-                const resultColor = won ? '#4ade80' : draw ? '#facc15' : '#f87171'
+                const resultColor = won ? '#4ade80' : draw ? '#facc15' : 'var(--color-loss)'
                 const resultBg    = won ? 'rgba(74,222,128,0.10)' : draw ? 'rgba(250,204,21,0.10)' : 'rgba(248,113,113,0.10)'
 
                 return (

@@ -28,7 +28,7 @@ function attState(total: number): AttState {
 }
 
 const STATE_COLOR: Record<AttState, string> = {
-  low:       '#f87171',
+  low:       '#fc8a4a',
   lowmedium: '#fb923c',
   medium:    '#fbbf24',
   high:      '#a3e635',
@@ -250,9 +250,9 @@ export default function Trainings() {
               {/* Cancelled banner */}
               {training.cancelled && (
                 <div className="flex items-center gap-2 px-4 py-2"
-                     style={{ background: 'rgba(248,113,113,0.10)', borderBottom: '1px solid rgba(248,113,113,0.20)' }}>
-                  <Ban size={13} style={{ color: '#f87171' }} />
-                  <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
+                     style={{ background: 'rgba(252,138,74,0.10)', borderBottom: '1px solid rgba(248,113,113,0.20)' }}>
+                  <Ban size={13} style={{ color: 'var(--color-danger)' }} />
+                  <span className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--color-danger)' }}>
                     Aflyst
                   </span>
                 </div>
@@ -335,12 +335,12 @@ export default function Trainings() {
                         const isMe   = id === myPlayerId
                         return (
                           <div key={id} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
-                               style={{ background: isMe ? 'rgba(229,62,62,0.07)' : 'var(--bg-raised)' }}>
+                               style={{ background: isMe ? 'rgba(220,38,38,0.07)' : 'var(--bg-raised)' }}>
                             <PlayerAvatar name={name} size="sm" />
                             <span className="text-sm font-medium"
                                   style={{ color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}>
                               {name}
-                              {isMe && <span className="ml-1.5 text-xs font-normal" style={{ color: 'rgba(229,62,62,0.60)' }}>(dig)</span>}
+                              {isMe && <span className="ml-1.5 text-xs font-normal" style={{ color: 'rgba(220,38,38,0.60)' }}>(dig)</span>}
                             </span>
                           </div>
                         )
@@ -392,9 +392,9 @@ export default function Trainings() {
                        }}>
                     {isAflyst && (
                       <div className="flex items-center gap-2 px-4 py-2"
-                           style={{ background: 'rgba(248,113,113,0.10)', borderBottom: '1px solid rgba(248,113,113,0.15)' }}>
-                        <Ban size={12} style={{ color: '#f87171' }} />
-                        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
+                           style={{ background: 'rgba(252,138,74,0.10)', borderBottom: '1px solid rgba(248,113,113,0.15)' }}>
+                        <Ban size={12} style={{ color: 'var(--color-danger)' }} />
+                        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--color-danger)' }}>
                           {reason}
                         </span>
                       </div>
@@ -493,15 +493,15 @@ function NextTrainingCard({
         {/* Red banner */}
         <div className="flex items-center gap-2 px-4 py-2.5"
              style={{ background: 'rgba(248,113,113,0.14)', borderBottom: '1px solid rgba(248,113,113,0.22)' }}>
-          <Ban size={14} style={{ color: '#f87171' }} />
-          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#f87171' }}>
+          <Ban size={14} style={{ color: 'var(--color-danger)' }} />
+          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--color-danger)' }}>
             {reason}
           </span>
         </div>
         <div className="px-4 py-4">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-md"
-                  style={{ background: 'rgba(248,113,113,0.10)', color: '#f87171' }}>
+                  style={{ background: 'rgba(252,138,74,0.10)', color: 'var(--color-danger)' }}>
               Næste træning
             </span>
           </div>
@@ -544,7 +544,7 @@ function NextTrainingCard({
             </span>
           ) : rejected ? (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md"
-                  style={{ background: 'rgba(248,113,113,0.12)', color: '#f87171' }}>
+                  style={{ background: 'rgba(252,138,74,0.12)', color: 'var(--color-danger)' }}>
               For få tilmeldte
             </span>
           ) : (
@@ -665,7 +665,7 @@ function NextTrainingCard({
                     <div
                       className="flex items-center gap-3 px-3 py-2.5"
                       style={{
-                        background:  isMe ? 'rgba(229,62,62,0.07)' : 'var(--bg-raised)',
+                        background:  isMe ? 'rgba(220,38,38,0.07)' : 'var(--bg-raised)',
                         borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
                       }}
                     >
@@ -676,7 +676,7 @@ function NextTrainingCard({
                           {name}
                           {isMe && (
                             <span className="ml-1.5 text-xs font-normal"
-                                  style={{ color: 'rgba(229,62,62,0.60)' }}>
+                                  style={{ color: 'rgba(220,38,38,0.60)' }}>
                               (dig)
                             </span>
                           )}

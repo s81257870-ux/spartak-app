@@ -197,7 +197,7 @@ export default function PlayerDetail() {
           <StatCard label="🟡 Gule kort"  value={stats.yellowCards} color="#facc15" />
         )}
         {stats.redCards > 0 && (
-          <StatCard label="🔴 Røde kort"  value={stats.redCards}    color="#f87171" />
+          <StatCard label="🔴 Røde kort"  value={stats.redCards}    color="var(--color-card-r)" />
         )}
       </div>
 
@@ -313,12 +313,12 @@ function PositionMiniPitch({ position }: { position: Position }) {
     >
       <defs>
         <radialGradient id="pdGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#E53E3E" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="#E53E3E" stopOpacity="0" />
+          <stop offset="0%"   stopColor="#DC2626" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#DC2626" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="pdDot" cx="38%" cy="32%" r="60%">
           <stop offset="0%"   stopColor="white"   stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#E53E3E" stopOpacity="0" />
+          <stop offset="100%" stopColor="#DC2626" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -361,14 +361,14 @@ function PositionMiniPitch({ position }: { position: Position }) {
             width={cw - 4}
             height={rh - 4}
             rx="5"
-            fill="rgba(229,62,62,0.10)"
+            fill="rgba(220,38,38,0.10)"
           />
           {/* Soft glow */}
           <circle cx={dotX} cy={dotY} r="11" fill="url(#pdGlow)" />
           {/* Dot */}
           <circle cx={dotX} cy={dotY} r="5.5"
-                  fill="#E53E3E"
-                  style={{ filter: 'drop-shadow(0 0 4px rgba(229,62,62,0.7))' }} />
+                  fill="#DC2626"
+                  style={{ filter: 'drop-shadow(0 0 4px rgba(220,38,38,0.7))' }} />
           <circle cx={dotX} cy={dotY} r="5.5" fill="url(#pdDot)" />
         </>
       )}

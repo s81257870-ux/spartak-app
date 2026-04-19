@@ -37,8 +37,8 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
         style={{
           display:    'none',
           background: 'linear-gradient(135deg, #152035 0%, #1e3050 100%)',
-          border:     '2px solid rgba(229,62,62,0.35)',
-          boxShadow:  '0 0 10px rgba(229,62,62,0.12)',
+          border:     '2px solid rgba(220,38,38,0.35)',
+          boxShadow:  '0 0 10px rgba(220,38,38,0.12)',
         }}
       >
         <span
@@ -46,7 +46,7 @@ export default function ClubCrest({ size = 48, className = '' }: Props) {
             fontSize:      Math.round(size * 0.32),
             fontWeight:    900,
             letterSpacing: '0.04em',
-            color:         '#E53E3E',
+            color:         '#DC2626',
             lineHeight:    1,
           }}
         >

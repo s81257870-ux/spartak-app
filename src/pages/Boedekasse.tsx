@@ -147,7 +147,7 @@ export default function Boedekasse() {
             {/* Unpaid count */}
             <div className="text-center">
               <p className="text-2xl font-black leading-none mb-1"
-                 style={{ color: unpaidCount > 0 ? '#f87171' : 'var(--text-secondary)' }}>
+                 style={{ color: unpaidCount > 0 ? 'var(--color-danger)' : 'var(--text-secondary)' }}>
                 {unpaidCount}
               </p>
               <p className="text-[10px] font-medium" style={{ color: 'var(--text-faint)' }}>
@@ -279,7 +279,7 @@ export default function Boedekasse() {
                     </p>
                     <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
                       {unpaidAmt > 0 ? (
-                        <span style={{ color: '#f87171' }}>{unpaidAmt} kr skyldig</span>
+                        <span style={{ color: 'var(--color-danger)' }}>{unpaidAmt} kr skyldig</span>
                       ) : (
                         <span style={{ color: '#4ade80' }}>alt betalt</span>
                       )}
@@ -382,7 +382,7 @@ export default function Boedekasse() {
                               className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] active:scale-95 transition-transform"
                               style={{
                                 background: 'rgba(239,68,68,0.08)',
-                                color: '#f87171',
+                                color: 'var(--color-danger)',
                                 border: '1px solid rgba(239,68,68,0.15)',
                               }}
                             >

@@ -29,7 +29,7 @@ function attState(n: number): AttState {
   return 'low'
 }
 const STATE_COLOR: Record<AttState, string> = {
-  low: '#f87171', lowmedium: '#fb923c', medium: '#fbbf24', high: '#a3e635', full: '#4ade80',
+  low: '#fc8a4a', lowmedium: '#fb923c', medium: '#fbbf24', high: '#a3e635', full: '#4ade80',
 }
 const STATE_LABEL: Record<AttState, string> = {
   low: 'Er I døde eller hvad?', lowmedium: 'Slet ikke nok...', medium: 'Det begynder at ligne noget',
@@ -230,8 +230,8 @@ export default function Home() {
                 boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 6px 24px rgba(229,62,62,0.14), 0 2px 8px rgba(0,0,0,0.15)'
-                e.currentTarget.style.borderColor = 'rgba(229,62,62,0.38)'
+                e.currentTarget.style.boxShadow = '0 6px 24px rgba(220,38,38,0.14), 0 2px 8px rgba(0,0,0,0.15)'
+                e.currentTarget.style.borderColor = 'rgba(220,38,38,0.38)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.12)'
@@ -279,9 +279,9 @@ export default function Home() {
                       title={won ? 'Sejr' : draw ? 'Uafgjort' : 'Nederlag'}
                       className="w-6 h-6 rounded-full shrink-0"
                       style={{
-                        background: won ? 'rgba(74,222,128,0.20)' : draw ? 'rgba(250,204,21,0.20)' : 'rgba(248,113,113,0.20)',
-                        border: `1.5px solid ${won ? '#4ade80' : draw ? '#facc15' : '#f87171'}`,
-                        boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(248,113,113,0.18)'}`,
+                        background: won ? 'rgba(74,222,128,0.20)' : draw ? 'rgba(250,204,21,0.20)' : 'rgba(252,138,74,0.20)',
+                        border: `1.5px solid ${won ? 'var(--color-win)' : draw ? 'var(--color-draw)' : 'var(--color-loss)'}`,
+                        boxShadow: `0 0 6px ${won ? 'rgba(74,222,128,0.18)' : draw ? 'rgba(250,204,21,0.18)' : 'rgba(252,138,74,0.18)'}`,
                       }}
                     />
                   ) : (
@@ -331,10 +331,10 @@ export default function Home() {
               </div>
               <p
                 className="font-display text-4xl leading-none"
-                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(229,62,62,0.35)' }}
+                style={{ color: 'var(--text-primary)' }}
               >
                 {topScorer?.goals ?? 0}
-                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)', fontFamily: 'inherit' }}>mål</span>
+                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--accent)', fontFamily: 'inherit' }}>mål</span>
               </p>
             </div>
 
@@ -365,10 +365,10 @@ export default function Home() {
               </div>
               <p
                 className="font-display text-4xl leading-none"
-                style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(229,62,62,0.35)' }}
+                style={{ color: 'var(--text-primary)' }}
               >
                 {topAssister?.assists ?? 0}
-                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--text-faint)', fontFamily: 'inherit' }}>ast</span>
+                <span className="text-[11px] font-semibold ml-1" style={{ color: 'var(--accent)', fontFamily: 'inherit' }}>ast</span>
               </p>
             </div>
           </div>
@@ -548,7 +548,7 @@ function NextTrainingCard({ training }: { training: Training }) {
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-start justify-between mb-1">
           <span className="text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(229,62,62,0.12)', color: 'var(--accent)' }}>
+                style={{ background: 'rgba(220,38,38,0.12)', color: 'var(--accent)' }}>
             Næste træning
           </span>
           {days >= 0 && (

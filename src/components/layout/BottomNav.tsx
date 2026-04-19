@@ -62,7 +62,7 @@ export default function BottomNav() {
           height:        3,
           borderRadius:  9999,
           background:    'var(--nav-active-indicator)',
-          boxShadow:     '0 0 8px rgba(229,62,62,0.55)',
+          boxShadow:     '0 0 8px rgba(220,38,38,0.55)',
           transform:     `translateX(${indicatorX})`,
           transition:    'transform 230ms cubic-bezier(0.22, 1, 0.36, 1)',
           pointerEvents: 'none',

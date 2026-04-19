@@ -18,6 +18,7 @@ function CardIcon({ color }: { color: string }) {
 
 interface Props {
   matchId: string
+  onRequestComplete?: () => void
 }
 
 type EventType = 'goal' | 'yellow-card' | 'red-card'
@@ -63,11 +64,11 @@ const EVENT_CONFIG: Record<EventType, {
   },
   'red-card': {
     label: 'Rødt kort',
-    color: '#f87171',
-    nodeBg: 'rgba(248,113,113,0.12)',
-    nodeBorder: 'rgba(248,113,113,0.22)',
-    activeBg: 'rgba(248,113,113,0.10)',
-    activeBorder: 'rgba(248,113,113,0.28)',
+    color: 'var(--color-loss)',
+    nodeBg: 'rgba(252,138,74,0.12)',
+    nodeBorder: 'rgba(252,138,74,0.22)',
+    activeBg: 'rgba(252,138,74,0.10)',
+    activeBorder: 'rgba(252,138,74,0.28)',
     btnBg: '#ef4444',
   },
 }
@@ -75,12 +76,12 @@ const EVENT_CONFIG: Record<EventType, {
 /** Returns the correct node icon for an event. */
 function EventIcon({ type, isOpponentGoal }: { type: EventType; isOpponentGoal: boolean }) {
   if (type === 'yellow-card') return <CardIcon color="#facc15" />
-  if (type === 'red-card')    return <CardIcon color="#f87171" />
+  if (type === 'red-card')    return <CardIcon color="var(--color-card-r)" />
   // goal — use lucide Goal icon, colour reflects our goal vs opponent goal
-  return <Goal size={16} color={isOpponentGoal ? '#f87171' : '#4ade80'} />
+  return <Goal size={16} color={isOpponentGoal ? 'var(--color-loss)' : '#4ade80'} />
 }
 
-export default function EventsTab({ matchId }: Props) {
+export default function EventsTab({ matchId, onRequestComplete }: Props) {
   const match       = useMatchStore((s) => s.matches.find((m) => m.id === matchId))
   const addEvent    = useMatchStore((s) => s.addEvent)
   const updateEvent = useMatchStore((s) => s.updateEvent)
@@ -159,7 +160,7 @@ export default function EventsTab({ matchId }: Props) {
             style={{
               background: 'rgba(248,113,113,0.08)',
               border: '1px solid rgba(248,113,113,0.18)',
-              color: '#f87171',
+              color: 'var(--color-loss)',
             }}
           >
             <Goal size={14} />
@@ -186,7 +187,7 @@ export default function EventsTab({ matchId }: Props) {
               color: EVENT_CONFIG['red-card'].color,
             }}
           >
-            <CardIcon color="#f87171" />
+            <CardIcon color="var(--color-card-r)" />
             <span>Rødt kort</span>
           </button>
         </div>
@@ -226,7 +227,7 @@ export default function EventsTab({ matchId }: Props) {
               const isOpponentGoal = event.type === 'goal' && event.team === 'them'
 
               const effectiveCfg = isOpponentGoal
-                ? { ...EVENT_CONFIG['goal'], color: '#f87171', nodeBg: 'rgba(248,113,113,0.12)', nodeBorder: 'rgba(248,113,113,0.22)' }
+                ? { ...EVENT_CONFIG['goal'], color: 'var(--color-loss)', nodeBg: 'rgba(252,138,74,0.12)', nodeBorder: 'rgba(252,138,74,0.22)' }
                 : EVENT_CONFIG[event.type]
 
               return (
@@ -304,6 +305,22 @@ export default function EventsTab({ matchId }: Props) {
           </div>
         </div>
       )}
+      {/* ── Afslut kamp CTA — admin only, match not yet completed ── */}
+      {isAdmin && !match.isCompleted && onRequestComplete && (
+        <div className="pt-4 pb-2">
+          <button
+            onClick={onRequestComplete}
+            className="w-full py-4 rounded-2xl font-bold text-sm active:scale-[0.97] transition-transform"
+            style={{
+              background: 'var(--cta-bg)',
+              color:      'var(--cta-color)',
+              boxShadow:  '0 8px 24px var(--cta-shadow)',
+            }}
+          >
+            Afslut kamp
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -355,7 +372,7 @@ function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }:
           className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
           style={
             isOpponentGoal
-              ? { background: 'rgba(248,113,113,0.10)', color: '#f87171', border: '1px solid rgba(248,113,113,0.28)' }
+              ? { background: 'rgba(252,138,74,0.10)', color: 'var(--color-loss)', border: '1px solid rgba(252,138,74,0.28)' }
               : { background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid transparent' }
           }
         >
@@ -387,7 +404,7 @@ function EventForm({ form, players, onChange, onSubmit, onCancel, submitLabel }:
               : { background: 'var(--bg-input)', color: 'var(--text-muted)', border: '1px solid transparent' }
           }
         >
-          <CardIcon color={form.type === 'red-card' ? '#f87171' : 'var(--text-muted)'} />
+          <CardIcon color={form.type === 'red-card' ? 'var(--color-loss)' : 'var(--text-muted)'} />
           Rødt kort
         </button>
       </div>

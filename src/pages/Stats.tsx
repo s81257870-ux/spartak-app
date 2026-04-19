@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
+import LeagueTable from '../components/stats/LeagueTable'
 import { Trophy, Target, Users, Flame, Share2 } from 'lucide-react'
 import { displayName } from '../utils/playerName'
 import type { Player } from '../types'
-import { SEASON_LABEL } from '../data/leagueTable'
+import { SEASON_LABEL, LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
 
 type SortKey = 'goals' | 'assists' | 'matchesPlayed' | 'yellowCards' | 'redCards'
@@ -166,7 +167,7 @@ export default function Stats() {
                     onKeyDown={(e) => e.key === 'Enter' && navigate(`/spillere/${player.id}`)}
                     className="grid grid-cols-[1fr_repeat(5,_auto)] gap-x-1 px-4 py-3.5 items-center active:opacity-70"
                     style={{
-                      background:  isFirst ? 'rgba(149,197,233,0.04)' : undefined,
+                      background:  isFirst ? 'rgba(220,38,38,0.04)' : undefined,
                       borderTop:   i > 0 ? '1px solid var(--border-faint)' : undefined,
                       cursor:      'pointer',
                       transition:  'opacity 120ms ease',
@@ -233,6 +234,17 @@ export default function Stats() {
           </div>
         </section>
 
+        {/* ── League table ──────────────────────────────────── */}
+        <section>
+          <SectionLabel>Stilling</SectionLabel>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          >
+            <LeagueTable rows={LEAGUE_TABLE} leagueName={LEAGUE_NAME} />
+          </div>
+        </section>
+
       </div>
     </div>
   )
@@ -274,7 +286,7 @@ function SummaryCard({
       <p
         className="font-display text-3xl leading-none mb-1"
         style={accent
-          ? { color: 'var(--accent)', textShadow: '0 0 20px rgba(149,197,233,0.30)' }
+          ? { color: 'var(--accent)', textShadow: '0 0 20px rgba(220,38,38,0.30)' }
           : { color: 'var(--text-primary)' }}
       >
         {value}
@@ -319,7 +331,7 @@ function TopCard({
         <div className="flex items-baseline gap-1">
           <span
             className="font-display text-3xl leading-none"
-            style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(149,197,233,0.30)' }}
+            style={{ color: 'var(--accent)', textShadow: '0 0 16px rgba(220,38,38,0.30)' }}
           >
             {value}
           </span>

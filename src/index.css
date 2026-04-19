@@ -9,161 +9,194 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    Theme tokens — dark mode (default)
-   Palette: deep navy surfaces · #95C5E9 light-blue accent · cool white text
+   Palette: deep black surfaces · #DC2626 red accent · off-white text
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  /* surfaces — deep navy hierarchy */
-  --bg-app:      #0d1423;   /* deep navy — page canvas               */
-  --bg-card:     #111c2e;   /* card navy — primary cards             */
-  --bg-raised:   #192538;   /* raised navy — elevated surfaces       */
-  --bg-input:    #090e1a;   /* dark input                            */
-  --bg-nav:      #0c1422;   /* nav navy — bottom nav                 */
+  /* surfaces — deep black hierarchy */
+  --bg-app:      #0a0a0a;   /* near-black — page canvas              */
+  --bg-card:     #111111;   /* dark card — primary cards             */
+  --bg-raised:   #1a1a1a;   /* raised — elevated surfaces            */
+  --bg-input:    #080808;   /* very dark input                       */
+  --bg-nav:      #0c0c0c;   /* nav — bottom nav                      */
 
-  /* borders — subtle light-blue tint instead of white */
-  --border:        rgba(149, 197, 233, 0.08);
-  --border-faint:  rgba(149, 197, 233, 0.05);
-  --border-input:  rgba(149, 197, 233, 0.13);
+  /* borders — subtle red tint */
+  --border:        rgba(220, 38, 38, 0.10);
+  --border-faint:  rgba(220, 38, 38, 0.06);
+  --border-input:  rgba(220, 38, 38, 0.15);
 
-  /* text — cool off-white hierarchy */
-  --text-primary:    #e8f2f9;   /* cool off-white                    */
-  --text-secondary:  #8fb3cc;   /* muted steel blue                  */
-  --text-muted:      #547090;   /* deeper muted blue-gray            */
-  --text-faint:      #3a5268;   /* faint navy-gray                   */
-  --text-dimmer:     #283c50;   /* barely-there                      */
+  /* text — off-white hierarchy */
+  --text-primary:    #f0f0f0;   /* bright off-white                  */
+  --text-secondary:  #a0a0a0;   /* medium gray                       */
+  --text-muted:      #767676;   /* 4.5:1 on #111 — exactly AA        */
+  --text-faint:      #5a5a5a;   /* 3.1:1 — decorative/non-essential  */
+  --text-dimmer:     #333333;   /* barely-there                      */
 
   /* accent-tinted card surfaces */
-  --accent-card-tint:   rgba(149, 197, 233, 0.06);
-  --accent-card-border: rgba(149, 197, 233, 0.16);
+  --accent-card-tint:   rgba(220, 38, 38, 0.07);
+  --accent-card-border: rgba(220, 38, 38, 0.18);
 
   /* theme toggle active pill */
-  --toggle-active-bg:     #95C5E9;
-  --toggle-active-color:  #0b1220;
-  --toggle-active-shadow: rgba(149, 197, 233, 0.28);
-  --toggle-track-bg:      rgba(149, 197, 233, 0.10);
+  --toggle-active-bg:     #DC2626;
+  --toggle-active-color:  #ffffff;
+  --toggle-active-shadow: rgba(220, 38, 38, 0.30);
+  --toggle-track-bg:      rgba(220, 38, 38, 0.12);
 
-  /* ── Brand accent system (dark = #95C5E9 light blue) ─────────── */
+  /* ── Accent usage rules ─────────────────────────────────────────
+     Full-saturation accent (#DC2626) is ONLY for:
+       • CTA buttons (--cta-bg)
+       • Active nav tab indicator (--nav-active-color, --nav-active-indicator)
+       • Tappable badges and interactive labels (--badge-accent-text)
+       • Focused/active tab pills (--tab-active-bg)
+
+     Low-opacity accent is for DECORATIVE / AMBIENT use:
+       • Card borders (--border, --accent-card-border)
+       • Hero glow (--hero-glow)
+       • Icon box backgrounds (--icon-accent-bg)
+       • Badge backgrounds (--badge-accent-bg)
+
+     Status reds (loss, error, danger) use --color-loss / --color-danger, NOT --accent.
+     Large stat numbers use --text-primary — context makes meaning clear without accent.
+     ────────────────────────────────────────────────────────────── */
+
+  /* ── Brand accent system (unified #DC2626 red, both modes) ──── */
 
   /* Primary accent — used for text highlights, icons */
-  --accent:              #95C5E9;
+  --accent:              #DC2626;
 
   /* CTA / admin action buttons */
-  --cta-bg:              linear-gradient(135deg, #4c9fd6 0%, #95C5E9 100%);
-  --cta-color:           #0b1220;   /* dark navy for contrast on light-blue bg */
-  --cta-shadow:          rgba(149, 197, 233, 0.30);
+  --cta-bg:              linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
+  --cta-color:           #ffffff;
+  --cta-shadow:          rgba(220, 38, 38, 0.35);
 
   /* Left border stripe on upcoming match cards */
-  --accent-stripe:       linear-gradient(180deg, #95C5E9, #bdd9ef);
+  --accent-stripe:       linear-gradient(180deg, #DC2626, #F87171);
 
   /* Bottom nav active tab */
-  --nav-active-color:     #95C5E9;
-  --nav-active-indicator: linear-gradient(90deg, #95C5E9, #bdd9ef);
+  --nav-active-color:     #DC2626;
+  --nav-active-indicator: linear-gradient(90deg, #DC2626, #F87171);
 
   /* Date/time text in the next-match card */
-  --nm-date-color:       rgba(149, 197, 233, 0.90);
+  --nm-date-color:       rgba(220, 38, 38, 0.90);
 
   /* Player dot on mini pitch */
-  --dot-border:          rgba(149, 197, 233, 0.85);
-  --dot-glow:            rgba(149, 197, 233, 0.20);
+  --dot-border:          rgba(220, 38, 38, 0.85);
+  --dot-glow:            rgba(220, 38, 38, 0.22);
 
   /* Status / "Kommende" / admin badge chips */
-  --badge-accent-bg:     rgba(149, 197, 233, 0.10);
-  --badge-accent-text:   #95C5E9;
-  --badge-accent-border: rgba(149, 197, 233, 0.26);
+  --badge-accent-bg:     rgba(220, 38, 38, 0.10);
+  --badge-accent-text:   #DC2626;
+  --badge-accent-border: rgba(220, 38, 38, 0.28);
 
   /* Hero section decorative radial glow */
-  --hero-glow:           rgba(149, 197, 233, 0.06);
+  --hero-glow:           rgba(220, 38, 38, 0.06);
 
   /* Section header pill-bar + eyebrow label */
-  --section-bar-bg:      linear-gradient(to bottom, #95C5E9, #bdd9ef);
-  --section-label-color: rgba(149, 197, 233, 0.80);
+  --section-bar-bg:      linear-gradient(to bottom, #DC2626, #F87171);
+  --section-label-color: rgba(220, 38, 38, 0.80);
 
   /* Icon background in modals / lock */
-  --icon-accent-bg:      rgba(149, 197, 233, 0.12);
+  --icon-accent-bg:      rgba(220, 38, 38, 0.12);
 
-  /* Amount / financial highlight (unpaid fines, top scorer) */
-  --amount-color:        #95C5E9;
-  --amount-avatar-bg:    linear-gradient(135deg, rgba(149,197,233,0.18), rgba(189,217,239,0.12));
+  /* Amount / financial highlight */
+  --amount-color:        #DC2626;
+  --amount-avatar-bg:    linear-gradient(135deg, rgba(220,38,38,0.18), rgba(248,113,113,0.10));
 
   /* Tab / segmented pill active state */
-  --tab-active-bg:       #95C5E9;   /* solid accent — cleaner than gradient on navy */
-  --tab-active-color:    #0b1220;
-  --tab-active-shadow:   rgba(149, 197, 233, 0.28);
+  --tab-active-bg:       #DC2626;
+  --tab-active-color:    #ffffff;
+  --tab-active-shadow:   rgba(220, 38, 38, 0.30);
+
+  /* Toggle active pill */
+  --toggle-active-bg:     #DC2626;
+  --toggle-active-shadow: rgba(220, 38, 38, 0.30);
+  --toggle-track-bg:      rgba(220, 38, 38, 0.12);
+
+  /* Semantic status colors — do NOT use raw palette/brand red for these */
+  --color-win:      #4ade80;   /* match result: win                   */
+  --color-draw:     #facc15;   /* match result: draw                  */
+  --color-loss:     #fc8a4a;   /* match result: loss — orange-red, away from brand red */
+  --color-goal:     #4ade80;
+  --color-card-y:   #fbbf24;   /* yellow card                         */
+  --color-card-r:   #fc8a4a;   /* red card — same shift, not brand red */
+  --color-success:  #4ade80;   /* positive: signed up, paid, full     */
+  --color-warning:  #fbbf24;   /* caution state                       */
+  --color-danger:   #fc8a4a;   /* negative state                      */
 
   /* misc */
-  --shadow-modal: rgba(0, 0, 0, 0.70);
-  --shadow-nav:   rgba(0, 0, 0, 0.55);
+  --shadow-modal: rgba(0, 0, 0, 0.75);
+  --shadow-nav:   rgba(0, 0, 0, 0.60);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    Theme tokens — light mode (Spartak Ciervo brand palette)
-   Logo colors: #1F2A3A (navy) · #5F86A6 (steel blue) ·
-                #AFC8DC (sky) · #E6E8EB (off-white)
+   Palette: white/light-gray surfaces · #DC2626 red accent · dark text
    ═══════════════════════════════════════════════════════════════════ */
 :root.light {
-  /* surfaces — cool steel-blue hierarchy */
-  --bg-app:      #edf1f5;
-  --bg-card:     #f4f7fa;
+  /* surfaces — clean white hierarchy */
+  --bg-app:      #f2f2f2;
+  --bg-card:     #f9f9f9;
   --bg-raised:   #ffffff;
-  --bg-input:    #e3eaf0;
-  --bg-nav:      #f4f7fa;
+  --bg-input:    #e8e8e8;
+  --bg-nav:      #f9f9f9;
 
-  /* borders */
-  --border:        rgba(31, 42, 58, 0.09);
-  --border-faint:  rgba(31, 42, 58, 0.06);
-  --border-input:  rgba(31, 42, 58, 0.13);
+  /* borders — red-tinted, matches dark mode brand character */
+  --border:        rgba(220, 38, 38, 0.10);
+  --border-faint:  rgba(220, 38, 38, 0.06);
+  --border-input:  rgba(220, 38, 38, 0.15);
 
-  /* text — brand navy hierarchy */
-  --text-primary:    #1f2a3a;
-  --text-secondary:  #4a5f72;
-  --text-muted:      #7a92a5;
-  --text-faint:      #9db0c0;
-  --text-dimmer:     #bfcdd7;
+  /* card shadow — subtle depth in light mode */
+  --card-shadow:   0 1px 4px rgba(0, 0, 0, 0.06);
+
+  /* text — dark hierarchy */
+  --text-primary:    #111111;
+  --text-secondary:  #4a4a4a;
+  --text-muted:      #6b6b6b;   /* 4.6:1 on #f9f9f9 — passes AA     */
+  --text-faint:      #909090;   /* 2.8:1 — decorative use only       */
+  --text-dimmer:     #bbbbbb;
 
   /* accent-tinted surfaces */
-  --accent-card-tint:   rgba(95, 134, 166, 0.06);
-  --accent-card-border: rgba(95, 134, 166, 0.16);
+  --accent-card-tint:   rgba(220, 38, 38, 0.06);
+  --accent-card-border: rgba(220, 38, 38, 0.16);
 
   /* toggle active pill */
-  --toggle-active-bg:     linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
-  --toggle-active-color:  #e6e8eb;
-  --toggle-active-shadow: rgba(31, 42, 58, 0.22);
-  --toggle-track-bg:      rgba(31, 42, 58, 0.06);
+  --toggle-active-bg:     #DC2626;
+  --toggle-active-color:  #ffffff;
+  --toggle-active-shadow: rgba(220, 38, 38, 0.25);
+  --toggle-track-bg:      rgba(220, 38, 38, 0.08);
 
-  /* ── Brand accent system (light = steel blue / navy) ─────────── */
+  /* ── Brand accent system — inherits --accent: #DC2626 from :root */
 
-  --accent:              #5f86a6;
+  --cta-bg:              linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
+  --cta-color:           #ffffff;
+  --cta-shadow:          rgba(220, 38, 38, 0.28);
 
-  --cta-bg:              linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
-  --cta-color:           #e6e8eb;
-  --cta-shadow:          rgba(31, 42, 58, 0.22);
+  --accent-stripe:       linear-gradient(180deg, #DC2626, #F87171);
 
-  --accent-stripe:       linear-gradient(180deg, #5f86a6, #afc8dc);
+  --nav-active-color:     #DC2626;
+  --nav-active-indicator: linear-gradient(90deg, #DC2626, #F87171);
 
-  --nav-active-color:     #1f2a3a;
-  --nav-active-indicator: linear-gradient(90deg, #5f86a6, #afc8dc);
+  --nm-date-color:       #B91C1C;
 
-  --nm-date-color:       #4a6e8e;
+  --dot-border:          rgba(220, 38, 38, 0.90);
+  --dot-glow:            rgba(220, 38, 38, 0.25);
 
-  --dot-border:          rgba(95, 134, 166, 0.90);
-  --dot-glow:            rgba(95, 134, 166, 0.25);
+  --badge-accent-bg:     rgba(220, 38, 38, 0.08);
+  --badge-accent-text:   #DC2626;
+  --badge-accent-border: rgba(220, 38, 38, 0.22);
 
-  --badge-accent-bg:     rgba(95, 134, 166, 0.10);
-  --badge-accent-text:   #5f86a6;
-  --badge-accent-border: rgba(95, 134, 166, 0.22);
+  --hero-glow:           rgba(220, 38, 38, 0.06);
 
-  --hero-glow:           rgba(95, 134, 166, 0.08);
+  --section-bar-bg:      linear-gradient(to bottom, #DC2626, #F87171);
+  --section-label-color: rgba(220, 38, 38, 0.90);
 
-  --section-bar-bg:      linear-gradient(to bottom, #5f86a6, #afc8dc);
-  --section-label-color: rgba(95, 134, 166, 0.90);
+  --icon-accent-bg:      rgba(220, 38, 38, 0.10);
 
-  --icon-accent-bg:      rgba(95, 134, 166, 0.12);
+  --amount-color:        #B91C1C;
+  --amount-avatar-bg:    linear-gradient(135deg, rgba(220,38,38,0.12), rgba(248,113,113,0.08));
 
-  --amount-color:        #4a6e8e;
-  --amount-avatar-bg:    linear-gradient(135deg, rgba(95,134,166,0.14), rgba(175,200,220,0.10));
-
-  --tab-active-bg:       linear-gradient(135deg, #1f2a3a 0%, #2d3e52 100%);
-  --tab-active-color:    #e6e8eb;
-  --tab-active-shadow:   rgba(31, 42, 58, 0.18);
+  --tab-active-bg:       #DC2626;
+  --tab-active-color:    #ffffff;
+  --tab-active-shadow:   rgba(220, 38, 38, 0.22);
 
   --shadow-modal: rgba(0, 0, 0, 0.25);
   --shadow-nav:   rgba(0, 0, 0, 0.07);
@@ -239,6 +272,12 @@
   animation: badge-pop 200ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
+/* Pulsing live dot — used on "Begivenheder" tab during live matches */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.85); }
+}
+
 /* Nav indicator bar: scaleX reveal from centre */
 @keyframes nav-indicator-in {
   from {
@@ -295,17 +334,17 @@ body {
 .active\:text-orange-400:active { color: var(--accent); }
 
 /* used by LineupTab confirmation dialog (dark default) */
-.bg-orange-900\/30  { background-color: rgba(149,197,233,0.06); }
-.text-orange-200    { color: #95C5E9; }
+.bg-orange-900\/30  { background-color: rgba(220,38,38,0.08); }
+.text-orange-200    { color: #FC8181; }
 
 /* non-focus border variants */
-.border-orange-500\/40  { border-color: rgba(149,197,233,0.20); }
-.border-orange-500\/30  { border-color: rgba(149,197,233,0.15); }
-.border-orange-400\/50  { border-color: rgba(149,197,233,0.25); }
+.border-orange-500\/40  { border-color: rgba(220,38,38,0.22); }
+.border-orange-500\/30  { border-color: rgba(220,38,38,0.16); }
+.border-orange-400\/50  { border-color: rgba(220,38,38,0.28); }
 
 /* focus border variants */
-.focus\:border-orange-500\/40:focus { border-color: rgba(149,197,233,0.35); }
-.focus\:border-orange-500\/50:focus { border-color: rgba(149,197,233,0.40); }
+.focus\:border-orange-500\/40:focus { border-color: rgba(220,38,38,0.38); }
+.focus\:border-orange-500\/50:focus { border-color: rgba(220,38,38,0.44); }
 
 /* ═══════════════════════════════════════════════════════════════════
    Light-mode overrides for Tailwind utility classes
@@ -320,15 +359,15 @@ body {
 }
 
 /* ── orange variant classes — light palette overrides ─────────── */
-.light .bg-orange-600     { background-color: #4a6e8e; }
-.light .bg-orange-900\/30 { background-color: rgba(95,134,166,0.10); }
-.light .border-orange-900\/30 { border-color: rgba(95,134,166,0.18); }
-.light .border-orange-500\/40 { border-color: rgba(95,134,166,0.30); }
-.light .border-orange-500\/30 { border-color: rgba(95,134,166,0.12); }
-.light .border-orange-400\/50 { border-color: rgba(95,134,166,0.20); }
-.light .text-orange-200   { color: var(--text-secondary); }
-.light .focus\:border-orange-500\/40:focus { border-color: rgba(95,134,166,0.35); }
-.light .focus\:border-orange-500\/50:focus { border-color: rgba(95,134,166,0.40); }
+.light .bg-orange-600     { background-color: #DC2626; }
+.light .bg-orange-900\/30 { background-color: rgba(220,38,38,0.08); }
+.light .border-orange-900\/30 { border-color: rgba(220,38,38,0.16); }
+.light .border-orange-500\/40 { border-color: rgba(220,38,38,0.28); }
+.light .border-orange-500\/30 { border-color: rgba(220,38,38,0.14); }
+.light .border-orange-400\/50 { border-color: rgba(220,38,38,0.22); }
+.light .text-orange-200   { color: #DC2626; }
+.light .focus\:border-orange-500\/40:focus { border-color: rgba(220,38,38,0.38); }
+.light .focus\:border-orange-500\/50:focus { border-color: rgba(220,38,38,0.44); }
 
 /* ── borders (white/opacity → dark/opacity in light mode) ────── */
 .light .border-white\/\[0\.06\]   { border-color: rgba(0,0,0,0.08); }

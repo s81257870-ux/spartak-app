@@ -166,9 +166,9 @@ export default function AttendanceTab({ matchId }: Props) {
                   key={id}
                   className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3"
                   style={{
-                    background: isMe ? 'rgba(149,197,233,0.08)' : 'var(--bg-raised)',
+                    background: isMe ? 'rgba(220,38,38,0.08)' : 'var(--bg-raised)',
                     border:     isMe
-                      ? '1px solid rgba(149,197,233,0.22)'
+                      ? '1px solid rgba(220,38,38,0.22)'
                       : '1px solid var(--border)',
                   }}
                 >
@@ -182,7 +182,7 @@ export default function AttendanceTab({ matchId }: Props) {
                       {name}
                       {isMe && (
                         <span className="ml-1.5 text-xs font-normal"
-                              style={{ color: 'rgba(149,197,233,0.65)' }}>
+                              style={{ color: 'rgba(220,38,38,0.65)' }}>
                           (dig)
                         </span>
                       )}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { usePlayerStore } from './store/playerStore'
 import { useMatchStore } from './store/matchStore'
@@ -6,6 +6,7 @@ import { useTrainingStore } from './store/trainingStore'
 import { useFineStore } from './store/fineStore'
 import { useThemeStore } from './store/themeStore'
 import Layout from './components/layout/Layout'
+import IdentitySheet from './components/onboarding/IdentitySheet'
 import Home from './pages/Home'
 import Players from './pages/Players'
 import PlayerDetail from './pages/PlayerDetail'
@@ -23,6 +24,13 @@ function AppContent() {
   const initTrainings = useTrainingStore((s) => s.init)
   const initFines     = useFineStore((s) => s.init)
   const initTheme     = useThemeStore((s) => s.init)
+  const players       = usePlayerStore((s) => s.players)
+
+  const [showIdentitySheet, setShowIdentitySheet] = useState(() => {
+    const hasId    = !!localStorage.getItem('spartak_my_player_id')
+    const dismissed = localStorage.getItem('spartak_identity_dismissed') === 'true'
+    return !hasId && !dismissed
+  })
 
   useEffect(() => {
     async function boot() {
@@ -43,21 +51,39 @@ function AppContent() {
     return cleanup
   }, [initTheme])
 
+  const handleIdentitySelect = (playerId: string) => {
+    localStorage.setItem('spartak_my_player_id', playerId)
+    setShowIdentitySheet(false)
+  }
+
+  const handleIdentityDismiss = () => {
+    localStorage.setItem('spartak_identity_dismissed', 'true')
+    setShowIdentitySheet(false)
+  }
+
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/"              element={<Home />} />
-        <Route path="/spillere"      element={<Players />} />
-        <Route path="/spillere/ny"   element={<NewPlayer />} />
-        <Route path="/spillere/:id"  element={<PlayerDetail />} />
-        <Route path="/kampe"         element={<Matches />} />
-        <Route path="/kampe/ny"      element={<NewMatch />} />
-        <Route path="/kampe/:id"     element={<MatchDetail />} />
-        <Route path="/traeninger"    element={<Trainings />} />
-        <Route path="/statistik"     element={<Stats />} />
-        <Route path="/boedekasse"    element={<Boedekasse />} />
-      </Route>
-    </Routes>
+    <>
+      {showIdentitySheet && players.length > 0 && (
+        <IdentitySheet
+          onSelect={handleIdentitySelect}
+          onDismiss={handleIdentityDismiss}
+        />
+      )}
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/"              element={<Home />} />
+          <Route path="/spillere"      element={<Players />} />
+          <Route path="/spillere/ny"   element={<NewPlayer />} />
+          <Route path="/spillere/:id"  element={<PlayerDetail />} />
+          <Route path="/kampe"         element={<Matches />} />
+          <Route path="/kampe/ny"      element={<NewMatch />} />
+          <Route path="/kampe/:id"     element={<MatchDetail />} />
+          <Route path="/traeninger"    element={<Trainings />} />
+          <Route path="/statistik"     element={<Stats />} />
+          <Route path="/boedekasse"    element={<Boedekasse />} />
+        </Route>
+      </Routes>
+    </>
   )
 }
 

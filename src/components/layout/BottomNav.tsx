@@ -1,12 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Calendar, Volleyball, BarChart2, Banknote } from 'lucide-react'
+import { Home, Calendar, Volleyball, Users, Banknote } from 'lucide-react'
 
 const tabs = [
-  { to: '/',            label: 'Hjem',       Icon: Home,       end: true  },
-  { to: '/kampe',       label: 'Kampe',      Icon: Calendar,   end: false },
-  { to: '/traeninger',  label: 'Træninger',  Icon: Volleyball, end: false },
-  { to: '/statistik',   label: 'Statistik',  Icon: BarChart2, end: false },
-  { to: '/boedekasse',  label: 'Bøder',      Icon: Banknote,  end: false },
+  { to: '/',            label: 'Hjem',    Icon: Home,       end: true  },
+  { to: '/kampe',       label: 'Kampe',   Icon: Calendar,   end: false },
+  { to: '/traeninger',  label: 'Træning', Icon: Volleyball, end: false },
+  { to: '/spillere',    label: 'Truppen', Icon: Users,      end: false },
+  { to: '/boedekasse',  label: 'Bøder',   Icon: Banknote,   end: false },
 ]
 
 const N      = tabs.length          // 5

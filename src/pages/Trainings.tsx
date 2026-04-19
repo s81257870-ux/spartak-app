@@ -153,6 +153,11 @@ export default function Trainings() {
   const nextActive    = upcomingTrainings.find((t) => !t.cancelled)
   const scheduleLabel = nextActive ? trainingRuleForDate(nextActive.date).label : currentTrainingRule().label
 
+  // Deadline banner (shown in hero when sign-up window is still open)
+  const showDeadlineBanner = !!(nextActive && !nextActive.cancelled && !isDeadlinePassed(nextActive.date))
+  const deadlineMins       = showDeadlineBanner ? minutesToDeadline(nextActive!.date) : 0
+  const isDeadlineUrgent   = deadlineMins < 120
+
   return (
     <div className="pb-8">
 
@@ -167,6 +172,34 @@ export default function Trainings() {
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             {scheduleLabel} · {TRAINING_LOCATION}
           </p>
+
+          {/* ── Deadline countdown banner ─────────────────────── */}
+          {showDeadlineBanner && (
+            <div
+              className="mt-3 flex items-center gap-2 rounded-xl px-3 py-2.5"
+              style={{
+                background: isDeadlineUrgent
+                  ? 'rgba(252,138,74,0.12)'
+                  : 'rgba(220,38,38,0.06)',
+                border: isDeadlineUrgent
+                  ? '1px solid rgba(252,138,74,0.30)'
+                  : '1px solid rgba(220,38,38,0.15)',
+              }}
+            >
+              <Clock
+                size={13}
+                style={{ color: isDeadlineUrgent ? '#fc8a4a' : 'var(--text-muted)', flexShrink: 0 }}
+              />
+              <span
+                className="text-xs font-semibold"
+                style={{ color: isDeadlineUrgent ? '#fc8a4a' : 'var(--text-secondary)' }}
+              >
+                {isDeadlineUrgent
+                  ? `Svarfrist om ${formatCountdown(deadlineMins)} — skynd dig!`
+                  : `Svarfrist mandag kl. ${DEADLINE_TIME} — ${formatCountdown(deadlineMins)} tilbage`}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

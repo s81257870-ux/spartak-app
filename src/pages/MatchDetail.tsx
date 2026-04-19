@@ -7,6 +7,8 @@ import { useAuthStore } from '../store/authStore'
 import EventsTab from '../components/matches/EventsTab'
 import AttendanceTab from '../components/matches/AttendanceTab'
 import LineupTab from '../components/lineup/LineupTab'
+import CompleteMatchSheet from '../components/matches/CompleteMatchSheet'
+import MotmSheet from '../components/matches/MotmSheet'
 import ClubCrest from '../components/ClubCrest'
 import OpponentCrest from '../components/OpponentCrest'
 import { displayName } from '../utils/playerName'
@@ -18,21 +20,27 @@ import type { Match, Player } from '../types'
 
 type Tab = 'tilmelding' | 'begivenheder' | 'opstilling'
 
-
 export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const match = useMatchStore((s) => s.matches.find((m) => m.id === id))
-  const completeMatch = useMatchStore((s) => s.completeMatch)
-  const reopenMatch   = useMatchStore((s) => s.reopenMatch)
+  const match           = useMatchStore((s) => s.matches.find((m) => m.id === id))
+  const completeMatch   = useMatchStore((s) => s.completeMatch)
+  const reopenMatch     = useMatchStore((s) => s.reopenMatch)
   const setManOfTheMatch = useMatchStore((s) => s.setManOfTheMatch)
-  const players = usePlayerStore((s) => s.players)
-
-  const isAdmin = useAuthStore((s) => s.isAdmin)
+  const players         = usePlayerStore((s) => s.players)
+  const isAdmin         = useAuthStore((s) => s.isAdmin)
 
   useRealtimeMatch(id ?? '')
 
-  const [tab, setTab] = useState<Tab>('tilmelding')
+  // Smart default: show events after/during match, attendance before
+  const [tab, setTab] = useState<Tab>(() => {
+    if (!match) return 'tilmelding'
+    if (match.isCompleted || isMatchLive(match)) return 'begivenheder'
+    return 'tilmelding'
+  })
+
+  const [showCompleteSheet, setShowCompleteSheet] = useState(false)
+  const [showMotmSheet,     setShowMotmSheet]     = useState(false)
 
   if (!match) {
     return (
@@ -52,8 +60,36 @@ export default function MatchDetail() {
   const resultColor = won ? '#4ade80' : draw ? '#facc15' : lost ? 'var(--color-loss)' : undefined
   const resultLabel = won ? 'Sejr' : draw ? 'Uafgjort' : lost ? 'Nederlag' : null
 
+  const live = isMatchLive(match)
+
   return (
     <div className="pb-8">
+
+      {/* ── Sheets ────────────────────────────────────────────── */}
+      {showCompleteSheet && (
+        <CompleteMatchSheet
+          match={match}
+          onConfirm={() => {
+            completeMatch(match.id)
+            setShowCompleteSheet(false)
+            setTimeout(() => setShowMotmSheet(true), 400)
+          }}
+          onCancel={() => setShowCompleteSheet(false)}
+        />
+      )}
+
+      {showMotmSheet && (
+        <MotmSheet
+          match={match}
+          players={players}
+          currentMotm={match.manOfTheMatch ?? null}
+          onSelect={(playerId) => {
+            setManOfTheMatch(match.id, playerId)
+            setShowMotmSheet(false)
+          }}
+          onSkip={() => setShowMotmSheet(false)}
+        />
+      )}
 
       {/* ── Match header ──────────────────────────────────────── */}
       <div
@@ -68,53 +104,42 @@ export default function MatchDetail() {
           />
         )}
 
-        {/* Back + action row */}
+        {/* Back + reopen row */}
         <div className="flex items-center justify-between mb-5 relative">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/kampe')}
             className="flex items-center gap-1.5 font-medium text-sm active:opacity-70"
             style={{ color: 'var(--accent)' }}
           >
             <ArrowLeft size={17} strokeWidth={2.5} /> Kampe
           </button>
-          {isAdmin && !match.isCompleted && (
-            <button
-              onClick={() => completeMatch(match.id)}
-              className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform"
-              style={{
-                background: 'var(--badge-accent-bg)',
-                color: 'var(--badge-accent-text)',
-                border: '1px solid var(--badge-accent-border)',
-              }}
-            >
-              Afslut kamp
-            </button>
-          )}
-          {isAdmin && match.isCompleted && (
-            <button
-              onClick={() => reopenMatch(match.id)}
-              className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform"
-              style={{
-                background: 'rgba(239,68,68,0.12)',
-                color: '#ef4444',
-                border: '1px solid rgba(239,68,68,0.30)',
-              }}
-            >
-              Genåbn kamp
-            </button>
-          )}
-          {resultLabel && (
-            <span
-              className="text-[11px] font-bold px-3 py-1 rounded-full border"
-              style={{
-                color: resultColor,
-                background: `${resultColor}18`,
-                borderColor: `${resultColor}40`,
-              }}
-            >
-              {resultLabel}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {isAdmin && match.isCompleted && (
+              <button
+                onClick={() => reopenMatch(match.id)}
+                className="text-xs px-3.5 py-1.5 rounded-full font-semibold active:scale-95 transition-transform"
+                style={{
+                  background: 'rgba(239,68,68,0.12)',
+                  color:      '#ef4444',
+                  border:     '1px solid rgba(239,68,68,0.30)',
+                }}
+              >
+                Genåbn kamp
+              </button>
+            )}
+            {resultLabel && (
+              <span
+                className="text-[11px] font-bold px-3 py-1 rounded-full border"
+                style={{
+                  color:       resultColor,
+                  background:  `${resultColor}18`,
+                  borderColor: `${resultColor}40`,
+                }}
+              >
+                {resultLabel}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Title */}
@@ -130,16 +155,14 @@ export default function MatchDetail() {
         </h2>
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{fmtLong(match.date)}</p>
 
-        {/* ── Score display — football scoreboard ───────────── */}
+        {/* ── Score display ─────────────────────────────────── */}
         <div className="mt-6 flex items-center gap-2 px-1">
 
           {/* Spartak side */}
           <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 88 }}>
             <ClubCrest size={80} />
-            <p
-              className="text-[11px] font-semibold text-center leading-tight w-full truncate"
-              style={{ color: 'var(--text-secondary)' }}
-            >
+            <p className="text-[11px] font-semibold text-center leading-tight w-full truncate"
+               style={{ color: 'var(--text-secondary)' }}>
               {CLUB_NAME}
             </p>
           </div>
@@ -147,62 +170,45 @@ export default function MatchDetail() {
           {/* Score center */}
           <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
             {match.isCompleted ? (
-              /* ── Completed: show actual score ── */
               <>
                 <div className="flex items-center gap-2.5">
-                  <span
-                    className="font-display text-6xl leading-none tabular-nums"
-                    style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}
-                  >
+                  <span className="font-display text-6xl leading-none tabular-nums"
+                        style={{ color: won ? '#4ade80' : 'var(--text-primary)' }}>
                     {match.scoreUs}
                   </span>
                   <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
-                  <span
-                    className="font-display text-6xl leading-none tabular-nums"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
+                  <span className="font-display text-6xl leading-none tabular-nums"
+                        style={{ color: 'var(--text-primary)' }}>
                     {match.scoreThem}
                   </span>
                 </div>
                 <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>Afsluttet</p>
               </>
-            ) : isMatchLive(match) ? (
-              /* ── Live: show current score with LIVE label ── */
+            ) : live ? (
               <>
                 <div className="flex items-center gap-2.5">
-                  <span
-                    className="font-display text-6xl leading-none tabular-nums"
-                    style={{ color: '#4ade80' }}
-                  >
+                  <span className="font-display text-6xl leading-none tabular-nums"
+                        style={{ color: '#4ade80' }}>
                     {match.scoreUs}
                   </span>
                   <span className="text-2xl font-bold" style={{ color: 'var(--text-dimmer)' }}>–</span>
-                  <span
-                    className="font-display text-6xl leading-none tabular-nums"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
+                  <span className="font-display text-6xl leading-none tabular-nums"
+                        style={{ color: 'var(--text-primary)' }}>
                     {match.scoreThem}
                   </span>
                 </div>
                 <span
                   className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full mt-1 animate-pulse"
-                  style={{
-                    background: 'rgba(239,68,68,0.15)',
-                    color: '#ef4444',
-                    border: '1px solid rgba(239,68,68,0.30)',
-                  }}
+                  style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.30)' }}
                 >
                   LIVE
                 </span>
               </>
             ) : (
-              /* ── Upcoming: show kickoff time ── */
               <>
                 {match.date.includes('T') ? (
-                  <span
-                    className="font-display text-5xl leading-none tabular-nums"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
+                  <span className="font-display text-5xl leading-none tabular-nums"
+                        style={{ color: 'var(--text-primary)' }}>
                     {match.date.split('T')[1]?.slice(0, 5)}
                   </span>
                 ) : (
@@ -215,26 +221,20 @@ export default function MatchDetail() {
             )}
           </div>
 
-          {/* Opponent side — real logo when available, neutral shield fallback */}
+          {/* Opponent side */}
           <div className="flex flex-col items-center gap-1.5 shrink-0" style={{ width: 88 }}>
             <OpponentCrest opponent={match.opponent} size={80} />
-            <p
-              className="text-[11px] font-semibold text-center leading-tight w-full truncate"
-              style={{ color: 'var(--text-secondary)' }}
-            >
+            <p className="text-[11px] font-semibold text-center leading-tight w-full truncate"
+               style={{ color: 'var(--text-secondary)' }}>
               {match.opponent}
             </p>
           </div>
-
         </div>
 
         {/* ── Man of the match ──────────────────────────────── */}
         <div
           className="mt-4 flex items-center gap-2.5 rounded-xl px-3 py-2.5"
-          style={{
-            background: 'var(--bg-raised)',
-            border: '1px solid var(--border-faint)',
-          }}
+          style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-faint)' }}
         >
           <Star size={13} className="text-yellow-400 shrink-0" />
           <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Kampens spiller</span>
@@ -271,37 +271,56 @@ export default function MatchDetail() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="flex-1 py-2.5 rounded-xl text-xs font-semibold"
+            className="flex-1 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"
             style={{
-              /* colour / shadow animate, scale snaps for instant press feedback */
               transition: 'background 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 120ms ease',
               ...(tab === t
                 ? {
                     background: 'var(--tab-active-bg)',
-                    boxShadow: '0 4px 14px var(--tab-active-shadow)',
-                    color: 'var(--tab-active-color)',
-                    transform: 'scale(1)',
+                    boxShadow:  '0 4px 14px var(--tab-active-shadow)',
+                    color:      'var(--tab-active-color)',
+                    transform:  'scale(1)',
                   }
                 : {
                     background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text-muted)',
-                    transform: 'scale(1)',
+                    border:     '1px solid var(--border)',
+                    color:      'var(--text-muted)',
+                    transform:  'scale(1)',
                   }),
             }}
             onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)' }}
             onPointerUp={(e)   => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)' }}
             onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)' }}
           >
-            {t === 'tilmelding' ? 'Tilmelding' : t === 'begivenheder' ? 'Begivenheder' : 'Opstilling'}
+            {t === 'tilmelding' ? 'Tilmelding' : t === 'opstilling' ? 'Opstilling' : (
+              <>
+                Begivenheder
+                {live && (
+                  <span className="inline-flex items-center gap-1" style={{ color: tab === 'begivenheder' ? 'var(--cta-color)' : 'var(--accent)' }}>
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{
+                        background: tab === 'begivenheder' ? 'currentColor' : 'var(--accent)',
+                        animation:  'pulse 1.5s ease-in-out infinite',
+                      }}
+                    />
+                  </span>
+                )}
+              </>
+            )}
           </button>
         ))}
       </div>
 
-      {/* ── Tab content — key forces remount → CSS animation plays on switch ─ */}
+      {/* ── Tab content ───────────────────────────────────────── */}
       <div key={tab} className="px-4 mt-4 animate-tab-enter">
         {tab === 'tilmelding'   && <AttendanceTab matchId={match.id} />}
-        {tab === 'begivenheder' && <EventsTab matchId={match.id} />}
+        {tab === 'begivenheder' && (
+          <EventsTab
+            matchId={match.id}
+            onRequestComplete={() => setShowCompleteSheet(true)}
+          />
+        )}
         {tab === 'opstilling'   && <LineupTab matchId={match.id} />}
       </div>
     </div>
@@ -323,9 +342,9 @@ function MotmVoting({ matchId, match, players }: {
   const [votes, setVotes] = useState<Record<string, string>>(loadVotes)
   const myId = localStorage.getItem('spartak_my_player_id') ?? ''
 
-  const myVote      = votes[myId] ?? ''
-  const hasVoted    = !!myVote
-  const eligible    = players.filter((p) =>
+  const myVote   = votes[myId] ?? ''
+  const hasVoted = !!myVote
+  const eligible = players.filter((p) =>
     match.attendance.includes(p.id) ||
     Object.values(match.lineup).includes(p.id) ||
     match.starters.includes(p.id)
@@ -341,7 +360,7 @@ function MotmVoting({ matchId, match, players }: {
   // Tally
   const tally = eligible.map((p) => ({
     player: p,
-    count: Object.values(votes).filter((v) => v === p.id).length,
+    count:  Object.values(votes).filter((v) => v === p.id).length,
   })).sort((a, b) => b.count - a.count)
 
   const maxVotes = tally[0]?.count ?? 0
@@ -367,8 +386,8 @@ function MotmVoting({ matchId, match, players }: {
           className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full"
           style={{
             background: 'var(--icon-accent-bg)',
-            color: 'var(--accent)',
-            border: '1px solid var(--badge-accent-border)',
+            color:      'var(--accent)',
+            border:     '1px solid var(--badge-accent-border)',
           }}
         >
           {Object.keys(votes).length} {Object.keys(votes).length === 1 ? 'stemme' : 'stemmer'}
@@ -377,7 +396,6 @@ function MotmVoting({ matchId, match, players }: {
 
       <div className="px-4 py-3">
         {!hasVoted ? (
-          /* ── Voting chips ── */
           <div className="flex flex-wrap gap-2">
             {eligible.map((p) => (
               <button
@@ -387,8 +405,8 @@ function MotmVoting({ matchId, match, players }: {
                 className="px-3 py-1.5 rounded-full text-xs font-semibold active:scale-95 transition-transform disabled:opacity-40"
                 style={{
                   background: 'var(--bg-raised)',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border)',
+                  color:      'var(--text-primary)',
+                  border:     '1px solid var(--border)',
                 }}
               >
                 {p.name.split(' ')[0]}
@@ -401,19 +419,16 @@ function MotmVoting({ matchId, match, players }: {
             )}
           </div>
         ) : (
-          /* ── Results bars ── */
           <div className="space-y-2">
             {tally.map(({ player, count }) => {
               const isWinner = count === maxVotes && count > 0
-              const pct = maxVotes > 0 ? (count / maxVotes) * 100 : 0
+              const pct      = maxVotes > 0 ? (count / maxVotes) * 100 : 0
               const isMyVote = myVote === player.id
               return (
                 <div key={player.id}>
                   <div className="flex items-center justify-between mb-0.5 gap-2">
-                    <span
-                      className="text-xs font-semibold truncate"
-                      style={{ color: isWinner ? '#eab308' : 'var(--text-primary)' }}
-                    >
+                    <span className="text-xs font-semibold truncate"
+                          style={{ color: isWinner ? '#eab308' : 'var(--text-primary)' }}>
                       {isWinner && '⭐ '}{player.name.split(' ')[0]}
                       {isMyVote && (
                         <span className="ml-1 text-[9px]" style={{ color: 'var(--text-faint)' }}>(din stemme)</span>
@@ -426,10 +441,7 @@ function MotmVoting({ matchId, match, players }: {
                   <div className="rounded-full overflow-hidden h-1.5" style={{ background: 'var(--bg-raised)' }}>
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${pct}%`,
-                        background: isWinner ? '#eab308' : 'var(--accent)',
-                      }}
+                      style={{ width: `${pct}%`, background: isWinner ? '#eab308' : 'var(--accent)' }}
                     />
                   </div>
                 </div>

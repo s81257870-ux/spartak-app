@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useMatchStore } from '../store/matchStore'
 import { usePlayerStore } from '../store/playerStore'
 import PlayerAvatar from '../components/players/PlayerAvatar'
+import LeagueTable from '../components/stats/LeagueTable'
 import { Trophy, Target, Users, Flame, Share2 } from 'lucide-react'
 import { displayName } from '../utils/playerName'
 import type { Player } from '../types'
-import { SEASON_LABEL } from '../data/leagueTable'
+import { SEASON_LABEL, LEAGUE_TABLE, LEAGUE_NAME } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
 
 type SortKey = 'goals' | 'assists' | 'matchesPlayed' | 'yellowCards' | 'redCards'
@@ -230,6 +231,17 @@ export default function Stats() {
                 )
               })}
             </div>
+          </div>
+        </section>
+
+        {/* ── League table ──────────────────────────────────── */}
+        <section>
+          <SectionLabel>Stilling</SectionLabel>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          >
+            <LeagueTable rows={LEAGUE_TABLE} leagueName={LEAGUE_NAME} />
           </div>
         </section>
 

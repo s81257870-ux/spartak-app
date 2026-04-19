@@ -18,6 +18,7 @@ function CardIcon({ color }: { color: string }) {
 
 interface Props {
   matchId: string
+  onRequestComplete?: () => void
 }
 
 type EventType = 'goal' | 'yellow-card' | 'red-card'
@@ -80,7 +81,7 @@ function EventIcon({ type, isOpponentGoal }: { type: EventType; isOpponentGoal: 
   return <Goal size={16} color={isOpponentGoal ? 'var(--color-loss)' : '#4ade80'} />
 }
 
-export default function EventsTab({ matchId }: Props) {
+export default function EventsTab({ matchId, onRequestComplete }: Props) {
   const match       = useMatchStore((s) => s.matches.find((m) => m.id === matchId))
   const addEvent    = useMatchStore((s) => s.addEvent)
   const updateEvent = useMatchStore((s) => s.updateEvent)
@@ -302,6 +303,22 @@ export default function EventsTab({ matchId }: Props) {
               )
             })}
           </div>
+        </div>
+      )}
+      {/* ── Afslut kamp CTA — admin only, match not yet completed ── */}
+      {isAdmin && !match.isCompleted && onRequestComplete && (
+        <div className="pt-4 pb-2">
+          <button
+            onClick={onRequestComplete}
+            className="w-full py-4 rounded-2xl font-bold text-sm active:scale-[0.97] transition-transform"
+            style={{
+              background: 'var(--cta-bg)',
+              color:      'var(--cta-color)',
+              boxShadow:  '0 8px 24px var(--cta-shadow)',
+            }}
+          >
+            Afslut kamp
+          </button>
         </div>
       )}
     </div>

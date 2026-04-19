@@ -1,14 +1,18 @@
 import { useState, useMemo } from 'react'
-import { Plus, CheckCircle2, Circle, Trash2, Trophy, History, Check } from 'lucide-react'
+import { Plus, CheckCircle2, Circle, Trash2, Trophy, History, Check, Smartphone } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useFineStore } from '../store/fineStore'
 import { usePlayerStore } from '../store/playerStore'
 import { useAuthStore } from '../store/authStore'
 import NewFineModal from '../components/boedekasse/NewFineModal'
+import MobilePaySheet, { MOBILEPAY_BOX_ID } from '../components/boedekasse/MobilePaySheet'
 import { FINE_TYPES, CATEGORY_LABELS, type FineType } from '../data/fineTypes'
 import { SEASON_LABEL } from '../data/leagueTable'
 import PageHeader from '../components/layout/PageHeader'
 import { fmtDayMonthYear } from '../utils/dateFormat'
+
+const MY_PLAYER_KEY = 'spartak_my_player_id'
+const MP            = '#5B4FE8'  // MobilePay purple
 
 type Tab = 'spillere' | 'historik' | 'regler'
 
@@ -43,8 +47,19 @@ export default function Boedekasse() {
   const players     = usePlayerStore((s) => s.players)
   const isAdmin     = useAuthStore((s) => s.isAdmin)
 
-  const [tab,      setTab]      = useState<Tab>('spillere')
-  const [showModal, setShowModal] = useState(false)
+  const myPlayerId  = localStorage.getItem(MY_PLAYER_KEY) ?? ''
+  const myPlayer    = players.find((p) => p.id === myPlayerId) ?? null
+
+  const [tab,          setTab]          = useState<Tab>('spillere')
+  const [showModal,    setShowModal]    = useState(false)
+  const [showPaySheet, setShowPaySheet] = useState(false)
+
+  /** Mark every unpaid fine for the current player as paid */
+  const markMyFinesPaid = () => {
+    fines
+      .filter((f) => f.playerId === myPlayerId && !f.paid)
+      .forEach((f) => togglePaid(f.id))
+  }
 
   const getPlayer = (id: string) => players.find((p) => p.id === id)
 
@@ -87,6 +102,10 @@ export default function Boedekasse() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerTotals])
 
+  // Personal debt — for the MobilePay card
+  const myUnpaidFines  = fines.filter((f) => f.playerId === myPlayerId && !f.paid)
+  const myUnpaidAmount = myUnpaidFines.reduce((s, f) => s + f.amount, 0)
+
   // Historik: all fines sorted newest first
   const sortedFines = useMemo(
     () => [...fines].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)),
@@ -98,6 +117,15 @@ export default function Boedekasse() {
     <div className="pb-8" style={{ minHeight: '100svh' }}>
 
       {showModal && <NewFineModal onClose={() => setShowModal(false)} />}
+
+      {showPaySheet && (
+        <MobilePaySheet
+          amount={myUnpaidAmount}
+          fineCount={myUnpaidFines.length}
+          onClose={() => setShowPaySheet(false)}
+          onMarkAllPaid={markMyFinesPaid}
+        />
+      )}
 
       {/* ── Header ──────────────────────────────────────────────────── */}
       <div className="px-4 pt-10 pb-5">
@@ -179,6 +207,67 @@ export default function Boedekasse() {
             </div>
           </div>
         </div>
+
+        {/* ── My debt / MobilePay card ────────────────────────────── */}
+        {myPlayerId && myUnpaidAmount > 0 && (
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{
+              background: 'rgba(91,79,232,0.07)',
+              border:     '1px solid rgba(91,79,232,0.20)',
+            }}
+          >
+            <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.10em] mb-0.5"
+                   style={{ color: 'rgba(91,79,232,0.55)' }}>
+                  {myPlayer ? myPlayer.name.split(' ')[0] : 'Du'} skylder
+                </p>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-black text-2xl leading-none"
+                        style={{ color: 'var(--amount-color)' }}>
+                    {myUnpaidAmount}
+                  </span>
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>kr</span>
+                  <span className="text-xs ml-1" style={{ color: 'var(--text-faint)' }}>
+                    · {myUnpaidFines.length} bøde{myUnpaidFines.length !== 1 ? 'r' : ''}
+                  </span>
+                </div>
+                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(91,79,232,0.50)' }}>
+                  Boks {MOBILEPAY_BOX_ID}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowPaySheet(true)}
+                className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm active:scale-95 transition-transform"
+                style={{
+                  background: `linear-gradient(135deg, ${MP} 0%, #7B6FE8 100%)`,
+                  color:      '#fff',
+                  boxShadow:  '0 4px 16px rgba(91,79,232,0.35)',
+                }}
+              >
+                <Smartphone size={15} />
+                Betal
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── All-clear state ─────────────────────────────────────── */}
+        {myPlayerId && myUnpaidAmount === 0 && fines.some((f) => f.playerId === myPlayerId) && (
+          <div
+            className="rounded-2xl px-4 py-3 flex items-center gap-3"
+            style={{
+              background: 'rgba(74,222,128,0.06)',
+              border:     '1px solid rgba(74,222,128,0.18)',
+            }}
+          >
+            <CheckCircle2 size={16} style={{ color: '#4ade80', flexShrink: 0 }} />
+            <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>
+              {myPlayer ? myPlayer.name.split(' ')[0] : 'Du'} har ingen udestående bøder
+            </p>
+          </div>
+        )}
 
         {/* ── Tabs ────────────────────────────────────────────────── */}
         <div
@@ -272,18 +361,35 @@ export default function Boedekasse() {
                     </div>
                   </div>
 
-                  {/* Amount */}
-                  <div className="text-right shrink-0">
-                    <p className="font-black text-base leading-none" style={{ color: 'var(--amount-color)' }}>
-                      {total} kr
-                    </p>
-                    <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
-                      {unpaidAmt > 0 ? (
-                        <span style={{ color: 'var(--color-danger)' }}>{unpaidAmt} kr skyldig</span>
-                      ) : (
-                        <span style={{ color: '#4ade80' }}>alt betalt</span>
-                      )}
-                    </p>
+                  {/* Amount + MobilePay button */}
+                  <div className="text-right shrink-0 flex flex-col items-end gap-1.5">
+                    <div>
+                      <p className="font-black text-base leading-none" style={{ color: 'var(--amount-color)' }}>
+                        {total} kr
+                      </p>
+                      <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
+                        {unpaidAmt > 0 ? (
+                          <span style={{ color: 'var(--color-danger)' }}>{unpaidAmt} kr skyldig</span>
+                        ) : (
+                          <span style={{ color: '#4ade80' }}>alt betalt</span>
+                        )}
+                      </p>
+                    </div>
+                    {/* MobilePay shortcut — visible for own row when in debt */}
+                    {unpaidAmt > 0 && pid === myPlayerId && (
+                      <button
+                        onClick={() => setShowPaySheet(true)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold active:scale-95 transition-transform"
+                        style={{
+                          background: 'rgba(91,79,232,0.12)',
+                          color:       MP,
+                          border:      '1px solid rgba(91,79,232,0.22)',
+                        }}
+                      >
+                        <Smartphone size={11} />
+                        Betal
+                      </button>
+                    )}
                   </div>
                 </div>
               )})

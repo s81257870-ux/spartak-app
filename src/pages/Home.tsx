@@ -76,9 +76,10 @@ export default function Home() {
   const trainings     = useTrainingStore((s) => s.trainings)
 
   const completedMatches = matches.filter((m) => m.isCompleted)
+  const realCompleted    = completedMatches.filter((m) => !isOversidder(m))
   const upcomingMatches  = matches.filter((m) => !m.isCompleted && !isOversidder(m))
-  const recentMatches    = completedMatches.filter((m) => !isOversidder(m)).slice(0, 3)
-  const formMatches      = completedMatches.filter((m) => !isOversidder(m)).slice(0, 5)
+  const recentMatches    = realCompleted.slice(0, 3)
+  const formMatches      = realCompleted.slice(0, 5)
 
   const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Copenhagen' }).format(new Date())
   const nextRealMatch = upcomingMatches.find((m) => m.date.slice(0, 10) >= today) ?? upcomingMatches[0] ?? null
@@ -90,10 +91,10 @@ export default function Home() {
     !nextRealMatch ||
     (nextTraining !== null && nextTraining.date < nextRealMatch.date.slice(0, 10))
 
-  const wins       = completedMatches.filter((m) => m.scoreUs > m.scoreThem).length
-  const draws      = completedMatches.filter((m) => m.scoreUs === m.scoreThem).length
-  const losses     = completedMatches.filter((m) => m.scoreUs < m.scoreThem).length
-  const totalGoals = completedMatches.reduce((sum, m) => sum + m.scoreUs, 0)
+  const wins       = realCompleted.filter((m) => m.scoreUs > m.scoreThem).length
+  const draws      = realCompleted.filter((m) => m.scoreUs === m.scoreThem).length
+  const losses     = realCompleted.filter((m) => m.scoreUs < m.scoreThem).length
+  const totalGoals = realCompleted.reduce((sum, m) => sum + m.scoreUs, 0)
 
   const playerStats = players.map((p) => ({ player: p, ...getPlayerStats(p.id) }))
   const topScorer   = [...playerStats].sort((a, b) => b.goals   - a.goals)[0]
@@ -169,7 +170,7 @@ export default function Home() {
         )}
 
         {/* ── 2. Season narrative ───────────────────────────── */}
-        {completedMatches.length > 0 && (
+        {realCompleted.length > 0 && (
           <div
             className="rounded-2xl px-4 py-3.5"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
@@ -180,7 +181,7 @@ export default function Home() {
             </p>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
-                {completedMatches.length} {completedMatches.length === 1 ? 'kamp' : 'kampe'}
+                {realCompleted.length} {realCompleted.length === 1 ? 'kamp' : 'kampe'}
               </span>{' '}
               spillet —{' '}
               <span className="font-semibold text-green-400">{wins} {wins === 1 ? 'sejr' : 'sejre'}</span>

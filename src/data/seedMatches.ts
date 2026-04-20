@@ -36,7 +36,7 @@ export const SEED_MATCHES: Match[] = [
     opponent: 'Skjold 21',
     date: '2026-04-20T19:45',
     location: 'Ryparken Idrætsanlæg',
-    scoreUs: 0,
+    scoreUs: 3,
     scoreThem: 0,
     events: [],
     lineup: {},
@@ -44,7 +44,7 @@ export const SEED_MATCHES: Match[] = [
     attendance: [],
     starters: [],
     formation: '1-2-3-1',
-    isCompleted: false,
+    isCompleted: true,   // W.O. — Skjold 21 could not play (sick players)
   },
   {
     id: 'sm4',

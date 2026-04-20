@@ -25,6 +25,7 @@ export default function MatchDetail() {
   const navigate = useNavigate()
   const match           = useMatchStore((s) => s.matches.find((m) => m.id === id))
   const completeMatch   = useMatchStore((s) => s.completeMatch)
+  const updateMatch     = useMatchStore((s) => s.updateMatch)
   const reopenMatch     = useMatchStore((s) => s.reopenMatch)
   const setManOfTheMatch = useMatchStore((s) => s.setManOfTheMatch)
   const players         = usePlayerStore((s) => s.players)
@@ -69,7 +70,8 @@ export default function MatchDetail() {
       {showCompleteSheet && (
         <CompleteMatchSheet
           match={match}
-          onConfirm={() => {
+          onConfirm={(scoreUs, scoreThem) => {
+            updateMatch(match.id, { scoreUs, scoreThem })
             completeMatch(match.id)
             setShowCompleteSheet(false)
             setTimeout(() => setShowMotmSheet(true), 400)

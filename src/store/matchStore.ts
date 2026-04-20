@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Match, MatchEvent, PlayerStats } from '../types'
 import { DEFAULT_FORMATION } from '../data/formations'
+import { isOversidder } from '../utils/matchTime'
 import { SEED_MATCHES } from '../data/seedMatches'
 import {
   fetchAllMatches,
@@ -466,7 +467,7 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
     let yellowCards = 0, redCards = 0
 
     for (const match of matches) {
-      if (match.isCompleted && !match.isWalkover) {
+      if (match.isCompleted && !match.isWalkover && !isOversidder(match)) {
         const inSquad =
           Object.values(match.lineup).includes(playerId) ||
           match.bench.includes(playerId)

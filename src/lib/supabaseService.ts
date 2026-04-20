@@ -25,6 +25,7 @@ interface DbMatch {
   score_us: number | null
   score_them: number | null
   is_completed: boolean | null
+  is_walkover: boolean | null
   formation: string | null
   man_of_the_match: string | null
   signed_up: string[] | null
@@ -90,6 +91,7 @@ function mapMatch(row: DbMatch, slots: DbLineupSlot[], events: DbEvent[]): Match
     scoreUs: row.score_us ?? 0,
     scoreThem: row.score_them ?? 0,
     isCompleted: row.is_completed ?? false,
+    isWalkover: row.is_walkover ?? false,
     formation: row.formation ?? DEFAULT_FORMATION,
     manOfTheMatch: row.man_of_the_match ?? undefined,
     attendance: row.signed_up ?? [],
@@ -179,6 +181,7 @@ export async function insertMatch(
       score_us:         match.scoreUs,
       score_them:       match.scoreThem,
       is_completed:     match.isCompleted,
+      is_walkover:      match.isWalkover ?? false,
       formation:        match.formation,
       man_of_the_match: match.manOfTheMatch ?? null,
     })
@@ -199,6 +202,7 @@ export async function patchMatch(
   if (updates.scoreUs       !== undefined) row.score_us         = updates.scoreUs
   if (updates.scoreThem     !== undefined) row.score_them       = updates.scoreThem
   if (updates.isCompleted   !== undefined) row.is_completed     = updates.isCompleted
+  if (updates.isWalkover    !== undefined) row.is_walkover      = updates.isWalkover
   if (updates.formation     !== undefined) row.formation        = updates.formation
   if ('manOfTheMatch' in updates)          row.man_of_the_match = updates.manOfTheMatch ?? null
   if (updates.attendance    !== undefined) row.signed_up        = updates.attendance

@@ -44,7 +44,8 @@ export const SEED_MATCHES: Match[] = [
     attendance: [],
     starters: [],
     formation: '1-2-3-1',
-    isCompleted: true,   // W.O. — Skjold 21 could not play (sick players)
+    isCompleted: true,
+    isWalkover:  true,   // W.O. — Skjold 21 could not play (sick players), nobody played
   },
   {
     id: 'sm4',

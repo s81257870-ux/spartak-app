@@ -30,6 +30,7 @@ async function seedToSupabase(): Promise<Match[]> {
         scoreUs:       m.scoreUs,
         scoreThem:     m.scoreThem,
         isCompleted:   m.isCompleted,
+        isWalkover:    m.isWalkover ?? false,
         formation:     m.formation,
         manOfTheMatch: m.manOfTheMatch,
       })
@@ -465,7 +466,7 @@ export const useMatchStore = create<MatchStore>()((set, get) => ({
     let yellowCards = 0, redCards = 0
 
     for (const match of matches) {
-      if (match.isCompleted) {
+      if (match.isCompleted && !match.isWalkover) {
         const inSquad =
           Object.values(match.lineup).includes(playerId) ||
           match.bench.includes(playerId)

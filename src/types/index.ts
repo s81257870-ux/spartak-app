@@ -68,6 +68,7 @@ export interface Match {
   manOfTheMatch?: string           // playerId
   cleanSheet?: boolean
   isCompleted: boolean
+  isWalkover?: boolean             // true = no one actually played (W.O.) → excluded from matchesPlayed
 }
 
 export interface PlayerStats {

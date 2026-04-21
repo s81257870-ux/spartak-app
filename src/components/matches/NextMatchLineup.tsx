@@ -23,7 +23,7 @@ import { useState, useEffect } from 'react'
 import { Clock, Radio, ChevronRight } from 'lucide-react'
 import type { Match, Player, Position } from '../../types'
 import { getFormation } from '../../data/formations'
-import { chipLabel } from '../../utils/playerName'
+import { chipLabel, displayName } from '../../utils/playerName'
 import { CLUB_NAME } from '../../data/leagueTable'
 import { useMatchStore } from '../../store/matchStore'
 import { isMatchLive, isMatchCompleted, getTimeUntilKickoff } from '../../utils/matchTime'
@@ -35,14 +35,6 @@ interface Props {
   allPlayers: Player[]
 }
 
-/**
- * Pitch label: full player name. CSS truncation (ellipsis) handles anything
- * too long to fit on the mini pitch. The bench uses chipLabel (with
- * squad-wide disambiguation) since it has more room.
- */
-function pitchLabel(player: Player): string {
-  return player.name.trim()
-}
 
 
 /**
@@ -267,10 +259,10 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
 
         </div>
 
-        {/* ── RIGHT: mini pitch — only rendered when lineup exists ──── */}
+        {/* ── RIGHT (mobile: below) / RIGHT (tablet+): mini pitch ──── */}
         {hasSomeStarter && (
           <div
-            className="relative rounded-xl overflow-hidden shrink-0"
+            className="relative rounded-xl overflow-hidden"
             style={{
               width:  'var(--nm-pitch-w)',
               height: `calc(var(--nm-pitch-rh) * ${maxRow})`,
@@ -337,10 +329,10 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                           }}
                         />
                         <span
-                          className="text-[8px] md:text-[10px] lg:text-[11px] font-semibold leading-none text-center truncate block w-full px-0.5"
+                          className="text-[8px] md:text-[9px] lg:text-[11px] font-semibold leading-none text-center truncate block w-full px-0.5"
                           style={{ color: 'rgba(255,255,255,0.92)' }}
                         >
-                          {pitchLabel(player)}
+                          {displayName(player, allPlayers)}
                         </span>
                       </div>
                     )}
@@ -391,7 +383,7 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                   }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#4ade80' }} />
-                  {p.name}
+                  {displayName(p, allPlayers)}
                 </span>
               )
             })}

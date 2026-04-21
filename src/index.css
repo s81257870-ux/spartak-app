@@ -205,34 +205,39 @@
 /* ═══════════════════════════════════════════════════════════════════
    Next-match card responsive sizing tokens
    ═══════════════════════════════════════════════════════════════════ */
+/* Mobile: info stacks above pitch (single-column grid).
+   The pitch is full-width and compact so it reads well on phones. */
 :root {
-  --nm-grid-cols: 1fr auto;
-  --nm-pitch-w:   130px;
-  --nm-pitch-rh:   50px;
-  --nm-dot:        18px;
-  --nm-pitch-pad:   4px;
-  --nm-gap:        16px;
-  --nm-label-w:    38px;
+  --nm-grid-cols:  1fr;      /* stacked on mobile */
+  --nm-pitch-w:    100%;     /* full width when stacked */
+  --nm-pitch-rh:   38px;     /* shorter rows → compact mobile pitch */
+  --nm-dot:        16px;
+  --nm-pitch-pad:   5px;
+  --nm-gap:        12px;
+  --nm-label-w:    60px;
 }
+/* Tablet: side-by-side with fixed-width pitch */
 @media (min-width: 768px) {
   :root {
-    --nm-pitch-w:   176px;
-    --nm-pitch-rh:   62px;
-    --nm-dot:        24px;
-    --nm-pitch-pad:   6px;
-    --nm-gap:        24px;
-    --nm-label-w:    53px;
+    --nm-grid-cols:  1fr auto;
+    --nm-pitch-w:    176px;
+    --nm-pitch-rh:    62px;
+    --nm-dot:         24px;
+    --nm-pitch-pad:    6px;
+    --nm-gap:         24px;
+    --nm-label-w:     53px;
   }
 }
+/* Desktop: balanced two-column split */
 @media (min-width: 1024px) {
   :root {
-    --nm-grid-cols: 1.1fr 1fr;
-    --nm-pitch-w:   100%;
-    --nm-pitch-rh:   80px;
-    --nm-dot:        28px;
-    --nm-pitch-pad:   8px;
-    --nm-gap:        28px;
-    --nm-label-w:   120px;
+    --nm-grid-cols:  1.1fr 1fr;
+    --nm-pitch-w:    100%;
+    --nm-pitch-rh:    80px;
+    --nm-dot:         28px;
+    --nm-pitch-pad:    8px;
+    --nm-gap:         28px;
+    --nm-label-w:    120px;
   }
 }
 

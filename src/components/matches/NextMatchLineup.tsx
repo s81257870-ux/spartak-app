@@ -19,7 +19,7 @@
  *   bench    : match.attendance − starters
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Clock, Radio, ChevronRight } from 'lucide-react'
 import type { Match, Player, Position } from '../../types'
 import { getFormation } from '../../data/formations'
@@ -36,14 +36,12 @@ interface Props {
 }
 
 /**
- * Pitch label: plain surname, no disambiguation suffix.
- * CSS truncation (ellipsis) handles anything too long to fit — the user sees
- * "Hesselb..." rather than a cryptic initial like "H." or "He.".
- * The bench uses chipLabel (with squad-wide disambiguation) since it has more room.
+ * Pitch label: full player name. CSS truncation (ellipsis) handles anything
+ * too long to fit on the mini pitch. The bench uses chipLabel (with
+ * squad-wide disambiguation) since it has more room.
  */
 function pitchLabel(player: Player): string {
-  const parts = player.name.trim().split(' ')
-  return parts[parts.length - 1]
+  return player.name.trim()
 }
 
 
@@ -146,26 +144,6 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
   const svgH           = maxRow * SVG_RH                         // viewBox height (mobile coords)
   const hasSomeStarter = starterIds.size > 0
 
-  const allMatches = useMatchStore((s) => s.matches)
-  const completedMatches = useMemo(() => allMatches.filter((m) => m.isCompleted), [allMatches])
-
-  /** Attendance rate: fraction of completed matches this player was part of (attendance/lineup/bench). */
-  const reliabilityFor = (pid: string): number => {
-    if (completedMatches.length === 0) return 1
-    const attended = completedMatches.filter(
-      (m) =>
-        m.attendance.includes(pid) ||
-        Object.values(m.lineup).includes(pid) ||
-        m.bench.includes(pid)
-    ).length
-    return attended / completedMatches.length
-  }
-
-  const reliabilityColor = (rate: number): string =>
-    rate >= 0.75 ? '#4ade80' : rate >= 0.5 ? '#facc15' : '#f97316'
-
-  const reliabilityLabel = (rate: number): string =>
-    rate >= 0.75 ? 'Trofast' : rate >= 0.5 ? 'Nogenlunde' : 'Usikker'
 
   return (
     <>
@@ -359,11 +337,8 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
                           }}
                         />
                         <span
-                          className="text-[8px] md:text-[10px] lg:text-[12px] font-semibold leading-none text-center truncate block"
-                          style={{
-                            color: 'rgba(255,255,255,0.92)',
-                            maxWidth: 'var(--nm-label-w)',
-                          }}
+                          className="text-[8px] md:text-[10px] lg:text-[11px] font-semibold leading-none text-center truncate block w-full px-0.5"
+                          style={{ color: 'rgba(255,255,255,0.92)' }}
                         >
                           {pitchLabel(player)}
                         </span>
@@ -395,8 +370,8 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
         </p>
       )}
 
-      {/* ── Attendance heat-map ───────────────────────────── */}
-      {match.attendance.length > 0 && completedMatches.length > 0 && (
+      {/* ── Attendance chips ──────────────────────────────── */}
+      {match.attendance.length > 0 && (
         <div className="mt-2.5 md:mt-3 pt-2.5 md:pt-3" style={{ borderTop: '1px solid var(--border-faint)' }}>
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] mb-1.5" style={{ color: 'var(--text-dimmer)' }}>
             Fremmøde
@@ -405,25 +380,18 @@ export default function NextMatchLineup({ match, allPlayers }: Props) {
             {match.attendance.map((pid) => {
               const p = allPlayers.find((pl) => pl.id === pid)
               if (!p) return null
-              const rate  = reliabilityFor(pid)
-              const color = reliabilityColor(rate)
-              const pct   = Math.round(rate * 100)
               return (
                 <span
                   key={pid}
-                  title={`${reliabilityLabel(rate)} — ${pct}% fremmøde`}
                   className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
                   style={{
-                    background: `${color}14`,
-                    border: `1px solid ${color}30`,
+                    background: 'rgba(74,222,128,0.10)',
+                    border: '1px solid rgba(74,222,128,0.22)',
                     color: 'var(--text-secondary)',
                   }}
                 >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                    style={{ background: color }}
-                  />
-                  {p.name.split(' ')[0]}
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#4ade80' }} />
+                  {p.name}
                 </span>
               )
             })}
